@@ -69,7 +69,7 @@ def login(user,password):
 	if(authbody.status_code==200):
 		headers['x-auth-token'] = str(json.loads(authbody.text)['token'])
 	else:
-		print authbody.text
+		print (authbody.text)
 		raise
 
 
@@ -91,7 +91,7 @@ def setToken(token):
 
 def sendObservations(values):
 	if(headers['x-auth-token']==''):
-		print 'NoAuthenticationError'
+		print ('NoAuthenticationError')
 		raise
 	r = requests.put('http://'+gServer+PUBLISH_MULTIPLE_URL,data=json.dumps({'observations': values}),headers = headers)
 	if(r.status_code == 200):
@@ -102,7 +102,7 @@ def sendObservations(values):
 
 def search(series,start_date,end_date,aggrupation=None,aggrupationType=None):
 	if(headers['x-auth-token']==''):
-		print 'NoAuthenticationError'
+		print ('NoAuthenticationError')
 		raise
 	message = {}
 	serieArray = []
@@ -125,11 +125,11 @@ def search(series,start_date,end_date,aggrupation=None,aggrupationType=None):
 		return returnList
 
 	else:
-		print r.text
+		print (r.text)
 
 def sendObservation(value,property,uom=None, time=None, geom=None, procedure=None, foi=None):
 	if (headers['x-auth-token'] == ''):
-		print 'NoAuthenticationError'
+		print ('NoAuthenticationError')
 		raise
 	message = getObservation(value,property,uom, time, geom, procedure, foi)
 	json_payload = json.dumps(message)
