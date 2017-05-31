@@ -5,4 +5,4 @@ flythingsClient\__init__.py
 flythingsClient\flythingsClient.py
 include examples\*
 include README.md
-include LICENSE.txt
+include LICENSE

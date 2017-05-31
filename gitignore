@@ -1,6 +1,0 @@
-*.pypirc
-pypirc
-dist
-dist\
-dist/
-MANIFEST
