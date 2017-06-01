@@ -3,10 +3,10 @@ import random
 from datetime import timedelta, date
 
 
-PUBLISH_MULTIPLE_URL = '/firefly/observation/multiple'
-GET_OBSERVATIONS_URL = '/firefly/observation'
-PUBLISH_SINGLE_URL = '/firefly/observation/single'
-LOGIN_URL = '/firefly/login/device'
+PUBLISH_MULTIPLE_URL = '/observation/multiple'
+GET_OBSERVATIONS_URL = '/observation'
+PUBLISH_SINGLE_URL = '//observation/single'
+LOGIN_URL = '/login/device'
 FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '',
@@ -19,75 +19,80 @@ gUser = ''
 gPassword = ''
 gHash= ''
 
-
-
-def __loadAuthData():
-	for line in open(FILE):
-		text = line.strip()
-		text = text.replace("\n", "")
-		list = text.split(':')
-		if (len(list) > 1):
-			if (list[0].lower() == 'token'):
-				list[1] = list[1].strip()
-				global headers
-				headers['x-auth-token'] = list[1]
-			elif (list[0].lower() == 'server'):
-				list[1] = list[1].strip()
-				global gServer
-				gServer =  list[1]
-			elif (list[0].lower() == 'user'):
-				list[1] = list[1].strip()
-				global gUser
-				gUser =  list[1]
-			elif (list[0].lower() == 'password'):
-				list[1] = list[1].strip()
-				global gPassword
-				gPassword =  list[1]
-			elif (list[0].lower() == 'token'):
-				list[1] = list[1].strip()
-				global gToken
-				gToken =  list[1]
-			elif (list[0].lower() == 'hash'):
-				list[1] = list[1].strip()
-				gHash
-				gHash =  list[1]
-			elif (list[0].lower() == 'device'):
-				list[1] = list[1].strip()
-				global gFoi
-				gFoi =  list[1]
-			elif (list[0].lower() == 'sensor'):
-				list[1] = list[1].strip()
-				global gProcedure
-				gProcedure =  list[1]
-		if(gUser!='' and gPassword!=''):
-			login(gUser,gPassword)
-
-
 def login(user,password):
 	authbody = requests.get('http://'+gServer+LOGIN_URL, auth=(user, password))
 	global headers
 	if(authbody.status_code==200):
 		headers['x-auth-token'] = str(json.loads(authbody.text)['token'])
+		return headers['x-auth-token']
 	else:
 		print (authbody.text)
 		raise
+
+def __loadAuthData():
+	try:
+		for line in open(FILE):
+			text = line.strip()
+			text = text.replace("\n", "")
+			list = text.split(':')
+			if (len(list) > 1):
+				if (list[0].lower() == 'token'):
+					list[1] = list[1].strip()
+					global headers
+					headers['x-auth-token'] = list[1]
+				elif (list[0].lower() == 'server'):
+					list[1] = list[1].strip()
+					global gServer
+					gServer =  list[1]
+				elif (list[0].lower() == 'user'):
+					list[1] = list[1].strip()
+					global gUser
+					gUser =  list[1]
+				elif (list[0].lower() == 'password'):
+					list[1] = list[1].strip()
+					global gPassword
+					gPassword =  list[1]
+				elif (list[0].lower() == 'token'):
+					list[1] = list[1].strip()
+					global gToken
+					gToken =  list[1]
+				elif (list[0].lower() == 'hash'):
+					list[1] = list[1].strip()
+					gHash
+					gHash =  list[1]
+				elif (list[0].lower() == 'device'):
+					list[1] = list[1].strip()
+					global gFoi
+					gFoi =  list[1]
+				elif (list[0].lower() == 'sensor'):
+					list[1] = list[1].strip()
+					global gProcedure
+					gProcedure =  list[1]
+			if(gUser!='' and gPassword!=''):
+				login(gUser,gPassword)
+	except Exception:
+		print ("CONFIGURATION FILE, Configuration.properties DONT EXIST, YOU MUST INSERT THE PARAMETERS MANUALLY")
 
 
 def setServer(server):
 	global gServer
 	gServer = server
+	return gServer
 
 def setDevice(device):
 	global gFoi
 	gFoi = device
+	return gFoi
 
 def	setSensor(sensor):
 	global gProcedure
 	gProcedure = sensor
+	return gProcedure
 
 def setToken(token):
 	global headers
 	headers['x-auth-token'] = token
+	return headers['x-auth-token']
 
 def sendObservations(values):
 	if(headers['x-auth-token']==''):
@@ -95,7 +100,7 @@ def sendObservations(values):
 		raise
 	r = requests.put('http://'+gServer+PUBLISH_MULTIPLE_URL,data=json.dumps({'observations': values}),headers = headers)
 	if(r.status_code == 200):
-		print(r.text)
+		return r.text
 	else:
 		return r.text
 
@@ -134,7 +139,7 @@ def sendObservation(value,property,uom=None, time=None, geom=None, procedure=Non
 	message = getObservation(value,property,uom, time, geom, procedure, foi)
 	json_payload = json.dumps(message)
 	response = requests.put('http://'+gServer+PUBLISH_SINGLE_URL, json_payload,headers=headers)
-	print(response.content)
+	return response.content
 
 def getObservation(value,property,uom=None, time=None, geom=None, procedure=None, foi=None):
 	message = {}
