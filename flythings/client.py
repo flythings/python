@@ -30,6 +30,7 @@ def login(user,password):
 		raise
 
 def __loadAuthData():
+	global gServer
 	try:
 		for line in open(FILE):
 			text = line.strip()
@@ -42,7 +43,6 @@ def __loadAuthData():
 					headers['x-auth-token'] = list[1]
 				elif (list[0].lower() == 'server'):
 					list[1] = list[1].strip()
-					global gServer
 					gServer =  list[1]
 				elif (list[0].lower() == 'user'):
 					list[1] = list[1].strip()
@@ -71,7 +71,6 @@ def __loadAuthData():
 		if(gUser!='' and gPassword!=''):
 			login(gUser,gPassword)
 		if (gServer == ''):
-			global gServer
 			gServer = "beta.flythings.io/api"
 
 	except Exception:
