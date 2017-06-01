@@ -68,8 +68,12 @@ def __loadAuthData():
 					list[1] = list[1].strip()
 					global gProcedure
 					gProcedure =  list[1]
-			if(gUser!='' and gPassword!=''):
-				login(gUser,gPassword)
+		if(gUser!='' and gPassword!=''):
+			login(gUser,gPassword)
+		if (gServer == ''):
+			global gServer
+			gServer = "beta.flythings.io/api"
+
 	except Exception:
 		print ("CONFIGURATION FILE, Configuration.properties DONT EXIST, YOU MUST INSERT THE PARAMETERS MANUALLY")
 
