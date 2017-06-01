@@ -1,11 +1,8 @@
 import json, requests
-import random
-from datetime import timedelta, date
-
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
 GET_OBSERVATIONS_URL = '/observation'
-PUBLISH_SINGLE_URL = '//observation/single'
+PUBLISH_SINGLE_URL = '/observation/single'
 LOGIN_URL = '/login/device'
 FILE = 'Configuration.properties'
 
@@ -20,13 +17,16 @@ gPassword = ''
 gHash= ''
 
 def login(user,password):
-	authbody = requests.get('http://'+gServer+LOGIN_URL, auth=(user, password))
-	global headers
-	if(authbody.status_code==200):
-		headers['x-auth-token'] = str(json.loads(authbody.text)['token'])
-		return headers['x-auth-token']
-	else:
-		print (authbody.text)
+	try:
+		authbody = requests.get('http://'+gServer+LOGIN_URL, auth=(user, password))
+		global headers
+		if(authbody.status_code==200):
+			headers['x-auth-token'] = str(json.loads(authbody.text)['token'])
+			return headers['x-auth-token']
+		else:
+			print (authbody.text)
+	except requests.exceptions.InvalidURL:
+		print("INVALID SERVER")
 		raise
 
 def __loadAuthData():
