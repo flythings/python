@@ -78,13 +78,67 @@ You can also introduce this general properties using the library methods.
 
 - search(Long series, Timestamp start, Timestamp end, String aggrupation, String aggrupationType)  
     **Description**: retrieves the observation values of a series in a specified range of time. 
-    **Params**:  
+    **Params**:    
       - series: (Mandatory) SeriesId of the information we want.  
       - start: (Mandatory)  Start value of the timerange.  
       - end:  (Mandatory) End value of the timerange.
       - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,WEEKLY,MONTHLY,ANNUALLY)  
       - aggrupationType:  (Optional)  Aggrupation Operation, could be (FIRST,MIN,MEAN,SUM,MAX,LAST)  
     **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error.  
+    
+    
+### Examples
+
+
+*  Example of configuration file
+```JSON
+    SERVER:beta.flythings.io/api
+    USER:<put your username here>
+    PASSWORD:<put your password here>
+    DEVICE:Python
+    SENSOR:Client
+```
+
+*   Adds a simple observation without configuration File.
+```PYTHON
+    import flythings  
+    print(flythings.setServer("beta.flythings.io/api"))  
+    print(flythings.login("<your username>","<your password>"))  
+    print(flythings.sendObservation(20,"prueba",None,None,None,"procedure","foi"))  
+```
+
+*   Adds a simple observation having server, sensor and device in the Configuration File.
+```PYTHON
+    import flythings   
+    print(flythings.login("<your username>","<your password>"))  
+    print(flythings.sendObservation(20,"prueba")  
+```
+
+*   Add a simple observation having all the parameters of the configuration File.
+```PYTHON
+    import flythings   
+    print(flythings.login("<your username>","<your password>"))  
+    print(flythings.sendObservation(20,"prueba")  
+```
+
+*   Search data of a series.
+```PYTHON
+    import flythings   
+    print(flythings.login("<your username>","<your password>"))  
+    print(flythings.search(947,1495643746000,1496248546000))
+```
+
+*   Multiple Insert
+```PYTHON
+    import flythings   
+    print(flythings.login("<your username>","<your password>"))  
+    observations = []
+    observations.append(flythings.getObservation(40,'probando'))
+    observations.append(flythings.getObservation(40,'multiple'))
+    print(flythingsClient.sendObservations(observations))
+```
+
+
     
  
  
