@@ -68,27 +68,26 @@ You can also introduce this general properties using the library methods.
     **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error.   
     **Examples**:  
     
-*   Adds a simple observation without configuration File.
-```PYTHON
-    import flythings  
-    print(flythings.setServer("beta.flythings.io/api"))  
-    print(flythings.login("<your username>","<your password>"))  
-    print(flythings.sendObservation(20,"prueba",None,None,None,"procedure","foi"))  
-```
+    * Adds a simple observation without configuration File.
+    ```PYTHON
+        import flythings  
+        print(flythings.setServer("beta.flythings.io/api"))  
+        print(flythings.login("<your username>","<your password>"))  
+        print(flythings.sendObservation(20,"prueba",None,None,None,"procedure","foi"))  
+    ```
+    * Adds a simple observation having server, sensor and device in the Configuration File.
+    ```PYTHON
+        import flythings   
+        print(flythings.login("<your username>","<your password>"))  
+        print(flythings.sendObservation(20,"prueba")  
+    ```
+    * Add a simple observation having all the parameters of the configuration File.
+    ```PYTHON
+        import flythings   
+        print(flythings.login("<your username>","<your password>"))  
+        print(flythings.sendObservation(20,"prueba")  
+    ```  
 
-*   Adds a simple observation having server, sensor and device in the Configuration File.
-```PYTHON
-    import flythings   
-    print(flythings.login("<your username>","<your password>"))  
-    print(flythings.sendObservation(20,"prueba")  
-```
-
-*   Add a simple observation having all the parameters of the configuration File.
-```PYTHON
-    import flythings   
-    print(flythings.login("<your username>","<your password>"))  
-    print(flythings.sendObservation(20,"prueba")  
-```  
 - getObservation((String,Double,GeomObj,Boolean) value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi)  
     **Description**: creates a observation Object.  
     **Params**:  
@@ -107,15 +106,15 @@ You can also introduce this general properties using the library methods.
       - observations: (Mandatory) list of observationObject to insert. 
     **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error. 
     **Examples**:
-*   Multiple Insert
-```PYTHON
-    import flythings   
-    print(flythings.login("<your username>","<your password>"))  
-    observations = []
-    observations.append(flythings.getObservation(40,'probando'))
-    observations.append(flythings.getObservation(40,'multiple'))
-    print(flythingsClient.sendObservations(observations))
-```
+   * Multiple Insert
+    ```PYTHON
+        import flythings   
+        print(flythings.login("<your username>","<your password>"))  
+        observations = []
+        observations.append(flythings.getObservation(40,'probando'))
+        observations.append(flythings.getObservation(40,'multiple'))
+        print(flythingsClient.sendObservations(observations))
+    ```
 - search(Long series, Timestamp start, Timestamp end, String aggrupation, String aggrupationType)  
     **Description**: retrieves the observation values of a series in a specified range of time. 
     **Params**:    
@@ -127,12 +126,12 @@ You can also introduce this general properties using the library methods.
     **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error.  
     **Examples**:
     
-*   Search data of a series.
-```PYTHON
-    import flythings   
-    print(flythings.login("<your username>","<your password>"))  
-    print(flythings.search(947,1495643746000,1496248546000))
-```
+   * Search data of a series.
+    ```PYTHON
+        import flythings   
+        print(flythings.login("<your username>","<your password>"))  
+        print(flythings.search(947,1495643746000,1496248546000))
+    ```
 
 
 
