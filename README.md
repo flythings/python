@@ -22,6 +22,15 @@ The general properties configuration in Configuration.properties:
 * device: (Optional) the device which sends data.
 * sensor: (Optional) the sensor wich sends data.
 
+*  Example of configuration file
+```JSON
+    SERVER:beta.flythings.io/api
+    USER:<put your username here>
+    PASSWORD:<put your password here>
+    DEVICE:Python
+    SENSOR:Client
+```
+
 You can also introduce this general properties using the library methods.
 
 ### Module Methods
@@ -42,8 +51,8 @@ You can also introduce this general properties using the library methods.
     **Description**: Sets the token to authenticate into the server.  
     **Return**: Returns a string representing the token.  
     
-- login(String user, String password)
-    **Description**: Authenticate against the server.  
+- login(String user, String password)  
+    **Description**: Authenticate against the server.   
     **Return**: Returns a string representing the token.  
 
 - sendObservation([String,Double,GeomObj,Boolean] value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi)  
@@ -56,49 +65,9 @@ You can also introduce this general properties using the library methods.
       - geom: (Optional)  Geom object of the observation.  
       - procedure: (Optional) Sensor of the observation.  
       - foi:  (Optional) Device of the observation.  
-    **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error. 
+    **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error.   
+    **Examples**:  
     
-- getObservation((String,Double,GeomObj,Boolean) value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi)  
-    **Description**: creates a observation Object.  
-    **Params**:  
-      - value: (Mandatory) Value to insert in the observation.  
-      - property: (Mandatory) Property of the observation.  
-      - uom: (Optional) unit of the measurement
-      - time: (Optional) Timestamp when the measurement was taken.  
-      - geom: (Optional)  Geom object of the observation.  
-      - procedure: (Optional) Sensor of the observation.  
-      - foi:  (Optional) Device of the observation.  
-    **Return**: Returns the observation object created.  
-    
-- sendObservations([observationObject] observations)  
-    **Description**: sends multiple observations.  
-    **Params**:  
-      - observations: (Mandatory) list of observationObject to insert. 
-    **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error. 
-
-- search(Long series, Timestamp start, Timestamp end, String aggrupation, String aggrupationType)  
-    **Description**: retrieves the observation values of a series in a specified range of time. 
-    **Params**:    
-      - series: (Mandatory) SeriesId of the information we want.  
-      - start: (Mandatory)  Start value of the timerange.  
-      - end:  (Mandatory) End value of the timerange.
-      - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,WEEKLY,MONTHLY,ANNUALLY)  
-      - aggrupationType:  (Optional)  Aggrupation Operation, could be (FIRST,MIN,MEAN,SUM,MAX,LAST)  
-    **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error.  
-    
-    
-### Examples
-
-
-*  Example of configuration file
-```JSON
-    SERVER:beta.flythings.io/api
-    USER:<put your username here>
-    PASSWORD:<put your password here>
-    DEVICE:Python
-    SENSOR:Client
-```
-
 *   Adds a simple observation without configuration File.
 ```PYTHON
     import flythings  
@@ -119,15 +88,25 @@ You can also introduce this general properties using the library methods.
     import flythings   
     print(flythings.login("<your username>","<your password>"))  
     print(flythings.sendObservation(20,"prueba")  
-```
-
-*   Search data of a series.
-```PYTHON
-    import flythings   
-    print(flythings.login("<your username>","<your password>"))  
-    print(flythings.search(947,1495643746000,1496248546000))
-```
-
+```  
+- getObservation((String,Double,GeomObj,Boolean) value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi)  
+    **Description**: creates a observation Object.  
+    **Params**:  
+      - value: (Mandatory) Value to insert in the observation.  
+      - property: (Mandatory) Property of the observation.  
+      - uom: (Optional) unit of the measurement
+      - time: (Optional) Timestamp when the measurement was taken.  
+      - geom: (Optional)  Geom object of the observation.  
+      - procedure: (Optional) Sensor of the observation.  
+      - foi:  (Optional) Device of the observation.  
+    **Return**: Returns the observation object created.  
+    
+- sendObservations([observationObject] observations)  
+    **Description**: sends multiple observations.  
+    **Params**:  
+      - observations: (Mandatory) list of observationObject to insert. 
+    **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error. 
+    **Examples**:
 *   Multiple Insert
 ```PYTHON
     import flythings   
@@ -137,6 +116,25 @@ You can also introduce this general properties using the library methods.
     observations.append(flythings.getObservation(40,'multiple'))
     print(flythingsClient.sendObservations(observations))
 ```
+- search(Long series, Timestamp start, Timestamp end, String aggrupation, String aggrupationType)  
+    **Description**: retrieves the observation values of a series in a specified range of time. 
+    **Params**:    
+      - series: (Mandatory) SeriesId of the information we want.  
+      - start: (Mandatory)  Start value of the timerange.  
+      - end:  (Mandatory) End value of the timerange.
+      - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,WEEKLY,MONTHLY,ANNUALLY)  
+      - aggrupationType:  (Optional)  Aggrupation Operation, could be (FIRST,MIN,MEAN,SUM,MAX,LAST)  
+    **Return**: Returns a message containing {OK: FULL INSERTION} if the observation was inserted, otherwise returns message error.  
+    **Examples**:
+    
+*   Search data of a series.
+```PYTHON
+    import flythings   
+    print(flythings.login("<your username>","<your password>"))  
+    print(flythings.search(947,1495643746000,1496248546000))
+```
+
+
 
 
     
