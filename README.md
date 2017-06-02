@@ -198,8 +198,8 @@ You can also introduce this general properties using the library methods.
     **Description**: retrieves the observation values of a series in a specified range of time.     
     **Params**:    
       - series: (Mandatory) SeriesId of the information we want.  
-      - start: (Mandatory)  Start value of the timerange.  
-      - end:  (Mandatory) End value of the timerange.  
+      - start: (Optional)  Default (Last week),  Start value of the timerange.  
+      - end:  (Optional)Default (today), End value of the timerange.  
       - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,DAILY,MONTHLY,ANNUALLY)    
       - aggrupationType:  (Optional)  Aggrupation Operation, could be (FIRST,MIN,MEAN,SUM,MAX,LAST)    
     **Return**: Returns a message containing:  
@@ -213,6 +213,19 @@ You can also introduce this general properties using the library methods.
         import flythings   
         flythings.login("<your username>","<your password>")  
         flythings.search(947,1495643746000,1496248546000)
+    ```
+    
+    * Search data of a series without start and end date.
+    ```PYTHON
+        import flythings   
+        flythings.login("<your username>","<your password>")  
+        flythings.search(40)
+    ```
+     * Search data of a series without end date.
+    ```PYTHON
+        import flythings   
+        flythings.login("<your username>","<your password>")  
+        flythings.search(40,1495787136953)
     ```
 
 
