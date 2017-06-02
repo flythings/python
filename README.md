@@ -84,12 +84,38 @@ You can also introduce this general properties using the library methods.
         flythings.login("<your username>","<your password>")  
         flythings.sendObservation(20,"prueba")  
     ```
-    * Add a simple observation having all the parameters of the configuration File.
+    * Adds a simple observation having all the parameters of the configuration File.
     ```PYTHON
         import flythings   
         flythings.login("<your username>","<your password>")  
         flythings.sendObservation(20,"prueba")  
     ```  
+    * Adds a simple observation with timezone.
+    ```PYTHON
+    import flythings    
+    flythings.setServer("beta.flythings.io/api")    
+    flythings.login("<your username>","<your password>")   
+    flythings.sendObservation(20,"prueba",None,1495643746000,None,"procedure","foi")   
+    ```  
+    * Adds a simple observation with uom.
+    ```PYTHON
+    import flythings    
+    flythings.setServer("beta.flythings.io/api")    
+    flythings.login("<your username>","<your password>")   
+    flythings.sendObservation(20,"prueba","m",None,None,"procedure","foi")  
+    ```  
+    * Adds a simple observation with Geom.
+    ```PYTHON
+    import flythings    
+    flythings.setServer("beta.flythings.io/api")    
+    flythings.login("<your username>","<your password>")   
+    auxGeom = {
+        "type": "Point",
+        "crs": "4326",
+        "coordinates": [-19.323204,27.611808]
+    }
+    flythings.sendObservation(20,"prueba",None,None,auxGeom,"procedure","foi")   
+    ```
 
 - getObservation((String,Double,GeomObj,Boolean) value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi)  
     **Description**: creates a observation Object.  
@@ -102,6 +128,53 @@ You can also introduce this general properties using the library methods.
       - procedure: (Optional) Sensor of the observation.  
       - foi:  (Optional) Device of the observation.  
     **Return**: Returns the observation object created.  
+    **Examples**:  
+    
+    * Generates a simple observation without configuration File.
+    ```PYTHON
+        import flythings  
+        flythings.setServer("beta.flythings.io/api")  
+        flythings.login("<your username>","<your password>")  
+        flythings.getObservation(20,"prueba",None,None,None,"procedure","foi")  
+    ```
+    * Generates a simple observation having server, sensor and device in the Configuration File.
+    ```PYTHON
+        import flythings   
+        flythings.login("<your username>","<your password>")  
+        flythings.getObservation(20,"prueba")  
+    ```
+    * Generates a simple observation having all the parameters of the configuration File.
+    ```PYTHON
+        import flythings   
+        flythings.login("<your username>","<your password>")  
+        flythings.getObservation(20,"prueba")  
+    ```  
+    * Generates simple observation with timezone.
+    ```PYTHON
+    import flythings    
+    flythings.setServer("beta.flythings.io/api")    
+    flythings.login("<your username>","<your password>")   
+    flythings.getObservation(20,"prueba",None,1495643746000,None,"procedure","foi")   
+    ```  
+    * Generates simple observation with uom.
+    ```PYTHON
+    import flythings    
+    flythings.setServer("beta.flythings.io/api")    
+    flythings.login("<your username>","<your password>")   
+    flythings.getObservation(20,"prueba","m",None,None,"procedure","foi")
+    ```
+    * Generates simple observation with Geom.
+    ```PYTHON
+    import flythings    
+    flythings.setServer("beta.flythings.io/api")    
+    flythings.login("<your username>","<your password>")   
+    auxGeom = {
+        "type": "Point",
+        "crs": "4326",
+        "coordinates": [-19.323204,27.611808]
+    }
+    flythings.getObservation(20,"prueba",None,None,auxGeom,"procedure","foi")   
+    ```
     
 - sendObservations([observationObject] observations)  
     **Description**: sends multiple observations.    
