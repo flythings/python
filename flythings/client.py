@@ -1,4 +1,6 @@
 import json, requests
+import time
+from datetime import timedelta, datetime
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
 GET_OBSERVATIONS_URL = '/observation'
@@ -108,10 +110,18 @@ def sendObservations(values):
 		return r.text
 
 
-def search(series,start_date,end_date,aggrupation=None,aggrupationType=None):
+def search(series,start_date=None,end_date=None,aggrupation=None,aggrupationType=None):
 	if(headers['x-auth-token']==''):
 		print ('NoAuthenticationError')
 		raise
+	#Default datetime
+	if(start_date == None and end_date == None):
+		end_date = round(time.time() * 1000)
+		auxTime = datetime.today() - timedelta(weeks=1)
+		start_date = round(auxTime.timestamp() * 1000)
+	elif (end_date==None):
+		end_date = round(time.time() * 1000)
+
 	message = {}
 	serieArray = []
 	serie = {}
