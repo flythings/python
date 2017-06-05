@@ -229,6 +229,13 @@ You can also introduce this general properties using the library methods.
     ```
 
 
+### Tests
+In the test folder, after fill in the Configuration.Properties file write on bash:
+
+```BASH
+    nosetests flythingsTest.py
+```
+([Nose python library is needed](http://nose.readthedocs.io/en/latest/))
 
 
     
