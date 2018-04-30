@@ -3,3 +3,4 @@ MANIFEST
 *.pypirc
 pypirc
 *.idea
+flythings/__pycache__/

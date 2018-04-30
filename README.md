@@ -29,6 +29,7 @@ The general properties configuration in Configuration.properties:
     PASSWORD:<put your password here>
     DEVICE:Python
     SENSOR:Client
+    LOGIN_TYPE:USER or DEVICE
 ```
 
 You can also introduce this general properties using the library methods.
