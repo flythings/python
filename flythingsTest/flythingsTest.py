@@ -23,6 +23,13 @@ def search_test():
 	assert str(x[1]['value']) == '20.0'
 
 
+def user_login():
+	flythings.setServer('<Put the server here>')
+	flythings.setWorkspace('<Put the workspace here>')
+	flythings.login('<Put the user here>', '<Put the password here>', 'USER')
+
+
+user_login()
 sendObservation_test()
 sendObservations_test()
 search_test()

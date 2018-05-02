@@ -33,11 +33,12 @@ def login(user, password, login_type):
             return "Error: login_type not valid"
         if authbody.status_code == 200:
             global headers
-            headers['x-auth-token'] = str(json.loads(authbody.text)['token'])
-            if login_type == 'USER' and json.loads(authbody.text)['workspace'] is not None:
-                headers['Workspace'] = str(json.loads(authbody.text)['workspace'])
+            body = json.loads(authbody.text)
+            headers['x-auth-token'] = str(body['token'])
+            if login_type == 'USER' and 'workspace' in body:
+                headers['Workspace'] = str(body['workspace'])
             else:
-                headers['Workspace'] = gWorkspace
+                headers['Workspace'] = str(gWorkspace)
     except requests.exceptions.InvalidURL:
         print ('INVALID SERVER')
         raise
