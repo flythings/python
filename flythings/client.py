@@ -20,6 +20,7 @@ gServer = ''
 gUser = ''
 gPassword = ''
 gHash = ''
+gWorkspace = ''
 
 
 def login(user, password, login_type):
@@ -33,8 +34,10 @@ def login(user, password, login_type):
         if authbody.status_code == 200:
             global headers
             headers['x-auth-token'] = str(json.loads(authbody.text)['token'])
-            if login_type == 'USER':
+            if login_type == 'USER' and json.loads(authbody.text)['workspace'] is not None:
                 headers['Workspace'] = str(json.loads(authbody.text)['workspace'])
+            else:
+                headers['Workspace'] = gWorkspace
     except requests.exceptions.InvalidURL:
         print ('INVALID SERVER')
         raise
@@ -87,7 +90,7 @@ def __loadAuthData():
         if gServer == '':
             gServer = 'api.flythings.io'
     except Exception:
-        print ('CONFIGURATION FILE, Configuration.properties DONT EXIST, YOU MUST INSERT THE PARAMETERS MANUALLY')
+        print('CONFIGURATION FILE, Configuration.properties DONT EXIST, YOU MUST INSERT THE PARAMETERS MANUALLY')
 
 
 def setServer(server):
@@ -120,6 +123,12 @@ def setToken(token):
     return headers['x-auth-token']
 
 
+def setWorkspace(workspace):
+    global gWorkspace
+    gWorkspace = workspace
+    return gWorkspace
+
+
 def sendObservations(values):
     if headers['x-auth-token'] == '':
         print ('NoAuthenticationError')
@@ -147,8 +156,7 @@ def search(
     elif end_date is None:
         end_date = round(time.time() * 1000)
 
-    message = {'series': {[{'id': series,
-                          'asIncremental': as_incremental}]}, 'startDate': start_date, 'endDate': end_date}
+    message = {'series': [{'id': series, 'asIncremental': as_incremental}], 'startDate': start_date, 'endDate': end_date}
 
     if aggrupation is not None:
         message['temporalScale'] = aggrupation
