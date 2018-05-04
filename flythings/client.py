@@ -132,10 +132,10 @@ def setWorkspace(workspace):
 
 def sendObservations(values):
     if headers['x-auth-token'] == '':
-        print ('NoAuthenticationError')
+        print('NoAuthenticationError')
         return None
-    r = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}), headers=headers)
-    return r.text
+    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}), headers=headers)
+    return response.status_code
 
 
 def search(
@@ -189,7 +189,7 @@ def sendObservation(
     message = getObservation(value, property, uom, ts, geom, procedure, foi)
     json_payload = json.dumps(message)
     response = requests.put('http://' + gServer + PUBLISH_SINGLE_URL, json_payload, headers=headers)
-    return response.content
+    return response.status_code
 
 
 def getObservation(
