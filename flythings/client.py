@@ -3,6 +3,7 @@
 import json
 import requests
 import time
+import socket
 from datetime import timedelta, datetime
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
@@ -10,9 +11,13 @@ GET_OBSERVATIONS_URL = '/observation'
 PUBLISH_SINGLE_URL = '/observation/single'
 LOGIN_DEVICE_URL = '/login/device'
 LOGIN_USER_URL = '/login/'
+SOKET_URL = '/socket'
+SERIES_URL = '/series/'
 FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
+
+clientSocket = None
 
 gFoi = ''
 gProcedure = ''
@@ -40,7 +45,7 @@ def login(user, password, login_type):
             else:
                 headers['Workspace'] = str(gWorkspace)
     except requests.exceptions.InvalidURL:
-        print ('INVALID SERVER')
+        print('INVALID SERVER')
         raise
 
 
@@ -134,7 +139,8 @@ def sendObservations(values):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}), headers=headers)
+    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
+                            headers=headers)
     return response.status_code
 
 
@@ -157,7 +163,8 @@ def search(
     elif end_date is None:
         end_date = round(time.time() * 1000)
 
-    message = {'series': [{'id': series, 'asIncremental': as_incremental}], 'startDate': start_date, 'endDate': end_date}
+    message = {'series': [{'id': series, 'asIncremental': as_incremental}], 'startDate': start_date,
+               'endDate': end_date}
 
     if aggrupation is not None:
         message['temporalScale'] = aggrupation
@@ -184,7 +191,7 @@ def sendObservation(
         foi=None,
 ):
     if headers['x-auth-token'] == '':
-        print ('NoAuthenticationError')
+        print('NoAuthenticationError')
         return None
     message = getObservation(value, property, uom, ts, geom, procedure, foi)
     json_payload = json.dumps(message)
@@ -201,7 +208,7 @@ def getObservation(
         procedure=None,
         foi=None,
 ):
-    message = {'observableProperty': property, 'value': str(value)}
+    message = {'observableProperty': property, 'value': value}
     if uom is not None:
         message['uom'] = uom
     if ts is not None:
@@ -220,5 +227,68 @@ def getObservation(
     return message
 
 
-__loadAuthData()
+def findSeries(foi, procedure, observable_property):
+    response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property, headers=headers)
+    message = json.loads(response.text)
+    if response.status_code != 200:
+        print("Error retrieving series: " +foi+"-"+procedure+"-"+observable_property)
+        return None
+    return message
 
+
+def __connectSocket():
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None
+
+    decode = lambda d: d.decode('utf-8')
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        if ":" not in gServer:
+            server = gServer
+        else:
+            server = gServer.split(":")[0]
+
+        response = requests.get('http://' + gServer + SOKET_URL, headers=headers)
+        if response.status_code == 200:
+            port = int(response.text)
+
+            s.connect((server, port))
+
+            data = s.recv(1024)
+
+            if decode(data) == 'X-AUTH-TOKEN':
+                s.sendall((headers['x-auth-token'] + "\n").encode("utf-8"))
+                isLogged = s.recv(1024)
+                if decode(isLogged) == 'True':
+                    return s
+                else:
+                    print("INVALID_TOKEN")
+            else:
+                print("SOCKET UNAVAILABLE!")
+    except:
+        print("Connection refused")
+    return None
+
+
+def sendSocket(seriesId, value, timestamp):
+    global clientSocket
+    if clientSocket is None:
+        clientSocket = __connectSocket()
+    if clientSocket is not None:
+        jsonPayload = json.dumps({
+            'seriesId': seriesId,
+            'timestamp': timestamp,
+            'value': value
+        })
+        try:
+            clientSocket.sendall((jsonPayload + "\n").encode("utf-8"))
+        except socket.error as msg:
+            clientSocket.close()
+            clientSocket = None
+            print(msg)
+    else:
+        print("ERROR CONNECTING TO SOCKET")
+
+
+__loadAuthData()
