@@ -139,7 +139,7 @@ def setWorkspace(workspace):
     gWorkspace = workspace
     return gWorkspace
 
-def setTiemout(timeout):
+def setTimeout(timeout):
     global gTimeout
     gTimeout = timeout
     return gTimeout
