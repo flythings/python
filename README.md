@@ -48,12 +48,12 @@ You can also introduce this general properties using the library methods.
     **Description**: Sets the sensor of the observation.  
     **Return**: Returns a string representing the sensor.   
     
-- setToken(String token)  
+- setToken(String token) 
     **Description**: Sets the token to authenticate into the server.  
     **Return**: Returns a string representing the token.
 
-- setTimeout(int timeout)
-    **Description**: Sets the timeout value in seconds to the server requests.
+- setTimeout(int timeout)   
+    **Description**: Sets the timeout value in seconds to the server requests.  
     **Return**: Returns a integer representing the timeout.
     
 - login(String user, String password)  
