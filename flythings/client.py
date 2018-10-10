@@ -26,14 +26,15 @@ gUser = ''
 gPassword = ''
 gHash = ''
 gWorkspace = ''
+gTimeout = 10
 
 
 def login(user, password, login_type):
     try:
         if login_type == 'DEVICE':
-            authbody = requests.get('http://' + gServer + LOGIN_DEVICE_URL, auth=(user, password))
+            authbody = requests.get('http://' + gServer + LOGIN_DEVICE_URL, auth=(user, password), timeout=10)
         elif login_type == 'USER':
-            authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password))
+            authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password), timeout=10)
         else:
             return "Error: login_type not valid"
         if authbody.status_code == 200:
@@ -91,6 +92,10 @@ def __loadAuthData():
                     list_param[1] = list_param[1].strip()
                     global gProcedure
                     gProcedure = list_param[1]
+                elif list_param[0].lower() == 'timeout':
+                    list_param[1] = list_param[1].strip()
+                    global gTimeout
+                    gTimeout = list_param[1]
         if gUser != '' and gPassword != '':
             login(gUser, gPassword, g_login_type)
         if gServer == '':
@@ -134,12 +139,17 @@ def setWorkspace(workspace):
     gWorkspace = workspace
     return gWorkspace
 
+def setTiemout(timeout):
+    global gTimeout
+    gTimeout = timeout
+    return gTimeout
+
 
 def sendObservations(values):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
+    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}, timeout=gTimeout),
                             headers=headers)
     return response.status_code
 
@@ -170,7 +180,7 @@ def search(
         message['temporalScale'] = aggrupation
     if aggrupationType is not None:
         message['temporalScaleType'] = aggrupationType
-    r = requests.post('http://' + gServer + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers)
+    r = requests.post('http://' + gServer + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers, timeout=gTimeout)
     if r.status_code == 200:
         list = r.json()[0]['data']
         returnList = []
@@ -195,7 +205,7 @@ def sendObservation(
         return None
     message = getObservation(value, property, uom, ts, geom, procedure, foi)
     json_payload = json.dumps(message)
-    response = requests.put('http://' + gServer + PUBLISH_SINGLE_URL, json_payload, headers=headers)
+    response = requests.put('http://' + gServer + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=gTimeout)
     return response.status_code
 
 
@@ -228,7 +238,7 @@ def getObservation(
 
 
 def findSeries(foi, procedure, observable_property):
-    response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property, headers=headers)
+    response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property, headers=headers, timeout=gTimeout)
     message = json.loads(response.text)
     if response.status_code != 200:
         print("Error retrieving series: " +foi+"-"+procedure+"-"+observable_property)
@@ -249,7 +259,7 @@ def __connectSocket():
         else:
             server = gServer.split(":")[0]
 
-        response = requests.get('http://' + gServer + SOKET_URL, headers=headers)
+        response = requests.get('http://' + gServer + SOKET_URL, headers=headers, timeout=gTimeout)
         if response.status_code == 200:
             port = int(response.text)
 
