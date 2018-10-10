@@ -26,7 +26,7 @@ gUser = ''
 gPassword = ''
 gHash = ''
 gWorkspace = ''
-gTimeout = 10
+gTimeout = 1000
 
 
 def login(user, password, login_type):
