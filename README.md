@@ -50,7 +50,11 @@ You can also introduce this general properties using the library methods.
     
 - setToken(String token)  
     **Description**: Sets the token to authenticate into the server.  
-    **Return**: Returns a string representing the token.  
+    **Return**: Returns a string representing the token.
+
+- setTimeout(int timeout)
+    **Description**: Sets the timeout value in seconds to the server requests.
+    **Return**: Returns a integer representing the timeout.
     
 - login(String user, String password)  
     **Description**: Authenticate against the server.   
