@@ -32,9 +32,9 @@ gTimeout = 1000
 def login(user, password, login_type):
     try:
         if login_type == 'DEVICE':
-            authbody = requests.get('http://' + gServer + LOGIN_DEVICE_URL, auth=(user, password), timeout=10)
+            authbody = requests.get('http://' + gServer + LOGIN_DEVICE_URL, auth=(user, password), timeout=gTimeout)
         elif login_type == 'USER':
-            authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password), timeout=10)
+            authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password), timeout=gTimeout)
         else:
             return "Error: login_type not valid"
         if authbody.status_code == 200:
@@ -139,6 +139,7 @@ def setWorkspace(workspace):
     gWorkspace = workspace
     return gWorkspace
 
+
 def setTimeout(timeout):
     global gTimeout
     gTimeout = timeout
@@ -149,8 +150,8 @@ def sendObservations(values):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}, timeout=gTimeout),
-                            headers=headers)
+    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
+                            headers=headers, timeout=gTimeout)
     return response.status_code
 
 
