@@ -5,6 +5,9 @@ import requests
 import time
 import socket
 from datetime import timedelta, datetime
+from threading import Thread, Event
+from enum import Enum
+import ast
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
 GET_OBSERVATIONS_URL = '/observation'
@@ -12,13 +15,19 @@ PUBLISH_SINGLE_URL = '/observation/single'
 PUBLISH_RECORD_URL = '/observation/record'
 LOGIN_DEVICE_URL = '/login/device'
 LOGIN_USER_URL = '/login/'
-SOKET_URL = '/socket'
+SOCKET_URL = '/socket'
 SERIES_URL = '/series/'
+ACTIONS_URL = '/newaction/'
 FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
 
-clientSocket = None
+clientTCPSocket = None
+clientUDPSocket = None
+
+clientActionThread = None
+callbacks = {}
+actionThreadStop = False
 
 gFoi = ''
 gProcedure = ''
@@ -29,6 +38,12 @@ gHash = ''
 gWorkspace = ''
 gTimeout = 1000
 
+class ActionDataTypes(Enum):
+    BOOLEAN = 1,
+    FILE = 2,
+    NUMBER = 3,
+    TEXT = 4,
+    ARRAY = 5
 
 def login(user, password, login_type):
     try:
@@ -257,7 +272,7 @@ def findSeries(foi, procedure, observable_property):
     return message
 
 
-def __connectSocket():
+def __getTCPSocket(url=None):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
@@ -266,11 +281,14 @@ def __connectSocket():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         if ":" not in gServer:
-            server = gServer
+            if "/" not in gServer:
+                server = gServer
+            else:
+                server = gServer.split("/")[0]
         else:
             server = gServer.split(":")[0]
 
-        response = requests.get('http://' + gServer + SOKET_URL, headers=headers, timeout=gTimeout)
+        response = requests.get('http://' + gServer + (SOCKET_URL if url is None else url), headers=headers)
         if response.status_code == 200:
             port = int(response.text)
 
@@ -292,24 +310,221 @@ def __connectSocket():
     return None
 
 
-def sendSocket(seriesId, value, timestamp):
-    global clientSocket
-    if clientSocket is None:
-        clientSocket = __connectSocket()
-    if clientSocket is not None:
-        jsonPayload = json.dumps({
+def __getUDPSocket():
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None
+
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        if ":" not in gServer:
+            if "/" not in gServer:
+                server = gServer
+            else:
+                server = gServer.split("/")[0]
+        else:
+            server = gServer.split(":")[0]
+
+        response = requests.get('http://' + gServer + SOCKET_URL, headers=headers)
+        if response.status_code == 200:
+            port = int(response.text)
+
+            s.connect((server, port))
+            return s
+    except:
+        print("Connection refused")
+    return None
+
+
+def __getSocket(protocol):
+    if protocol is None or protocol.upper() == "TCP":
+        global clientTCPSocket
+        if clientTCPSocket is None:
+            clientTCPSocket = __getTCPSocket()
+        return clientTCPSocket
+    else:
+        global clientUDPSocket
+        if clientTCPSocket is None:
+            clientUDPSocket = __getUDPSocket()
+        return clientUDPSocket
+
+
+def __getPayload(seriesId, value, timestamp, protocol):
+    if (protocol is None or protocol.upper() == "TCP"):
+        return json.dumps({
             'seriesId': seriesId,
             'timestamp': timestamp,
             'value': value
+        }) + "\n"
+    else:
+        return json.dumps({
+            'X-AUTH-TOKEN': headers['x-auth-token'],
+            'data': {
+                'seriesId': seriesId,
+                'timestamp': timestamp,
+                'value': value
+            }
         })
+
+
+def __resetSocket(protocol):
+    if (protocol is None or protocol.upper() == "TCP"):
+        global clientTCPSocket
+        if clientTCPSocket is not None:
+            clientTCPSocket.close()
+            clientTCPSocket = None
+    else:
+        global clientUDPSocket
+        if clientUDPSocket is not None:
+            clientUDPSocket.close()
+            clientUDPSocket = None
+
+
+def sendSocket(seriesId, value, timestamp, protocol=None):
+    clientSocket = __getSocket(protocol)
+
+    if clientSocket is not None:
+        jsonPayload = __getPayload(seriesId, value, timestamp, protocol)
         try:
-            clientSocket.sendall((jsonPayload + "\n").encode("utf-8"))
+            clientSocket.sendall(jsonPayload.encode("utf-8"))
         except socket.error as msg:
-            clientSocket.close()
-            clientSocket = None
+            __resetSocket(protocol)
             print(msg)
     else:
         print("ERROR CONNECTING TO SOCKET")
+
+
+def __registerAction(
+        name,
+        parameterType=None,
+        foi=None,
+        procedure=None,
+        observableProperty=None,
+        unit=None
+):
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None
+    elif foi is None and gFoi is None:
+        print('NoDeviceError')
+        return None
+    elif observableProperty is not None and (gProcedure is None and procedure is None):
+        print('NoProcedureError')
+        return None
+    try:
+        payload = {
+            "name": name,
+            "featureOfInterest": gFoi if foi is None else foi,
+            "parameterType": ActionDataTypes(parameterType).name if parameterType is not None else None
+        }
+        if observableProperty is not None:
+            payload["procedure"] = gProcedure if procedure is None else procedure
+            payload["observableProperty"] = observableProperty
+            payload["unit"] = unit
+
+        response = requests.post('http://' + gServer + ACTIONS_URL, data=json.dumps(payload), headers=headers)
+
+        if response.status_code == 201:
+            return True
+        else:
+            print(response.status_code)
+    except Exception as e:
+        print(e)
+    return None
+
+
+def registerActionForSeries(name, observableProperty, unit, callback, foi=None, procedure=None, parameterType=None):
+    result = __registerAction(name, parameterType, foi, procedure, observableProperty, unit)
+    if result:
+        global callbacks
+        if name not in callbacks:
+            callbacks[name] = {'callback':callback, 'parameterType': parameterType}
+        else:
+            return False
+    return result is not None
+
+
+def registerAction(name, callback, foi=None, parameterType=None):
+    result = __registerAction(name, parameterType, foi)
+    if result:
+        global callbacks
+        if name not in callbacks:
+            callbacks[name] = {'callback':callback, 'parameterType': parameterType}
+        else:
+            return False
+    return result is not None
+
+
+def __actionSocketClient(actionThreadStop, callbacks):
+    actionSocket = None
+    while not actionThreadStop.is_set():
+        try:
+            if actionSocket is None:
+                actionSocket = __getTCPSocket(ACTIONS_URL)
+            actionSocket.settimeout(60.0)
+            data = actionSocket.recv(1024)
+            decodedData = data.decode("utf-8")
+            if decodedData != '':
+                if decodedData == "DEVICE":
+                    actionSocket.sendall((gFoi + "\n").encode("utf-8"))
+                else:
+                    param = None
+                    if ":;:" in decodedData:
+                        command, param = decodedData.split(":;:")
+                    else:
+                        command = decodedData
+                    if(callbacks[command] is not None):
+                        result = callbacks[command]['callback'](__castParameter(param, callbacks[command]['parameterType']))
+                        actionSocket.sendall((str(result)+'\n').encode("utf-8"))
+            else:
+                try:
+                    actionSocket.sendall("Ping".encode("utf-8"))
+                except:
+                    print("The server closed the connection!")
+                    break
+        except socket.timeout:
+            print("timeout")
+        except Exception as e:
+            pass
+    actionSocket.close()
+
+
+def __castParameter(param, parameterType):
+    try:
+        if parameterType == None:
+            return None
+        elif parameterType == ActionDataTypes.TEXT:
+            return param
+        elif parameterType == ActionDataTypes.FILE:
+            return param
+        elif parameterType == ActionDataTypes.ARRAY:
+            return param.split(";")
+        elif parameterType == ActionDataTypes.BOOLEAN:
+            return param.lower() == 'true'
+        elif parameterType == ActionDataTypes.NUMBER:
+            return ast.literal_eval(param) # Number
+    except:
+        return None
+
+
+def startActionListening():
+    if gFoi is None:
+        print("NoDeviceException")
+        return None
+    if not callbacks:
+        print("NoRegisteredActionExcetion")
+        return None
+    global actionThreadStop, clientActionThread
+    actionThreadStop = Event()
+    clientActionThread = Thread(target=__actionSocketClient, args=(actionThreadStop, callbacks))
+    clientActionThread.start()
+
+
+def stopActionListening():
+    global actionThreadStop, clientActionThread
+    if actionThreadStop:
+        actionThreadStop.set()
+    clientActionThread = None
 
 
 __loadAuthData()

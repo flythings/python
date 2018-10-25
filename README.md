@@ -243,39 +243,149 @@ You can also introduce this general properties using the library methods.
        series = flythings.findSeries('foi', 'procedure', 'observable_property')
    ```
 
-- search(Long series, Timestamp start, Timestamp end, String aggrupation, String aggrupationType)    
-    **Description**: retrieves the observation values of a series in a specified range of time.       
-    **Params**:      
-      - series: (Mandatory) SeriesId of the information we want.    
-      - start: (Optional)  Default (Last week),  Start value of the timerange.    
-      - end:  (Optional)Default (today), End value of the timerange.    
-      - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,DAILY,MONTHLY,ANNUALLY)      
-      - aggrupationType:  (Optional)  Aggrupation Operation, could be (FIRST,MIN,MEAN,SUM,MAX,LAST)      
-    **Return**: Returns a message containing:    
-    ```{OK: FULL INSERTION}```    
-    if the observation was inserted, otherwise returns message error:    
-    ```{ type: Error, message: Message Error in text format}```      
-    **Examples**:  
-      
-   * Search data of a series.  
-    ```PYTHON  
-        import flythings     
-        flythings.login("<your username>","<your password>")    
-        flythings.search(947,1495643746000,1496248546000)  
-    ```  
-      
-    * Search data of a series without start and end date.  
-    ```PYTHON  
-        import flythings     
-        flythings.login("<your username>","<your password>")    
-        flythings.search(40)  
-    ```  
-     * Search data of a series without end date.  
-    ```PYTHON  
-        import flythings     
-        flythings.login("<your username>","<your password>")    
-        flythings.search(40,1495787136953)  
-    ```  
+- search(Long series, Timestamp start, Timestamp end, String aggrupation, String aggrupationType)
+    **Description**: retrieves the observation values of a series in a specified range of time.
+    **Params**:
+      - series: (Mandatory) SeriesId of the information we want.
+      - start: (Optional)  Default (Last week),  Start value of the timerange.
+      - end:  (Optional)Default (today), End value of the timerange.
+      - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,DAILY,MONTHLY,ANNUALLY)
+      - aggrupationType:  (Optional)  Aggrupation Operation, could be (FIRST,MIN,MEAN,SUM,MAX,LAST)
+    **Return**: Returns a message containing:
+    ```{OK: FULL INSERTION}```
+    if the observation was inserted, otherwise returns message error:
+    ```{ type: Error, message: Message Error in text format}```
+    **Examples**:
+
+   * Search data of a series.
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>")
+        flythings.search(947,1495643746000,1496248546000)
+    ```
+
+    * Search data of a series without start and end date.
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>")
+        flythings.search(40)
+    ```
+     * Search data of a series without end date.
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>")
+        flythings.search(40,1495787136953)
+    ```
+- sendSocket(Long seriesId, Double value, Long timestamp, String protocol)
+    **Description**: sends observation using a TCP socket connection.
+    **Params**:
+      - seriesId: (Mandatory) Identifier of the series of the device.
+      - value: (Mandatory)  Value of the sample.
+      - timestamp:  (Mandatory) Timestamp of the sample.
+      - protocol: (Optional) Transport protocol TCP (default) or UDP
+    **Return**: None if all was correct, otherwise returns message error:
+    ```ERROR CONNECTING WITH WEBSOCKET```
+    **Examples**:
+
+   * Search data of a series.
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>", "<login type>")
+        flythings.sendSocket("<seriesId>", <value>, <timestamp>, "<protocol>")
+    ```
+
+- registerAction(String name, Function callback, String foi, ActionDataTypes parameterType)
+    **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.
+    **Params**:
+      - name: (Mandatory) Identifier of the action..
+      - callback: (Mandatory) Function that executes when the action is triggered.
+      - foi:  (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.
+      - parameterType: (Optional) Especifies the parameter type of the callback if any.
+    **Return**: True if all was correct, otherwise False.
+    ```NoAuthenticationError```
+    ```NoDeviceError```
+    ```NoProcedureError```
+    **Examples**:
+
+   * Search data of a series.
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>", "<login type>")
+        def test(param):
+          print(param)
+        flythings.registerAction("<name>", test, foi="<device>", parameterType=flythings.ActionDataTypes.TEXT)
+    ```
+
+- registerActionForSeries(String name, String observableProperty, String unit, Function callback, String foi, String procedure, ActionDataTypes parameterType)
+    **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.
+    **Params**:
+      - name: (Mandatory) Identifier of the action.
+      - observableProperty: (Mandatory) Observable property of the series.
+      - unit: (Mandatory) Unit property of the series.
+      - callback: (Mandatory) Function that executes when the action is demanded.
+      - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.
+      - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is mandatory.
+      - parameterType: (Optional) Especifies the parameter type of the callback if any.
+    **Return**: True if all was correct, otherwise False.
+    ```NoAuthenticationError```
+    ```NoDeviceError```
+    ```NoProcedureError```
+    **Examples**:
+
+   * Search data of a series.
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>", "<login type>")
+        def test(param):
+          print(param)
+        flythings.registerAction("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=flythings.ActionDataTypes.TEXT)
+    ```
+
+- startActionListening()
+    **Description**: Starts listening to the server waiting for an action to trigger. Is necessary that at least one action is registered.
+    **Return**: None
+    ```NoDeviceException```
+    ```NoRegisteredActionExcetion```
+    **Examples**:
+
+   * Search data of a series.
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>", "<login type>")
+        def test(param):
+          print(param)
+        flythings.registerAction("<name>", test, foi="<device>", flythings.ActionDataTypes.TEXT)
+        flythings.startActionListening()
+    ```
+
+- stopActionListening()
+    **Description**: Stop listening to the server for actions.
+    **Return**: None.
+    ```NoAuthenticationError```
+    ```NoDeviceError```
+    ```NoProcedureError```
+    **Examples**:
+
+   * Search data of a series.
+    ```PYTHON
+        import flythings, time
+        flythings.login("<your username>","<your password>", "<login type>")
+        def test(param):
+          print(param)
+        flythings.registerAction("<name>", test, foi="<device>", ActionDataTypes.TEXT)
+        flythings.startActionListening()
+        time.sleep(10)
+        flythings.stopActionListening()
+    ```
+
+- ActionDataTypes
+**Description**: Enumerated withe the allowed datatypes for the callbacks of the actions.
+**Values**:
+- ActionDataTypes.BOOLEAN: The callback will receive a boolean value from the server when the action is triggered.
+- ActionDataTypes.FILE: The callback will receive a string representing the url where the file is when the action is triggered.
+- ActionDataTypes.NUMBER: The callback will receive a number from the server when the action is triggered.
+- ActionDataTypes.TEXT: The callback will receive a string from the server when the action is triggered.
+- ActionDataTypes.ARRAY: The callback will receive a string array from the server when the action is triggered.
   
   
 ### Tests  
