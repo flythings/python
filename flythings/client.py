@@ -9,6 +9,7 @@ from datetime import timedelta, datetime
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
 GET_OBSERVATIONS_URL = '/observation'
 PUBLISH_SINGLE_URL = '/observation/single'
+PUBLISH_RECORD_URL = '/observation/record'
 LOGIN_DEVICE_URL = '/login/device'
 LOGIN_USER_URL = '/login/'
 SOKET_URL = '/socket'
@@ -36,7 +37,8 @@ def login(user, password, login_type):
         elif login_type == 'USER':
             authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password), timeout=gTimeout)
         else:
-            return "Error: login_type not valid"
+            login_type='USER'
+            authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password), timeout=gTimeout)
         if authbody.status_code == 200:
             global headers
             body = json.loads(authbody.text)
@@ -153,6 +155,14 @@ def sendObservations(values):
     response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
                             headers=headers, timeout=gTimeout)
     return response.status_code
+
+
+def sendRecord(serieId, json):
+	if (headers['x-auth-token'] == ''):
+		print ('NoAuthenticationError')
+		return None
+	response = requests.put('http://'+gServer+PUBLISH_RECORD_URL+"/"+str(serieId), json, headers=headers)
+	return response.status_code, response.content
 
 
 def search(
