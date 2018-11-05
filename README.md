@@ -287,7 +287,7 @@ You can also introduce this general properties using the library methods.
     ```ERROR CONNECTING WITH WEBSOCKET```  
     **Examples**:    
 
-   * Search data of a series.  
+   * Send a observation using a socket.    
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
@@ -307,7 +307,7 @@ You can also introduce this general properties using the library methods.
     ```NoProcedureError```  
     **Examples**:  
 
-   * Search data of a series.  
+   * Register an action with the server.  
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
@@ -332,13 +332,13 @@ You can also introduce this general properties using the library methods.
     ```NoProcedureError```  
     **Examples**:  
 
-   * Search data of a series.  
+   * Registers an action with the server.  
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
         def test(param):
           print(param)
-        flythings.registerAction("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=flythings.ActionDataTypes.TEXT)
+        flythings.registerActionForSeries("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=flythings.ActionDataTypes.TEXT)
     ```
 
 - startActionListening()  
@@ -348,7 +348,7 @@ You can also introduce this general properties using the library methods.
     ```NoRegisteredActionExcetion```  
     **Examples**:  
 
-   * Search data of a series.  
+   * Starts listening waiting for an action to trigger.  
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
@@ -356,6 +356,9 @@ You can also introduce this general properties using the library methods.
           print(param)
         flythings.registerAction("<name>", test, foi="<device>", flythings.ActionDataTypes.TEXT)
         flythings.startActionListening()
+        while(True):
+            print("listening...")
+            time.sleep(10)
     ```
 
 - stopActionListening()  
@@ -366,16 +369,21 @@ You can also introduce this general properties using the library methods.
     ```NoProcedureError```   
     **Examples**:  
 
-   * Search data of a series.
+   * Stop listening to the server for actions.  
     ```PYTHON
         import flythings, time
         flythings.login("<your username>","<your password>", "<login type>")
+        listening = False
         def test(param):
           print(param)
+          flythings.stopActionListening() #Stops listening when a action was triggered
+          listening = False
         flythings.registerAction("<name>", test, foi="<device>", ActionDataTypes.TEXT)
         flythings.startActionListening()
-        time.sleep(10)
-        flythings.stopActionListening()
+        listening = True
+        while(listening):
+            print("listening...")
+            time.sleep(10)
     ```
 
 - ActionDataTypes  
