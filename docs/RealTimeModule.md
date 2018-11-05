@@ -3,7 +3,7 @@
 
 ## Module Methods 
 
-- **sendSocket**(Long seriesId, Double value, Long timestamp, String protocol)
+- **sendSocket**(Long seriesId, Double value, Long timestamp, String protocol)  
     **Description**: sends observation using a TCP socket connection.  
     **Params**:  
       - seriesId: (Mandatory) Identifier of the series of the device.  
