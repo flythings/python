@@ -71,8 +71,8 @@
       - uom: (Optional) unit of the measurement    
       - time: (Optional) Timestamp when the measurement was taken.    
       - geom: (Optional)  Geom object of the observation.    
-      - procedure: (Optional) Sensor of the observation.    
-      - foi:  (Optional) Device of the observation.    
+      - procedure: (Optional, Default configuration procedure) Sensor of the observation.    
+      - foi:  (Optional, Default configuration foi) Device of the observation.    
     **Return**: Returns the observation object created.    
     **Examples**:    
       
@@ -164,8 +164,8 @@
  - **findSeries**(String foi, String procedure, String observable_property)  
    **Description**: finds a series by foi, procedure and observable_property.  
    **Params**:
-	    - foi: (Mandatory) String representing the foi name.  
-	    - procedure: (Mandatory)  String representing the procedure name.  
+	    - foi: (Optional, Default configuration foi) String representing the foi name.  
+	    - procedure: (Optional, Default configuration procedure)  String representing the procedure name.  
 	    - observable_property:  (Mandatory) String representing the observable property name.  
    **Return**: Returns a series object.  
    if request wasn´t succesfully :  Returns none .  

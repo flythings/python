@@ -17,8 +17,8 @@
     **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
     **Params**:  
       - name: (Mandatory) Identifier of the action.  
-      - callback: (Mandatory) Function that executes when the action is triggered.  
-      - foi:  (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
+      - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly.    
+      - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
       - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.  
     **Return**: True if all was correct, otherwise False.    
     ```NoAuthenticationError```  

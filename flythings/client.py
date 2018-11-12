@@ -18,7 +18,7 @@ LOGIN_USER_URL = '/login/'
 SOCKET_URL = '/socket'
 SERIES_URL = '/series/'
 ACTIONS_URL = '/newaction/'
-FILE = 'Configuration.properties'
+# FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
 
@@ -67,10 +67,10 @@ def login(user, password, login_type):
         raise
 
 
-def __loadAuthData():
+def loadDataByFile(file):
     global gServer
     try:
-        for line in open(FILE):
+        for line in open(file):
             text = line.strip().replace('\n', '')
             list_param = text.split(':')
             if len(list_param) > 1:
@@ -117,8 +117,9 @@ def __loadAuthData():
             login(gUser, gPassword, g_login_type)
         if gServer == '':
             gServer = 'api.flythings.io'
+        print('Succesfully loaded data from file ' + file)
     except Exception:
-        print('CONFIGURATION FILE, Configuration.properties DONT EXIST, YOU MUST INSERT THE PARAMETERS MANUALLY')
+        print('CONFIGURATION FILE, ' + file + ' DONT EXIST, YOU MUST INSERT THE PARAMETERS MANUALLY')
 
 
 def setServer(server):
@@ -251,11 +252,11 @@ def getObservation(
         message['time'] = ts
     if geom is not None:
         message['geom'] = geom
-    if procedure is not None:
+    if procedure is not None and procedure != '':
         message['procedure'] = procedure
     else:
         message['procedure'] = gProcedure
-    if foi is not None:
+    if foi is not None and foi != '':
         message['foi'] = foi
     else:
         message['foi'] = gFoi
@@ -263,7 +264,13 @@ def getObservation(
     return message
 
 
-def findSeries(foi, procedure, observable_property):
+def findSeries(foi=None, procedure=None, observable_property=None):
+    if foi is None or foi=='':
+        foi = gFoi
+    if procedure is None or procedure=='':
+        procedure = gProcedure
+    if observable_property is None or observable_property=='':
+        return "INSERTE UNA PROPIEDAD OBSERVADA"
     response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property, headers=headers, timeout=gTimeout)
     message = json.loads(response.text)
     if response.status_code != 200:
@@ -455,7 +462,7 @@ def registerAction(name, callback, foi=None, parameterType=None):
     return result is not None
 
 
-def __actionSocketClient(actionThreadStop, callbacks):
+def __actionSocketClient(actionThreadStop, callbacks, foi):
     actionSocket = None
     while not actionThreadStop.is_set():
         try:
@@ -466,7 +473,7 @@ def __actionSocketClient(actionThreadStop, callbacks):
             decodedData = data.decode("utf-8")
             if decodedData != '':
                 if decodedData == "DEVICE":
-                    actionSocket.sendall((gFoi + "\n").encode("utf-8"))
+                    actionSocket.sendall((foi + "\n").encode("utf-8"))
                 else:
                     param = None
                     if ":;:" in decodedData:
@@ -474,8 +481,12 @@ def __actionSocketClient(actionThreadStop, callbacks):
                     else:
                         command = decodedData
                     if(callbacks[command] is not None):
-                        result = callbacks[command]['callback'](__castParameter(param, callbacks[command]['parameterType']))
-                        actionSocket.sendall((str(result)+'\n').encode("utf-8"))
+                        try:
+                            result = callbacks[command]['callback'](__castParameter(param, callbacks[command]['parameterType']))
+                            if(result==0):
+                                actionSocket.sendall((str(result).replace('\n', '')+'\n').encode("utf-8"))
+                        except:
+                            print("ERROR DOING ACTION")
             else:
                 try:
                     actionSocket.sendall("Ping".encode("utf-8"))
@@ -507,8 +518,12 @@ def __castParameter(param, parameterType):
         return None
 
 
-def startActionListening():
-    if gFoi is None:
+def startActionListening(foi=None):
+    if foi is not None and foi != '':
+        f = foi
+    else:
+        f = gFoi
+    if f is None and f != '':
         print("NoDeviceException")
         return None
     if not callbacks:
@@ -516,7 +531,7 @@ def startActionListening():
         return None
     global actionThreadStop, clientActionThread
     actionThreadStop = Event()
-    clientActionThread = Thread(target=__actionSocketClient, args=(actionThreadStop, callbacks))
+    clientActionThread = Thread(target=__actionSocketClient, args=(actionThreadStop, callbacks, f))
     clientActionThread.start()
 
 
@@ -525,6 +540,3 @@ def stopActionListening():
     if actionThreadStop:
         actionThreadStop.set()
     clientActionThread = None
-
-
-__loadAuthData()

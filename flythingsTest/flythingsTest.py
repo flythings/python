@@ -2,7 +2,7 @@ import flythings
 import time
 import random
 from flythings import ActionDataTypes
-
+flythings.loadDataByFile('Configuration.properties')
 # Server, user and password are specified in the configuration File, if you dont have it, create the Configuration.properties file and specify those fields.
 def sendObservation_test():
     x = flythings.sendObservation(20, 'op', 'uoms', None, None, 'procedure', 'foi')
@@ -63,7 +63,7 @@ def test_action():
 
     def test(param):
         print(param)
-        return True
+        return 0
 
     result = flythings.registerAction("FileAction", test, parameterType=ActionDataTypes.FILE)
     result2 = flythings.registerActionForSeries("BooleanAction", "proc_status", "", test, parameterType=ActionDataTypes.BOOLEAN, procedure="process")

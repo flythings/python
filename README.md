@@ -34,6 +34,18 @@ The general properties configuration in Configuration.properties:
     LOGIN_TYPE:USER or DEVICE
     TIMEOUT: 1000   
 ```  
+
+To load the data from the file call this function:    
+- **loadDataByFile**(String file)      
+    **Description**: Loads data from the file.        
+    **Return**: Nothing.  
+
+**Examples**:  
+   * Loads config data from a file.    
+    ```PYTHON
+        import flythings
+        flythings.loadDataByFile("/home/xxxx/configuration.properties")
+    ```  
   
 You can also introduce this general properties using the library methods.  
   
