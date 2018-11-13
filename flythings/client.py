@@ -18,7 +18,7 @@ LOGIN_USER_URL = '/login/'
 SOCKET_URL = '/socket'
 SERIES_URL = '/series/'
 ACTIONS_URL = '/newaction/'
-# FILE = 'Configuration.properties'
+FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
 
@@ -67,7 +67,9 @@ def login(user, password, login_type):
         raise
 
 
-def loadDataByFile(file):
+def loadDataByFile(file=None):
+    if(file==None):
+        file = FILE
     global gServer
     try:
         for line in open(file):
@@ -485,6 +487,8 @@ def __actionSocketClient(actionThreadStop, callbacks, foi):
                             result = callbacks[command]['callback'](__castParameter(param, callbacks[command]['parameterType']))
                             if(result==0):
                                 actionSocket.sendall((str(result).replace('\n', '')+'\n').encode("utf-8"))
+                            else:
+                                actionSocket.sendall()
                         except:
                             print("ERROR DOING ACTION")
             else:
@@ -523,7 +527,7 @@ def startActionListening(foi=None):
         f = foi
     else:
         f = gFoi
-    if f is None and f != '':
+    if f is None or f == '':
         print("NoDeviceException")
         return None
     if not callbacks:

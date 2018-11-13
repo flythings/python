@@ -50,7 +50,7 @@ def register_action():
             print("test function true")
         else:
             print("test function false")
-        return "OK"
+        return 0
 
     result = flythings.registerAction("testAction", test, parameterType=ActionDataTypes.ARRAY)
     result2 = flythings.registerActionForSeries("testAction2", "proc_status", "", test, parameterType=ActionDataTypes.BOOLEAN)
