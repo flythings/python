@@ -5,9 +5,11 @@ import requests
 import time
 import socket
 from datetime import timedelta, datetime
-from threading import Thread, Event
+from threading import Thread, Event, Lock
 from enum import Enum
 import ast
+import copy
+import sys
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
 GET_OBSERVATIONS_URL = '/observation'
@@ -37,6 +39,10 @@ gPassword = ''
 gHash = ''
 gWorkspace = ''
 gTimeout = 1000
+gRealTimeAcumulator = {}
+gBatchEnabled = False
+gBatchTimeout = 0.50
+
 
 class ActionDataTypes(Enum):
     BOOLEAN = 1,
@@ -45,6 +51,7 @@ class ActionDataTypes(Enum):
     TEXT = 4,
     ARRAY = 5
 
+
 def login(user, password, login_type):
     try:
         if login_type == 'DEVICE':
@@ -52,7 +59,7 @@ def login(user, password, login_type):
         elif login_type == 'USER':
             authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password), timeout=gTimeout)
         else:
-            login_type='USER'
+            login_type = 'USER'
             authbody = requests.get('http://' + gServer + LOGIN_USER_URL, auth=(user, password), timeout=gTimeout)
         if authbody.status_code == 200:
             global headers
@@ -68,7 +75,7 @@ def login(user, password, login_type):
 
 
 def loadDataByFile(file=None):
-    if(file==None):
+    if (file == None):
         file = FILE
     global gServer
     try:
@@ -166,6 +173,12 @@ def setTimeout(timeout):
     return gTimeout
 
 
+def setBatchEnabled(batchEnabled):
+    global gBatchEnabled
+    gBatchEnabled = batchEnabled
+    return gBatchEnabled
+
+
 def sendObservations(values):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
@@ -176,11 +189,11 @@ def sendObservations(values):
 
 
 def sendRecord(serieId, json):
-	if (headers['x-auth-token'] == ''):
-		print ('NoAuthenticationError')
-		return None
-	response = requests.put('http://'+gServer+PUBLISH_RECORD_URL+"/"+str(serieId), json, headers=headers)
-	return response.status_code, response.content
+    if (headers['x-auth-token'] == ''):
+        print('NoAuthenticationError')
+        return None
+    response = requests.put('http://' + gServer + PUBLISH_RECORD_URL + "/" + str(serieId), json, headers=headers)
+    return response.status_code, response.content
 
 
 def search(
@@ -209,7 +222,8 @@ def search(
         message['temporalScale'] = aggrupation
     if aggrupationType is not None:
         message['temporalScaleType'] = aggrupationType
-    r = requests.post('http://' + gServer + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers, timeout=gTimeout)
+    r = requests.post('http://' + gServer + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers,
+                      timeout=gTimeout)
     if r.status_code == 200:
         list = r.json()[0]['data']
         returnList = []
@@ -267,16 +281,17 @@ def getObservation(
 
 
 def findSeries(foi=None, procedure=None, observable_property=None):
-    if foi is None or foi=='':
+    if foi is None or foi == '':
         foi = gFoi
-    if procedure is None or procedure=='':
+    if procedure is None or procedure == '':
         procedure = gProcedure
-    if observable_property is None or observable_property=='':
+    if observable_property is None or observable_property == '':
         return "INSERTE UNA PROPIEDAD OBSERVADA"
-    response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property, headers=headers, timeout=gTimeout)
+    response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property,
+                            headers=headers, timeout=gTimeout)
     message = json.loads(response.text)
     if response.status_code != 200:
-        print("Error retrieving series: " +foi+"-"+procedure+"-"+observable_property)
+        print("Error retrieving series: " + foi + "-" + procedure + "-" + observable_property)
         return None
     return message
 
@@ -403,6 +418,62 @@ def sendSocket(seriesId, value, timestamp, protocol=None):
         print("ERROR CONNECTING TO SOCKET")
 
 
+def acumulateObs(seriesId, value, timestamp):
+    lock.acquire()
+    global gRealTimeAcumulator
+    global gBatchTimeout
+    if str(seriesId) in gRealTimeAcumulator:
+        if int(time.time() * 1000) - gRealTimeAcumulator[str(seriesId)][len(gRealTimeAcumulator[str(seriesId)])-1]['timestamp'] > gBatchTimeout :
+            gRealTimeAcumulator[str(seriesId)].append({
+                'seriesId': seriesId,
+                'timestamp': timestamp,
+                'value': value
+            })
+        else:
+            lock.release()
+            print('ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION')
+            return 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
+    else:
+        gRealTimeAcumulator[str(seriesId)] = [{
+            'seriesId': seriesId,
+            'timestamp': timestamp,
+            'value': value
+        }]
+    lock.release()
+
+
+def __acumulatorSeriesToJson(data):
+    return json.dumps({'seriesId': data[0]['seriesId'],
+                       'obs': sorted(data, key=lambda o:o['timestamp'])
+    }) + "\n"
+
+
+def __sendSocketBatch(protocol=None):
+    while (True):
+        global gBatchEnabled
+        if (gBatchEnabled):
+            clientSocket = __getSocket(protocol)
+            lock.acquire()
+            global gRealTimeAcumulator
+            acumulator = copy.deepcopy(gRealTimeAcumulator)
+            if clientSocket is not None:
+                gRealTimeAcumulator = {}
+                lock.release()
+                try:
+                    values = acumulator.values()
+                    for value in values:
+                        # jsonPayload = json.dumps(value) + "\n"
+                        jsonPayload = __acumulatorSeriesToJson(value)
+                        clientSocket.sendall(jsonPayload.encode("utf-8"))
+                except socket.error as msg:
+                    __resetSocket(protocol)
+                    print(msg)
+            else:
+                lock.release()
+                print("ERROR CONNECTING TO SOCKET")
+        time.sleep(5)
+
+
 def __registerAction(
         name,
         parameterType=None,
@@ -447,7 +518,7 @@ def registerActionForSeries(name, observableProperty, unit, callback, foi=None, 
     if result:
         global callbacks
         if name not in callbacks:
-            callbacks[name] = {'callback':callback, 'parameterType': parameterType}
+            callbacks[name] = {'callback': callback, 'parameterType': parameterType}
         else:
             return False
     return result is not None
@@ -458,7 +529,7 @@ def registerAction(name, callback, foi=None, parameterType=None):
     if result:
         global callbacks
         if name not in callbacks:
-            callbacks[name] = {'callback':callback, 'parameterType': parameterType}
+            callbacks[name] = {'callback': callback, 'parameterType': parameterType}
         else:
             return False
     return result is not None
@@ -482,11 +553,12 @@ def __actionSocketClient(actionThreadStop, callbacks, foi):
                         command, param = decodedData.split(":;:")
                     else:
                         command = decodedData
-                    if(callbacks[command] is not None):
+                    if (callbacks[command] is not None):
                         try:
-                            result = callbacks[command]['callback'](__castParameter(param, callbacks[command]['parameterType']))
-                            if(result==0):
-                                actionSocket.sendall((str(result).replace('\n', '')+'\n').encode("utf-8"))
+                            result = callbacks[command]['callback'](
+                                __castParameter(param, callbacks[command]['parameterType']))
+                            if (result == 0):
+                                actionSocket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
                             else:
                                 actionSocket.sendall()
                         except:
@@ -517,7 +589,7 @@ def __castParameter(param, parameterType):
         elif parameterType == ActionDataTypes.BOOLEAN:
             return param.lower() == 'true'
         elif parameterType == ActionDataTypes.NUMBER:
-            return ast.literal_eval(param) # Number
+            return ast.literal_eval(param)  # Number
     except:
         return None
 
@@ -544,3 +616,8 @@ def stopActionListening():
     if actionThreadStop:
         actionThreadStop.set()
     clientActionThread = None
+
+
+thread = Thread(target=__sendSocketBatch)
+thread.start()
+lock = Lock()

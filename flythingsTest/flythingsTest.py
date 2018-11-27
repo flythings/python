@@ -15,7 +15,7 @@ def sendObservations_test():
                     flythings.getObservation(40, "test3", None, None, None, "ob1", "multiple"),
                     flythings.getObservation(50, "test4", "uoms", round(time.time() * 1000), None, "ob1", "multiple")]
     x = flythings.sendObservations(observations)
-    assert str(x) == str('{"message":"Full insertion","type":"Ok"}')
+    assert str(x) == str('200')
 
 
 def search_test():

@@ -8,4 +8,4 @@ except ImportError:
 from flythings.client import search,sendObservation,sendObservations,login,setDevice,setSensor,setServer\
 	,setToken,setTimeout,getObservation,setCustomHeader,setWorkspace,sendSocket,findSeries,sendRecord\
 	,registerAction, registerActionForSeries,startActionListening, stopActionListening, ActionDataTypes\
-	,loadDataByFile
+	,loadDataByFile, acumulateObs, setBatchEnabled
