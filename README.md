@@ -55,7 +55,23 @@ You can also introduce this general properties using the library methods.
     **Description**: Sets the server to which the requests will be sent.      
     **Return**: Returns a string representing the server.     
       
-- **setDevice**(String device)    
+- **setDevice**(String device, (Optional) object=None)   
+     **Params**:    
+      - device: (Mandatory) Device name.    
+      - object: (Optional) Object with extra device params.  
+    ```PYTHON
+  object = {
+     "type": "CUSTOM",
+     "geom": {
+        "type": "Point",
+        "crs": "4326",
+        "coordinates": [
+            -19.323204,
+            27.611808
+        ]
+     }
+  }
+  ```                   
     **Description**: Sets the device of the observation.    
     **Return**: Returns a string representing the device.    
       

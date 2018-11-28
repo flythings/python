@@ -9,12 +9,14 @@ from threading import Thread, Event, Lock
 from enum import Enum
 import ast
 import copy
+import os
 import sys
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
 GET_OBSERVATIONS_URL = '/observation'
 PUBLISH_SINGLE_URL = '/observation/single'
 PUBLISH_RECORD_URL = '/observation/record'
+FOI_URL = '/featureofinterest'
 LOGIN_DEVICE_URL = '/login/device'
 LOGIN_USER_URL = '/login/'
 SOCKET_URL = '/socket'
@@ -137,9 +139,39 @@ def setServer(server):
     return gServer
 
 
-def setDevice(device):
+def __updateFoiFile():
+    file = open("foi.txt", "r")
+    for line in file:
+        lineItems = line.split('\t')
+        if (lineItems[0] == gServer):
+            if (lineItems[1] == gFoi):
+                return False
+    file.close()
+    file = open('foi.txt', 'a')
+    file.write(gServer + '\t' + gFoi + '\t' + '\n')
+    file.close()
+    return True
+
+
+def setDevice(device, object=None):
     global gFoi
     gFoi = device
+    foiToSend = {}
+    foiToSend['featureOfInterest'] = {"name": device}
+    if (object != None):
+        if ('type' in object):
+            response = requests.get('http://' + gServer + FOI_URL + '/devicetypes', headers=headers, timeout=gTimeout)
+            if (response.status_code == 200):
+                deviceTypes = response.json()
+                if (object['type'] in deviceTypes):
+                    foiToSend['device'] = object['type']
+            else:
+                print(str(response.status_code) + "FAIL RETRIEVING DEVICE TYPES")
+        if ('geom' in object):
+            foiToSend['featureOfInterest']['geom'] = object['geom']
+    if (__updateFoiFile()):
+        requests.post('http://' + gServer + FOI_URL, json.dumps(foiToSend), headers=headers,
+                      timeout=gTimeout)
     return gFoi
 
 
@@ -175,7 +207,14 @@ def setTimeout(timeout):
 
 def setBatchEnabled(batchEnabled):
     global gBatchEnabled
+    global thread
     gBatchEnabled = batchEnabled
+    if (gBatchEnabled):
+        if (not thread.is_alive()):
+            thread.start()
+    else:
+        if (thread.is_alive()):
+            thread.join()
     return gBatchEnabled
 
 
@@ -423,7 +462,8 @@ def acumulateObs(seriesId, value, timestamp):
     global gRealTimeAcumulator
     global gBatchTimeout
     if str(seriesId) in gRealTimeAcumulator:
-        if int(time.time() * 1000) - gRealTimeAcumulator[str(seriesId)][len(gRealTimeAcumulator[str(seriesId)])-1]['timestamp'] > gBatchTimeout :
+        if int(time.time() * 1000) - gRealTimeAcumulator[str(seriesId)][len(gRealTimeAcumulator[str(seriesId)]) - 1][
+            'timestamp'] > gBatchTimeout:
             gRealTimeAcumulator[str(seriesId)].append({
                 'seriesId': seriesId,
                 'timestamp': timestamp,
@@ -444,8 +484,8 @@ def acumulateObs(seriesId, value, timestamp):
 
 def __acumulatorSeriesToJson(data):
     return json.dumps({'seriesId': data[0]['seriesId'],
-                       'obs': sorted(data, key=lambda o:o['timestamp'])
-    }) + "\n"
+                       'obs': sorted(data, key=lambda o: o['timestamp'])
+                       }) + "\n"
 
 
 def __sendSocketBatch(protocol=None):
@@ -618,6 +658,9 @@ def stopActionListening():
     clientActionThread = None
 
 
+if not os.path.exists("foi.txt"):
+    f = open("foi.txt", "a")
+    f.close()
+
 thread = Thread(target=__sendSocketBatch)
-thread.start()
 lock = Lock()
