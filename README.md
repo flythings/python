@@ -108,6 +108,10 @@ In the test folder, after fill in the Configuration.Properties file write on bas
 ```  
 ([Nose python library is needed](http://nose.readthedocs.io/en/latest/))
 
+
+### Change log
+   - [Change log](changelog.md) 
+
 ## [License](LICENSE)
 **Developed by [ITG](http://www.itg.es)**
 
