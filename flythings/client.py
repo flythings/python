@@ -16,6 +16,7 @@ PUBLISH_MULTIPLE_URL = '/observation/multiple'
 GET_OBSERVATIONS_URL = '/observation'
 PUBLISH_SINGLE_URL = '/observation/single'
 PUBLISH_RECORD_URL = '/observation/record'
+PUBLISH_PLAIN_CSV_URL = '/observation/csv/nofile'
 FOI_URL = '/featureofinterest'
 LOGIN_DEVICE_URL = '/login/device'
 LOGIN_USER_URL = '/login/'
@@ -235,6 +236,15 @@ def sendRecord(serieId, json):
     return response.status_code, response.content
 
 
+def sendCSV(values):
+    if (headers['x-auth-token'] == ''):
+        print('NoAuthenticationError')
+        return None
+    response = requests.post('http://' + gServer + PUBLISH_PLAIN_CSV_URL, data=values, headers=headers,
+                             timeout=gTimeout)
+    return response.status_code, response.content
+
+
 def search(
         series,
         start_date=None,
@@ -316,6 +326,40 @@ def getObservation(
     else:
         message['foi'] = gFoi
 
+    return message
+
+
+def getObservationCSV(
+        value,
+        series=None,
+        uom=None,
+        ts=None,
+        property=None,
+        procedure=None,
+        foi=None,
+):
+    message = ''
+    if series is not None:
+        message += str(series) + ";"
+    else:
+        if foi is not None:
+            message += foi + ";"
+        else:
+            message += gFoi + ";"
+        if procedure is not None:
+            message += procedure + ";"
+        else:
+            message += gProcedure + ";"
+        if property is not None:
+            message += property + ";"
+        else:
+            return None;
+    if ts is not None:
+        message += str(ts)
+    else:
+        message += str(int(time.time() * 1000))
+    if uom is not None:
+        message += ";" + uom
     return message
 
 
@@ -520,7 +564,8 @@ def __registerAction(
         foi=None,
         procedure=None,
         observableProperty=None,
-        unit=None
+        unit=None,
+        alias=None
 ):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
@@ -541,7 +586,8 @@ def __registerAction(
             payload["procedure"] = gProcedure if procedure is None else procedure
             payload["observableProperty"] = observableProperty
             payload["unit"] = unit
-
+        if alias is not None:
+            payload["alias"] = alias
         response = requests.post('http://' + gServer + ACTIONS_URL, data=json.dumps(payload), headers=headers)
 
         if response.status_code == 201:
@@ -553,8 +599,9 @@ def __registerAction(
     return None
 
 
-def registerActionForSeries(name, observableProperty, unit, callback, foi=None, procedure=None, parameterType=None):
-    result = __registerAction(name, parameterType, foi, procedure, observableProperty, unit)
+def registerActionForSeries(name, observableProperty, unit, callback, foi=None, procedure=None, parameterType=None,
+                            alias=None):
+    result = __registerAction(name, parameterType, foi, procedure, observableProperty, unit, alias=alias)
     if result:
         global callbacks
         if name not in callbacks:
@@ -564,8 +611,8 @@ def registerActionForSeries(name, observableProperty, unit, callback, foi=None, 
     return result is not None
 
 
-def registerAction(name, callback, foi=None, parameterType=None):
-    result = __registerAction(name, parameterType, foi)
+def registerAction(name, callback, foi=None, parameterType=None, alias=None):
+    result = __registerAction(name, parameterType, foi, alias=alias)
     if result:
         global callbacks
         if name not in callbacks:

@@ -13,13 +13,14 @@
 
 ## Module Methods 
 
-- **registerAction**(String name, Function callback, String foi, ActionDataTypes parameterType)  
+- **registerAction**(String name, Function callback, String foi, ActionDataTypes parameterType, String alias)  
     **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
     **Params**:  
       - name: (Mandatory) Identifier of the action.  
       - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly.    
       - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
-      - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.  
+      - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.   
+      - alias: (Optional) Specifies a alias to the action.    
     **Return**: True if all was correct, otherwise False.    
     ```NoAuthenticationError```  
     ```NoDeviceError```  
@@ -35,7 +36,7 @@
         flythings.registerAction("<name>", test, foi="<device>", parameterType=flythings.ActionDataTypes.TEXT)
     ```
 
-- **registerActionForSeries**(String name, String observableProperty, String unit, Function callback, String foi, String procedure, ActionDataTypes parameterType)  
+- **registerActionForSeries**(String name, String observableProperty, String unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias)  
     **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
     **Params**:  
       - name: (Mandatory) Identifier of the action.  
@@ -45,6 +46,7 @@
       - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
       - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is mandatory.  
       - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.  
+      - alias: (Optional) Specifies a alias to the action.    
     **Return**: True if all was correct, otherwise False.    
     ```NoAuthenticationError```    
     ```NoDeviceError```  

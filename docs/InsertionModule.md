@@ -121,7 +121,28 @@
     }  
     flythings.getObservation(20,"prueba",None,None,auxGeom,"procedure","foi")     
     ```  
+- **getObservationCSV**((String,Double,GeomObj,Boolean) value, Long serie, String uom, Timestamp ts, String property, String procedure, String foi)    
+    **Description**: creates a observation CSV Object. If serie was inserted ignores foi, procedure and property.      
+    **Params**:    
+      - value: (Mandatory) Value to insert in the observation.    
+      - serie: (Optional)  Serie of the observation.          
+      - uom: (Optional) unit of the measurement    
+      - ts: (Optional) Timestamp when the measurement was taken.    
+      - property: (Optional) Property of the observation.    
+      - procedure: (Optional, Default configuration procedure) Sensor of the observation.    
+      - foi:  (Optional, Default configuration foi) Device of the observation.    
+    **Return**: Returns the observation object created.    
+    **Examples**:    
       
+    * Generates a simple observation without configuration File.  
+    ```PYTHON  
+        import flythings    
+        flythings.setServer("beta.flythings.io/api")    
+        flythings.login("<your username>","<your password>")    
+        csv = []    
+        csv.append(flythings.getObservationCSV(20,series=123))    
+        csv.append(flythings.getObservationCSV(25, uom='ºC', ts=int(time.time() * 1000), property='property', procedure='procedure', foi='foi'))        
+    ```      
 - **sendObservations**([observationObject] observations)    
     **Description**: sends multiple observations.      
     **Params**:    
@@ -161,9 +182,32 @@
        observations.append({value:2.5, time:1540453850781})
        flythingsClient.sendRecord(947, observations)
 	```
- - **findSeries**(String foi, String procedure, String observable_property)  
-   **Description**: finds a series by foi, procedure and observable_property.  
-   **Params**:
+	
+- **sendCSV**([ObservationCSV] observations)    
+  **Description**: sends a observation csv to the service.      
+  **Params**:    
+      - observations: (Mandatory) list of ObservationCSV to insert.  
+
+  **Return**: Returns a pair containing:  
+    ```(200, {OK: FULL INSERTION})```
+    if the observation was inserted, otherwise returns message error:  
+    ```(400 , { type: Error, message: Message Error in text format})```   
+     
+  **Examples**:  
+	 * Sends multiple observations on csv format.
+	  ```PYTHON  
+        import flythings    
+        flythings.setServer("beta.flythings.io/api")    
+        flythings.login("<your username>","<your password>")    
+        csv = []    
+        csv.append(flythings.getObservationCSV(20,series=123))    
+        csv.append(flythings.getObservationCSV(25, uom='ºC', ts=int(time.time() * 1000), property='property', procedure='procedure', foi='foi'))  
+        print(flythings.sendCSV(csv))      
+    ```      
+	   
+ - **findSeries** (String foi, String procedure, String observable_property)    
+   **Description**: finds a series by foi, procedure and observable_property.    
+   **Params**:    
 	    - foi: (Optional, Default configuration foi) String representing the foi name.  
 	    - procedure: (Optional, Default configuration procedure)  String representing the procedure name.  
 	    - observable_property:  (Mandatory) String representing the observable property name.  
