@@ -635,15 +635,19 @@ def __actionSocketClient(actionThreadStop, callbacks, foi):
                 if decodedData == "DEVICE":
                     actionSocket.sendall((foi + "\n").encode("utf-8"))
                 else:
-                    param = None
-                    if ":;:" in decodedData:
-                        command, param = decodedData.split(":;:")
-                    else:
+                    if '@PING@' in decodedData:
                         command = decodedData
+                    else:
+                        response = json.loads(decodedData)
+                        param = None
+                        ts = response["timestamp"]
+                        command = response["name"]
+                        if 'action' in response:
+                            param = response["action"]
                     if (callbacks[command] is not None):
                         try:
                             result = callbacks[command]['callback'](
-                                __castParameter(param, callbacks[command]['parameterType']))
+                                __castParameter(param, callbacks[command]['parameterType']), ts)
                             if (result == 0):
                                 actionSocket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
                             else:
