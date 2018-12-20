@@ -1,8 +1,15 @@
 # Action Module 
 [Getting Started](https://github.com/flythings/python)
 
+### Index
+* [Action Data Types](#action_types)
+* [Register Action](#register_action)
+* [Register Action Series](#register_action_series)
+* [Start Action Listening](#start_action_listening)
+* [Stop Action Listening](#stop_action_listening)
+
 ## Action Types
-- **ActionDataTypes**  
+- <a name="action_types"></a>**ActionDataTypes**  
 **Description**: Enumerated withe the allowed datatypes for the callbacks of the actions.  
 **Values**:  
 	- **ActionDataTypes.BOOLEAN**: The callback will receive a boolean value from the server when the action is triggered.  
@@ -13,22 +20,22 @@
 
 ## Module Methods 
 
-- **registerAction**(String name, Function callback, String foi, ActionDataTypes parameterType, String alias)  
+- <a name="register_action"></a>**registerAction**(String name, Function callback, String foi, ActionDataTypes parameterType, String alias)  
     **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
     **Params**:  
-      - name: (Mandatory) Identifier of the action.  
-      - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly.
-      That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.       
-      - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
-      - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.   
-      - alias: (Optional) Specifies a alias to the action.    
+    - name: (Mandatory) Identifier of the action.  
+    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly. 
+    That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.       
+    - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
+    - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.   
+    - alias: (Optional) Specifies a alias to the action.    
+    
     **Return**: True if all was correct, otherwise False.    
     ```NoAuthenticationError```  
     ```NoDeviceError```  
     ```NoProcedureError```  
     **Examples**:  
-
-   * Register an action with the server.  
+    * Register an action with the server.  
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
@@ -38,47 +45,47 @@
         flythings.registerAction("<name>", test, foi="<device>", parameterType=flythings.ActionDataTypes.TEXT)
     ```
 
-- **registerActionForSeries**(String name, String observableProperty, String unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias)  
+- <a name="register_action_series"></a>**registerActionForSeries**(String name, String observableProperty, String unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias)  
     **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
     **Params**:  
-      - name: (Mandatory) Identifier of the action.  
-      - observableProperty: (Mandatory) Observable property of the series.  
-      - unit: (Mandatory) Unit property of the series.  
-      - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly.
-      That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.    
-      - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
-      - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is mandatory.  
-      - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.  
-      - alias: (Optional) Specifies a alias to the action.    
+    - name: (Mandatory) Identifier of the action.  
+    - observableProperty: (Mandatory) Observable property of the series.  
+    - unit: (Mandatory) Unit property of the series.  
+    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly.   
+    That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.    
+    - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
+    - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is mandatory.  
+    - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.  
+    - alias: (Optional) Specifies a alias to the action.    
+    
     **Return**: True if all was correct, otherwise False.    
     ```NoAuthenticationError```    
     ```NoDeviceError```  
     ```NoProcedureError```  
     **Examples**:  
-
-   * Registers an action with the server.  
+    * Registers an action with the server.  
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
         def test(param,timestamp):
           print(param)
           print(timestamp)
-        flythings.registerActionForSeries("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=flythings.ActionDataTypes.TEXT)
+        flythings.registerActionForSeries("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=flythings.ActionDataTypes.TEXT, alias="test_alias")
     ```
 
-- **startActionListening**()  
+- <a name="start_action_listening"></a>**startActionListening**()  
     **Description**: Starts listening to the server waiting for an action to trigger. Is necessary that at least one action is registered.  
     **Return**: None  
     ```NoDeviceException```  
     ```NoRegisteredActionExcetion```  
     **Examples**:  
-
-   * Starts listening waiting for an action to trigger.  
+    * Starts listening waiting for an action to trigger.  
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
-        def test(param):
+        def test(param,timestamp):
           print(param)
+          print(timestamp)
         flythings.registerAction("<name>", test, foi="<device>", flythings.ActionDataTypes.TEXT)
         flythings.startActionListening()
         while(True):
@@ -86,21 +93,21 @@
             time.sleep(10)
     ```
 
-- **stopActionListening**()  
+- <a name="stop_action_listening"></a>**stopActionListening**()  
     **Description**: Stop listening to the server for actions.  
     **Return**: None.  
     ```NoAuthenticationError```    
     ```NoDeviceError```    
     ```NoProcedureError```   
     **Examples**:  
-
-   * Stop listening to the server for actions.  
+    * Stop listening to the server for actions.  
     ```PYTHON
         import flythings, time
         flythings.login("<your username>","<your password>", "<login type>")
         listening = False
-        def test(param):
+        def test(param,timestamp):
           print(param)
+          print(timestamp)
           flythings.stopActionListening() #Stops listening when a action was triggered
           listening = False
         flythings.registerAction("<name>", test, foi="<device>", ActionDataTypes.TEXT)
@@ -110,5 +117,10 @@
             print("listening...")
             time.sleep(10)
     ```  
+    
+## Sequence Diagram 
+![Action Sequence Diagram](actionSequenceDiagram.png)
+
+
 ## [License](LICENSE)
 **Developed by [ITG](http://www.itg.es)**
