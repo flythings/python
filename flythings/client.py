@@ -236,7 +236,7 @@ def sendRecord(serieId, json):
     return response.status_code, response.content
 
 
-def sendCSV(values):
+def sendObservationsCSV(values):
     if (headers['x-auth-token'] == ''):
         print('NoAuthenticationError')
         return None
