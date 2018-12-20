@@ -188,7 +188,7 @@
         csv = []    
         csv.append(flythings.getObservationCSV(20,series=123))    
         csv.append(flythings.getObservationCSV(25, uom='ºC', ts=int(time.time() * 1000), property='property', procedure='procedure', foi='foi'))  
-        print(flythings.sendCSV(csv))
+        print(flythings.sendObservationsCSV(csv))
     ```      
     
 - <a name="send_record"></a>**sendRecord**(int seriesId, RecordObservation observations)    
