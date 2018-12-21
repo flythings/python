@@ -1,6 +1,9 @@
 ## Change log
 
 
+### 1.2.1
+* Checks if user has enum34 installed, if not, installs it.
+
 ### 1.2.0
 * Include csv observation construction and insertion.
 * Actions contains the action creation timestamp.
