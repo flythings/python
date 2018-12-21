@@ -1,5 +1,7 @@
 ## Change log
 
+### 1.2.3
+* Remove pathlib dependency
 
 ### 1.2.2
 * Checks if user has pathlib installed, if not, installs it.
