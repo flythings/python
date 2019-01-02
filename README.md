@@ -91,9 +91,9 @@ You can also introduce this general properties using the library methods.
     **Description**: Sets the timeout value in seconds to the server requests.    
     **Return**: Returns a integer representing the timeout.  
       
-- **login**(String user, String password)    
+- **login**(String user, String password, String login_type ['USER' or 'DEVICE])    
     **Description**: Authenticate against the server.     
-    **Return**: Returns a string representing the token. 
+    **Return**: Returns a string representing the token or None if login fails. 
 
  ### Modules documentation
 - [InsertionModule](docs/InsertionModule.md)

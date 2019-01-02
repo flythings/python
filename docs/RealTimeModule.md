@@ -4,12 +4,12 @@
 ### Index
 * [Send Observation By Socket](#send_socket)
 * [Set Batch State (enabled(dsabled)](#set_batch)
-* [Accumulate Observation to send in batch](#accumulate_obss)
 
 ## Module Methods 
 
 - <a name="send_socket"></a>**sendSocket**(Long seriesId, Double value, Long timestamp, String protocol)  
-    **Description**: sends observation using a TCP socket connection.  
+    **Description**: sends observation using a TCP socket connection if batch is not enabled, in this case the sending interval must be bigger than 1400ms, or adds a observation to the acumulator if batch is enabled,
+     in this case the observation must have at least more than 50ms on timestamp than the last observation inserted with the same seriesId.    
     **Params**:  
     - seriesId: (Mandatory) Identifier of the series of the device.  
     - value: (Mandatory)  Value of the sample.  
@@ -18,12 +18,23 @@
     
     **Return**: None if all was correct, otherwise returns message error:  
     ```ERROR CONNECTING WITH WEBSOCKET```  
+    ```ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION```  
+    ```ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME```  
     **Examples**:    
     * Send a observation using a socket.    
     ```PYTHON
         import flythings
         flythings.login("<your username>","<your password>", "<login type>")
         flythings.sendSocket("<seriesId>", <value>, <timestamp>, "<protocol>")
+    ```
+    * adding a observation to the acumulator.    
+    ```PYTHON
+        import flythings
+        flythings.login("<your username>","<your password>", "<login type>")
+        flythings.setBatchEnabled(True)
+        while(True):
+            flythings.sendSocket("<seriesId>", <value>, <timestamp>)
+            time.sleep(0.05)
     ```
 
 Also there is a process sending the observations on a acumulator to the service every 5 seconds.      
@@ -40,29 +51,5 @@ Also there is a process sending the observations on a acumulator to the service 
         import flythings
         flythings.setBatchEnabled(True)
     ```    
-    
-    
-- <a name="accumulate_obss"></a>**acumulateObs**(Long seriesId, Double value, Long timestamp)  
-    **Description**: adds a observation to the acumulator,
-     the observation must have at least more than 50ms on timestamp than the last observation
-     inserted with the same seriesId.   
-    **Params**:  
-    - seriesId: (Mandatory) Identifier of the series of the device.  
-    - value: (Mandatory)  Value of the sample.  
-    - timestamp:  (Mandatory) Timestamp of the sample.  
-    
-    **Return**:  None if all was correct, otherwise returns message error:  
-    ```ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION```    
-    **Examples**:
-    * adding a observation to the acumulator.    
-    ```PYTHON
-        import flythings
-        flythings.login("<your username>","<your password>", "<login type>")
-        flythings.setBatchEnabled(True)
-        while(True):
-            flythings.acumulateObs("<seriesId>", <value>, <timestamp>)
-            time.sleep(0.05)
-    ```
-
 ## [License](LICENSE)
 **Developed by [ITG](http://www.itg.es)**

@@ -44,7 +44,9 @@ gWorkspace = ''
 gTimeout = 1000
 gRealTimeAcumulator = {}
 gBatchEnabled = False
-gBatchTimeout = 0.50
+gBatchTimeout = 50
+gRealTimeTimeout = 1400
+gLastRealTimeTimestamp = None
 
 
 class ActionDataTypes(Enum):
@@ -72,6 +74,9 @@ def login(user, password, login_type):
                 headers['Workspace'] = str(body['workspace'])
             else:
                 headers['Workspace'] = str(gWorkspace)
+        else:
+            print('ERROR AUTHENTICATED, CHECK THE USER OR PASSWORD')
+            return None
     except requests.exceptions.InvalidURL:
         print('INVALID SERVER')
         raise
@@ -488,42 +493,49 @@ def __resetSocket(protocol):
 
 
 def sendSocket(seriesId, value, timestamp, protocol=None):
-    clientSocket = __getSocket(protocol)
-
-    if clientSocket is not None:
-        jsonPayload = __getPayload(seriesId, value, timestamp, protocol)
-        try:
-            clientSocket.sendall(jsonPayload.encode("utf-8"))
-        except socket.error as msg:
-            __resetSocket(protocol)
-            print(msg)
-    else:
-        print("ERROR CONNECTING TO SOCKET")
-
-
-def acumulateObs(seriesId, value, timestamp):
-    lock.acquire()
-    global gRealTimeAcumulator
-    global gBatchTimeout
-    if str(seriesId) in gRealTimeAcumulator:
-        if int(time.time() * 1000) - gRealTimeAcumulator[str(seriesId)][len(gRealTimeAcumulator[str(seriesId)]) - 1][
-            'timestamp'] > gBatchTimeout:
-            gRealTimeAcumulator[str(seriesId)].append({
+    if (gBatchEnabled):
+        lock.acquire()
+        global gRealTimeAcumulator
+        global gBatchTimeout
+        if str(seriesId) in gRealTimeAcumulator:
+            if int(time.time() * 1000) - \
+                    gRealTimeAcumulator[str(seriesId)][len(gRealTimeAcumulator[str(seriesId)]) - 1][
+                        'timestamp'] >= gBatchTimeout:
+                gRealTimeAcumulator[str(seriesId)].append({
+                    'seriesId': seriesId,
+                    'timestamp': timestamp,
+                    'value': value
+                })
+            else:
+                lock.release()
+                print('ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION')
+                return 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
+        else:
+            gRealTimeAcumulator[str(seriesId)] = [{
                 'seriesId': seriesId,
                 'timestamp': timestamp,
                 'value': value
-            })
-        else:
-            lock.release()
-            print('ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION')
-            return 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
+            }]
+        lock.release()
     else:
-        gRealTimeAcumulator[str(seriesId)] = [{
-            'seriesId': seriesId,
-            'timestamp': timestamp,
-            'value': value
-        }]
-    lock.release()
+        global gLastRealTimeTimestamp
+        if gLastRealTimeTimestamp == None or int(time.time() * 1000) - gLastRealTimeTimestamp >= gRealTimeTimeout:
+            clientSocket = __getSocket(protocol)
+
+            if clientSocket is not None:
+                jsonPayload = __getPayload(seriesId, value, timestamp, protocol)
+                try:
+                    clientSocket.sendall(jsonPayload.encode("utf-8"))
+                except socket.error as msg:
+                    __resetSocket(protocol)
+                    print(msg)
+            else:
+                print("ERROR CONNECTING TO SOCKET")
+            print('CORRECT SENDED')
+            gLastRealTimeTimestamp = int(time.time() * 1000)
+        else:
+            print('ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME')
+            return 'ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME'
 
 
 def __acumulatorSeriesToJson(data):
@@ -649,6 +661,8 @@ def __actionSocketClient(actionThreadStop, callbacks, foi):
                             result = callbacks[command]['callback'](
                                 __castParameter(param, callbacks[command]['parameterType']), ts)
                             if (result == 0):
+                                actionSocket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
+                            elif isinstance(result, str):
                                 actionSocket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
                             else:
                                 actionSocket.sendall()

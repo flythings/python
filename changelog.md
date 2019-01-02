@@ -1,5 +1,10 @@
 ## Change log
 
+### 1.3.0
+* Return None if login fails.  
+* Allow actions to send String when the device wants to send a error to the server.  
+* Refactor acumulateObss, now included on sendSocket if batch is enabled.  
+
 ### 1.2.3
 * Remove pathlib dependency
 

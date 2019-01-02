@@ -13,7 +13,7 @@ def get_long_description():
 setup(
     name='flythings',
     packages=['flythings'],
-    version='1.2.3',
+    version='1.3.0',
     description='A python library to add ans search observations into flythings',
     author='flythings',
     author_email='tic@itg.es',
@@ -21,7 +21,7 @@ setup(
     long_description=get_long_description(),
     long_description_content_type="text/markdown",  # This is important!
     url='https://github.com/flythings/python',
-    download_url='https://github.com/flythings/python/1.2.3.tar.gz',
+    download_url='https://github.com/flythings/python/1.3.0.tar.gz',
     keywords=['flythings', 'IoT'],
     install_requires=['requests', 'enum34'],
     classifiers=[]

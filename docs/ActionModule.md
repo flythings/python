@@ -24,7 +24,7 @@
     **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
     **Params**:  
     - name: (Mandatory) Identifier of the action.  
-    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly. 
+    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly or a string to indicate there was a error.   
     That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.       
     - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
     - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.   
@@ -51,7 +51,7 @@
     - name: (Mandatory) Identifier of the action.  
     - observableProperty: (Mandatory) Observable property of the series.  
     - unit: (Mandatory) Unit property of the series.  
-    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly.   
+    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly  or a string to indicate there was a error.    
     That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.    
     - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
     - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is mandatory.  
