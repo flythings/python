@@ -1,5 +1,11 @@
 ## Change log
 
+
+### 1.4.2
+* Not append Unit if is none.
+* Not reset the socket on ping exception.
+
+
 ### 1.4.1
 * Fix socket never retry reconnect on service restart or turn off.
 

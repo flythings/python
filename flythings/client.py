@@ -602,6 +602,7 @@ def __registerAction(
         if observableProperty is not None:
             payload["procedure"] = gProcedure if procedure is None else procedure
             payload["observableProperty"] = observableProperty
+        if unit is not None:
             payload["unit"] = unit
         if alias is not None:
             payload["alias"] = alias
@@ -682,8 +683,9 @@ def __actionSocketClient(actionThreadStop, callbacks, foi):
             time.sleep(60)
             __actionSocketClient(actionThreadStop, callbacks, foi)
         except Exception as e:
-            time.sleep(60)
-            __actionSocketClient(actionThreadStop, callbacks, foi)
+            if (str(e) != "'@PING@'"):
+                time.sleep(60)
+                __actionSocketClient(actionThreadStop, callbacks, foi)
             pass
     actionSocket.close()
 
