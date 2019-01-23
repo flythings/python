@@ -665,9 +665,7 @@ def __actionSocketClient(actionThreadStop, callbacks, foi):
                         try:
                             result = callbacks[command]['callback'](
                                 __castParameter(param, callbacks[command]['parameterType']), ts)
-                            if (result == 0):
-                                actionSocket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
-                            elif isinstance(result, str):
+                            if result == 0 or isinstance(result, str):
                                 actionSocket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
                             else:
                                 actionSocket.sendall()
