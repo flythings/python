@@ -1,5 +1,9 @@
 ## Change log
 
+### 1.4.1
+* Fix socket never retry reconnect on service restart or turn off.
+
+
 ### 1.4.0
 * Include getHeaders() to return current headers.
 * Better documentation about action messages.

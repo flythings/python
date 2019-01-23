@@ -679,7 +679,11 @@ def __actionSocketClient(actionThreadStop, callbacks, foi):
                     break
         except socket.timeout:
             print("timeout")
+            time.sleep(60)
+            __actionSocketClient(actionThreadStop, callbacks, foi)
         except Exception as e:
+            time.sleep(60)
+            __actionSocketClient(actionThreadStop, callbacks, foi)
             pass
     actionSocket.close()
 
