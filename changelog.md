@@ -1,5 +1,12 @@
 ## Change log
 
+### 1.4.0
+* Include getHeaders() to return current headers.
+* Better documentation about action messages.
+* Fix pypi.org not parsing property the .md files.
+* Rename foi.txt cache foi file to .foiCache.
+
+
 ### 1.3.0
 * Return None if login fails.  
 * Allow actions to send String when the device wants to send a error to the server.  

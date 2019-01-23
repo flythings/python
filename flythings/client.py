@@ -146,14 +146,14 @@ def setServer(server):
 
 
 def __updateFoiFile():
-    file = open("foi.txt", "r")
+    file = open(".foiCache", "r")
     for line in file:
         lineItems = line.split('\t')
         if (lineItems[0] == gServer):
             if (lineItems[1] == gFoi):
                 return False
     file.close()
-    file = open('foi.txt', 'a')
+    file = open('.foiCache', 'a')
     file.write(gServer + '\t' + gFoi + '\t' + '\n')
     file.close()
     return True
@@ -185,6 +185,11 @@ def setCustomHeader(header, header_value):
     global headers
     headers[header] = header_value
     return headers[header]
+
+
+def getHeaders():
+    global headers
+    return headers
 
 
 def setSensor(sensor):
@@ -723,8 +728,8 @@ def stopActionListening():
     clientActionThread = None
 
 
-if not os.path.exists("foi.txt"):
-    f = open("foi.txt", "a")
+if not os.path.exists(".foiCache"):
+    f = open(".foiCache", "a")
     f.close()
 
 thread = Thread(target=__sendSocketBatch)

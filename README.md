@@ -3,7 +3,7 @@
 ## Getting Started  
   
 To use this client is necesary:  
-*  Install [Python](https://www.python.org/)  
+*  Install [Python](https://www.python.org/) (>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3*) 
 * Install [pip](https://pypi.python.org/pypi/pip?)  
 * To Install our library:  
 ```BASH  
@@ -72,7 +72,7 @@ You can also introduce this general properties using the library methods.
      }
   }
   ```                   
-    **Description**: Sets the device of the observation.    
+    **Description**: Sets the device of the observation. Uses a file named .foiCache to get a fast access to most used devices.      
     **Return**: Returns a string representing the device.    
       
 - **setSensor**(String sensor)    
@@ -86,6 +86,10 @@ You can also introduce this general properties using the library methods.
 - **setCustomHeader**(String header, String header_value)  
     **Description**: Sets a custom header for server requests.   
     **Return**: Returns a string representing the header.  
+    
+- **getHeaders**(String header, String header_value)  
+    **Description**: Return current headers.   
+    **Return**:  Return current headers. 
   
 - **setTimeout**(int timeout)     
     **Description**: Sets the timeout value in seconds to the server requests.    
