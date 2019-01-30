@@ -1,5 +1,7 @@
 ## Change log
 
+### 1.4.3
+* Fix pypy.org faulty update.
 
 ### 1.4.2
 * Not append Unit if is none.
