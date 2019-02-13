@@ -1,5 +1,9 @@
 ## Change log
 
+### 1.4.4
+* Include timeout on TCP sockets of 15 seconds.
+* Improve code understandability.
+
 ### 1.4.3
 * Fix pypy.org faulty update.
 

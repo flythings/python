@@ -382,7 +382,7 @@ def findSeries(foi=None, procedure=None, observable_property=None):
     if procedure is None or procedure == '':
         procedure = gProcedure
     if observable_property is None or observable_property == '':
-        return "INSERTE UNA PROPIEDAD OBSERVADA"
+        return "INSERT A OBSERVABLE PROPERTY"
     response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property,
                             headers=headers, timeout=gTimeout)
     message = json.loads(response.text)
@@ -461,6 +461,7 @@ def __get_socket(protocol):
         global clientTCPSocket
         if clientTCPSocket is None:
             clientTCPSocket = __get_tcp_socket()
+            clientTCPSocket.settimeout(15.0)
         return clientTCPSocket
     else:
         global clientUDPSocket
@@ -516,8 +517,9 @@ def sendSocket(series_id, value, timestamp, protocol=None):
                 })
             else:
                 lock.release()
-                print('ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION')
-                return 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
+                e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
+                print(e_message, flush=True)
+                return e_message
         else:
             gRealTimeAcumulator[str(series_id)] = [{
                 'seriesId': series_id,
@@ -542,8 +544,9 @@ def sendSocket(series_id, value, timestamp, protocol=None):
             print('CORRECT SENDED')
             gLastRealTimeTimestamp = int(time.time() * 1000)
         else:
-            print('ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME')
-            return 'ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME'
+            e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME'
+            print(e_message)
+            return e_message
 
 
 def __acumulator_series_to_json(data):
@@ -568,12 +571,12 @@ def __send_socket_batch(protocol=None):
                     for value in values:
                         json_payload = __acumulator_series_to_json(value)
                         clientSocket.sendall(json_payload.encode("utf-8"))
-                except socket.error as msg:
+                except (socket.error, socket.timeout) as msg:
+                    print("SOCKET ERROR:" + str(msg), flush=True)
                     __reset_socket(protocol)
-                    print(msg)
             else:
                 lock.release()
-                print("ERROR CONNECTING TO SOCKET")
+                print("ERROR CONNECTING TO SOCKET", flush=True)
         time.sleep(5)
 
 
