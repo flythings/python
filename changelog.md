@@ -1,5 +1,9 @@
 ## Change log
 
+### 1.4.5
+* Fix failure setting timeout on TCP socket on socket creation
+* Restore compatibility with Python2.7
+
 ### 1.4.4
 * Include timeout on TCP sockets of 15 seconds.
 * Improve code understandability.

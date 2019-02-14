@@ -461,7 +461,8 @@ def __get_socket(protocol):
         global clientTCPSocket
         if clientTCPSocket is None:
             clientTCPSocket = __get_tcp_socket()
-            clientTCPSocket.settimeout(15.0)
+            if clientTCPSocket is not None:
+                clientTCPSocket.settimeout(15.0)
         return clientTCPSocket
     else:
         global clientUDPSocket
@@ -518,7 +519,7 @@ def sendSocket(series_id, value, timestamp, protocol=None):
             else:
                 lock.release()
                 e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
-                print(e_message, flush=True)
+                __print(e_message)
                 return e_message
         else:
             gRealTimeAcumulator[str(series_id)] = [{
@@ -572,11 +573,11 @@ def __send_socket_batch(protocol=None):
                         json_payload = __acumulator_series_to_json(value)
                         clientSocket.sendall(json_payload.encode("utf-8"))
                 except (socket.error, socket.timeout) as msg:
-                    print("SOCKET ERROR:" + str(msg), flush=True)
+                    __print("SOCKET ERROR:" + str(msg))
                     __reset_socket(protocol)
             else:
                 lock.release()
-                print("ERROR CONNECTING TO SOCKET", flush=True)
+                __print("ERROR CONNECTING TO SOCKET")
         time.sleep(5)
 
 
@@ -737,6 +738,9 @@ def stopActionListening():
         actionThreadStop.set()
     clientActionThread = None
 
+def __print(text):
+    print(text)
+    sys.stdout.flush()
 
 if not os.path.exists(".foiCache"):
     f = open(".foiCache", "a")
