@@ -1,5 +1,9 @@
 ## Change log
 
+### 1.4.6
+* Fix send record method.
+* Include device_type and foi_name on observation construction.
+
 ### 1.4.5
 * Fix failure setting timeout on TCP socket on socket creation
 * Restore compatibility with Python2.7
