@@ -12,7 +12,7 @@
 * [Search](#search)
 
 ## Module Methods 
-- <a name="send_observation"></a>**sendObservation**([String,Double,GeomObj,Boolean] value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi)    
+- <a name="send_observation"></a>**sendObservation**([String,Double,GeomObj,Boolean] value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi, String device_type, String foi_name)    
     **Description**: sends a observation to the server.   
     **Params**:    
     - value: (Mandatory) Value to insert in the observation.    
@@ -22,6 +22,8 @@
     - geom: (Optional)  Geom object of the observation.    
     - procedure: (Optional) Sensor of the observation.   
     - foi:  (Optional) Device of the observation. 
+    - device_type:  (Optional, Default None) Type of the Device of the observation. 
+    - foi_name:  (Optional, Default None) Name of the device of the observation. 
     
     **Return**: Returns a message containing:      
     ```{OK: FULL INSERTION}```     
@@ -74,7 +76,7 @@
         flythings.sendObservation(20,"prueba",None,None,auxGeom,"procedure","foi")     
     ```  
   
-- <a name="get_observation"></a>**getObservation**((String,Double,GeomObj,Boolean) value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi)    
+- <a name="get_observation"></a>**getObservation**((String,Double,GeomObj,Boolean) value, String property, String uom, Timestamp time, GeomObj geom, String procedure, String foi, String device_type, String foi_name)    
     **Description**: creates a observation Object.    
     **Params**:    
     - value: (Mandatory) Value to insert in the observation.    
@@ -84,6 +86,8 @@
     - geom: (Optional)  Geom object of the observation.    
     - procedure: (Optional, Default configuration procedure) Sensor of the observation.    
     - foi:  (Optional, Default configuration foi) Device of the observation.   
+    - device_type:  (Optional, Default None) Type of the Device of the observation. 
+    - foi_name:  (Optional, Default None) Name of the device of the observation. 
     
     **Return**: Returns the observation object created.    
     **Examples**:   

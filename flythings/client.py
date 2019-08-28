@@ -236,16 +236,24 @@ def sendObservations(values):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
-                            headers=headers, timeout=gTimeout)
+    try:
+        response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
+                                headers=headers, timeout=gTimeout)
+    except Exception as e:
+        print(e, flush=True)
     return response.status_code
 
 
-def sendRecord(serie_id, json):
+def sendRecord(serie_id, observations):
     if (headers['x-auth-token'] == ''):
         print('NoAuthenticationError')
         return None
-    response = requests.put('http://' + gServer + PUBLISH_RECORD_URL + "/" + str(serie_id), json, headers=headers)
+    if isinstance(observations, str):
+        response = requests.put('http://' + gServer + PUBLISH_RECORD_URL + "/" + str(serie_id), observations,
+                                headers=headers)
+    else:
+        response = requests.put('http://' + gServer + PUBLISH_RECORD_URL + "/" + str(serie_id),
+                                data=json.dumps(observations), headers=headers)
     return response.status_code, response.content
 
 
@@ -304,11 +312,13 @@ def sendObservation(
         geom=None,
         procedure=None,
         foi=None,
+        device_type=None,
+        foi_name=None
 ):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    message = getObservation(value, property, uom, ts, geom, procedure, foi)
+    message = getObservation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
     json_payload = json.dumps(message)
     response = requests.put('http://' + gServer + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=gTimeout)
     return response.status_code
@@ -322,6 +332,8 @@ def getObservation(
         geom=None,
         procedure=None,
         foi=None,
+        device_type=None,
+        foi_name=None
 ):
     message = {'observableProperty': property, 'value': value}
     if uom is not None:
@@ -338,7 +350,10 @@ def getObservation(
         message['foi'] = foi
     else:
         message['foi'] = gFoi
-
+    if device_type is not None:
+        message['deviceType'] = device_type
+    if foi_name is not None:
+        message['foiName'] = foi_name
     return message
 
 
@@ -738,9 +753,11 @@ def stopActionListening():
         actionThreadStop.set()
     clientActionThread = None
 
+
 def __print(text):
     print(text)
     sys.stdout.flush()
+
 
 if not os.path.exists(".foiCache"):
     f = open(".foiCache", "a")

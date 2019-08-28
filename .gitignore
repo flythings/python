@@ -4,3 +4,5 @@ MANIFEST
 pypirc
 *.idea
 flythings/__pycache__/
+*.pyc
+/venv/*
