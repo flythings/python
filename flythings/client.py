@@ -662,30 +662,40 @@ def registerAction(name, callback, foi=None, parameterType=None, alias=None):
 
 
 def __action_socket_client(actionThreadStop, callbacks, foi):
+    current_time = time.time()
     actionSocket = None
     while not actionThreadStop.is_set():
+        action_time = time.time()
         try:
             if actionSocket is None:
                 actionSocket = __get_tcp_socket(ACTIONS_URL)
             actionSocket.settimeout(60.0)
             data = actionSocket.recv(1024)
             decodedData = data.decode("utf-8")
+            print("i am alive", flush=True)
+            try:
+                if action_time - current_time > 5:
+                    actionSocket.sendall("Ping".encode("utf-8"))
+                    current_time = time.time()
+            except:
+                print("The server closed the connection!", flush=True)
+                actionSocket.close()
+                actionSocket = None
             if decodedData != '':
                 __parse_decoded_data(decodedData, actionSocket, foi)
-            else:
-                try:
-                    actionSocket.sendall("Ping".encode("utf-8"))
-                except:
-                    print("The server closed the connection!")
-                    break
         except socket.timeout:
-            print("timeout")
+            print("timeout", flush=True)
+            actionSocket.close()
+            actionSocket = None
             time.sleep(60)
-            __action_socket_client(actionThreadStop, callbacks, foi)
+            # __action_socket_client(actionThreadStop, callbacks, foi)
         except Exception as e:
             if (str(e) != "'@PING@'"):
+                print("INTERNAL_FAILURE", flush=True)
+                actionSocket.close()
+                actionSocket = None
                 time.sleep(60)
-                __action_socket_client(actionThreadStop, callbacks, foi)
+                # __action_socket_client(actionThreadStop, callbacks, foi)
     actionSocket.close()
 
 

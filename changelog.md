@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.7
+* Fix a error that action socket gets corrupted and wasn't able to detect that failure.
+
 ### 1.4.6
 * Fix send record method.
 * Include device_type and foi_name on observation construction.
