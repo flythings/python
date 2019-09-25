@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.8
+* Fix send observations method was returning response if a exception was throw.
+
 ### 1.4.7
 * Fix a error that action socket gets corrupted and wasn't able to detect that failure.
 

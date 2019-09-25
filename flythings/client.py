@@ -233,6 +233,7 @@ def setBatchEnabled(batchEnabled):
 
 
 def sendObservations(values):
+    response = None
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
@@ -241,7 +242,10 @@ def sendObservations(values):
                                 headers=headers, timeout=gTimeout)
     except Exception as e:
         print(e, flush=True)
-    return response.status_code
+    if response is not None:
+        return response.status_code
+    else:
+        return 502
 
 
 def sendRecord(serie_id, observations):
