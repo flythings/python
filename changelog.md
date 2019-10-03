@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.9
+* Fix findSeries was trying to load a json outside a try block.
+
 ### 1.4.8
 * Fix send observations method was returning response if a exception was throw.
 

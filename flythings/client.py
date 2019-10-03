@@ -404,11 +404,14 @@ def findSeries(foi=None, procedure=None, observable_property=None):
         return "INSERT A OBSERVABLE PROPERTY"
     response = requests.get('http://' + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property,
                             headers=headers, timeout=gTimeout)
-    message = json.loads(response.text)
     if response.status_code != 200:
         print("Error retrieving series: " + foi + "-" + procedure + "-" + observable_property)
         return None
-    return message
+    try:
+        message = json.loads(response.text)
+        return message
+    except:
+        return None
 
 
 def __get_tcp_socket(url=None):
