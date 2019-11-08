@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.10
+* Continue supporting Python2
+
 ### 1.4.9
 * Fix findSeries was trying to load a json outside a try block.
 

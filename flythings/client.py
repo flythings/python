@@ -241,7 +241,7 @@ def sendObservations(values):
         response = requests.put('http://' + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
                                 headers=headers, timeout=gTimeout)
     except Exception as e:
-        print(e, flush=True)
+        print(e)
     if response is not None:
         return response.status_code
     else:
@@ -679,26 +679,25 @@ def __action_socket_client(actionThreadStop, callbacks, foi):
             actionSocket.settimeout(60.0)
             data = actionSocket.recv(1024)
             decodedData = data.decode("utf-8")
-            print("i am alive", flush=True)
             try:
                 if action_time - current_time > 5:
                     actionSocket.sendall("Ping".encode("utf-8"))
                     current_time = time.time()
             except:
-                print("The server closed the connection!", flush=True)
+                print("The server closed the connection!")
                 actionSocket.close()
                 actionSocket = None
             if decodedData != '':
                 __parse_decoded_data(decodedData, actionSocket, foi)
         except socket.timeout:
-            print("timeout", flush=True)
+            print("timeout")
             actionSocket.close()
             actionSocket = None
             time.sleep(60)
             # __action_socket_client(actionThreadStop, callbacks, foi)
         except Exception as e:
             if (str(e) != "'@PING@'"):
-                print("INTERNAL_FAILURE", flush=True)
+                print("INTERNAL_FAILURE")
                 actionSocket.close()
                 actionSocket = None
                 time.sleep(60)
