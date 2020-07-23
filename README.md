@@ -43,8 +43,8 @@ To load the data from the file call this function:
 **Examples**:  
    * Loads config data from a file.    
     ```PYTHON
-        import flythings
-        flythings.loadDataByFile("/home/xxxx/configuration.properties")
+        import flythings as fly
+        fly.loadDataByFile("/home/xxxx/configuration.properties")
     ```  
   
 You can also introduce this general properties using the library methods.  
@@ -103,6 +103,7 @@ You can also introduce this general properties using the library methods.
 - [InsertionModule](docs/InsertionModule.md)
 - [RealTimeModule](docs/RealTimeModule.md)
 - [ActionModule](docs/ActionModule.md)     
+- [UtilModule](docs/UtilModule.md)     
   
 ### Tests  
 In the test folder, after fill in the Configuration.Properties file write on bash:  

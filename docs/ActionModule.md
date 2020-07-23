@@ -37,12 +37,12 @@
     **Examples**:  
     * Register an action with the server.  
     ```PYTHON
-        import flythings
-        flythings.login("<your username>","<your password>", "<login type>")
+        import flythings as fly
+        fly.login("<your username>","<your password>", "<login type>")
         def test(param,timestamp):
           print(param)
           print(timestamp)
-        flythings.registerAction("<name>", test, foi="<device>", parameterType=flythings.ActionDataTypes.TEXT)
+        fly.registerAction("<name>", test, foi="<device>", parameterType=fly.ActionDataTypes.TEXT)
     ```
 
 - <a name="register_action_series"></a>**registerActionForSeries**(String name, String observableProperty, String unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias)  
@@ -68,12 +68,12 @@
     **Examples**:  
     * Registers an action with the server.  
     ```PYTHON
-        import flythings
-        flythings.login("<your username>","<your password>", "<login type>")
+        import flythings as fly
+        fly.login("<your username>","<your password>", "<login type>")
         def test(param,timestamp):
           print(param)
           print(timestamp)
-        flythings.registerActionForSeries("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=flythings.ActionDataTypes.TEXT, alias="test_alias")
+        fly.registerActionForSeries("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=fly.ActionDataTypes.TEXT, alias="test_alias")
     ```
 
 - <a name="start_action_listening"></a>**startActionListening**()  
@@ -84,13 +84,14 @@
     **Examples**:  
     * Starts listening waiting for an action to trigger.  
     ```PYTHON
-        import flythings
-        flythings.login("<your username>","<your password>", "<login type>")
+        import flythings as fly
+        import time
+        fly.login("<your username>","<your password>", "<login type>")
         def test(param,timestamp):
           print(param)
           print(timestamp)
-        flythings.registerAction("<name>", test, foi="<device>", flythings.ActionDataTypes.TEXT)
-        flythings.startActionListening()
+        fly.registerAction("<name>", test, foi="<device>", parameterType=fly.ActionDataTypes.TEXT)
+        fly.startActionListening()
         while(True):
             print("listening...")
             time.sleep(10)
@@ -105,16 +106,16 @@
     **Examples**:  
     * Stop listening to the server for actions.  
     ```PYTHON
-        import flythings, time
-        flythings.login("<your username>","<your password>", "<login type>")
+        import flythings as fly, time
+        fly.login("<your username>","<your password>", "<login type>")
         listening = False
         def test(param,timestamp):
           print(param)
           print(timestamp)
-          flythings.stopActionListening() #Stops listening when a action was triggered
+          fly.stopActionListening() #Stops listening when a action was triggered
           listening = False
-        flythings.registerAction("<name>", test, foi="<device>", ActionDataTypes.TEXT)
-        flythings.startActionListening()
+        fly.registerAction("<name>", test, foi="<device>", parameterType=fly.ActionDataTypes.TEXT)
+        fly.startActionListening()
         listening = True
         while(listening):
             print("listening...")

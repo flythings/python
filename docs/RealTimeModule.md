@@ -23,17 +23,18 @@
     **Examples**:    
     * Send a observation using a socket.    
     ```PYTHON
-        import flythings
-        flythings.login("<your username>","<your password>", "<login type>")
-        flythings.sendSocket("<seriesId>", <value>, <timestamp>, "<protocol>")
+        import flythings as fly
+        fly.login("<your username>","<your password>", "<login type>")
+        fly.sendSocket("<seriesId>", <value>, <timestamp>, "<protocol>")
     ```
     * adding a observation to the acumulator.    
     ```PYTHON
-        import flythings
-        flythings.login("<your username>","<your password>", "<login type>")
-        flythings.setBatchEnabled(True)
+        import flythings as fly
+        import time
+        fly.login("<your username>","<your password>", "<login type>")
+        fly.setBatchEnabled(True)
         while(True):
-            flythings.sendSocket("<seriesId>", <value>, <timestamp>)
+            fly.sendSocket("<seriesId>", <value>, <timestamp>)
             time.sleep(0.05)
     ```
 
@@ -48,8 +49,8 @@ Also there is a process sending the observations on a acumulator to the service 
     **Examples**:    
     * activating the batch process.    
     ```PYTHON
-        import flythings
-        flythings.setBatchEnabled(True)
+        import flythings as fly
+        fly.setBatchEnabled(True)
     ```    
 ## [License](LICENSE)
 **Developed by [ITG](http://www.itg.es)**
