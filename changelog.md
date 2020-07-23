@@ -1,5 +1,10 @@
 ## Change log
 
+### 1.4.11
+* Include send alert device method
+* Include send custom get request method
+* Support HTTPs or HTTP
+
 ### 1.4.10
 * Continue supporting Python2
 
