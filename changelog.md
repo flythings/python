@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.12
+* Print response text after send observations to allow to view request errors.
+
 ### 1.4.11
 * Include send alert device method
 * Include send custom get request method

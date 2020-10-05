@@ -173,18 +173,18 @@ def setDevice(device, object=None):
     gFoi = device
     foi_to_send = {}
     foi_to_send['featureOfInterest'] = {"name": device}
-    if (object != None):
-        if ('type' in object):
+    if object != None:
+        if 'type' in object:
             response = requests.get(HTTP_ + gServer + FOI_URL + '/devicetypes', headers=headers, timeout=gTimeout)
-            if (response.status_code == 200):
+            if response.status_code == 200:
                 device_types = response.json()
-                if (object['type'] in device_types):
+                if object['type'] in device_types:
                     foi_to_send['device'] = object['type']
             else:
                 print(str(response.status_code) + "FAIL RETRIEVING DEVICE TYPES")
-        if ('geom' in object):
+        if 'geom' in object:
             foi_to_send['featureOfInterest']['geom'] = object['geom']
-    if (__update_foi_file()):
+    if __update_foi_file():
         requests.post(HTTP_ + gServer + FOI_URL, json.dumps(foi_to_send), headers=headers,
                       timeout=gTimeout)
     return gFoi
@@ -229,11 +229,11 @@ def setBatchEnabled(batchEnabled):
     global gBatchEnabled
     global thread
     gBatchEnabled = batchEnabled
-    if (gBatchEnabled):
-        if (not thread.is_alive()):
+    if gBatchEnabled:
+        if not thread.is_alive():
             thread.start()
     else:
-        if (thread.is_alive()):
+        if thread.is_alive():
             thread.join()
     return gBatchEnabled
 
@@ -249,13 +249,16 @@ def sendObservations(values):
     except Exception as e:
         print(e)
     if response is not None:
+        if response.status_code >= 400:
+            print(response.text)
         return response.status_code
     else:
+        print("NO RESPONSE FROM SERVICE")
         return 502
 
 
 def sendRecord(serie_id, observations):
-    if (headers['x-auth-token'] == ''):
+    if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
     if isinstance(observations, str):
@@ -268,11 +271,13 @@ def sendRecord(serie_id, observations):
 
 
 def sendObservationsCSV(values):
-    if (headers['x-auth-token'] == ''):
+    if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
     response = requests.post(HTTP_ + gServer + PUBLISH_PLAIN_CSV_URL, data=values, headers=headers,
                              timeout=gTimeout)
+    if response.status_code >= 400:
+        print(response.text)
     return response.status_code, response.content
 
 
@@ -331,6 +336,8 @@ def sendObservation(
     message = getObservation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
     json_payload = json.dumps(message)
     response = requests.put(HTTP_ + gServer + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=gTimeout)
+    if response.status_code >= 400:
+        print(response.text)
     return response.status_code
 
 
