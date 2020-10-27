@@ -34,40 +34,40 @@
     ```PYTHON  
         import flythings as fly   
         fly.setServer("api.flythings.io/api")    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")
         fly.sendObservation(20,"prueba",None,None,None,"procedure","foi")    
     ```  
     * Adds a simple observation having server, sensor and device in the Configuration File.  
     ```PYTHON  
         import flythings as fly    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         fly.sendObservation(20,"prueba")    
     ```  
     * Adds a simple observation having all the parameters of the configuration File.  
     ```PYTHON  
         import flythings as fly    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")
         fly.sendObservation(20,"prueba")    
     ```    
     * Adds a simple observation with timezone.  
     ```PYTHON  
         import flythings as fly      
         fly.setServer("api.flythings.io/api")      
-        fly.login("<your username>","<your password>")     
+        fly.login("<your username>","<your password>", "<login type>")     
         fly.sendObservation(20,"prueba",None,1495643746000,None,"procedure","foi")     
     ```    
     * Adds a simple observation with uom.  
     ```PYTHON  
         import flythings as fly     
         fly.setServer("api.flythings.io/api")      
-        fly.login("<your username>","<your password>")     
+        fly.login("<your username>","<your password>", "<login type>")     
         fly.sendObservation(20,"prueba","m",None,None,"procedure","foi")    
     ```    
     * Adds a simple observation with Geom.  
     ```PYTHON  
         import flythings as fly      
         fly.setServer("api.flythings.io/api")      
-        fly.login("<your username>","<your password>")     
+        fly.login("<your username>","<your password>", "<login type>")     
         auxGeom = {  
                 "type": "Point",  
                 "crs": "4326",  
@@ -95,40 +95,40 @@
     ```PYTHON  
         import flythings as fly   
         fly.setServer("api.flythings.io/api")    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         fly.getObservation(20,"prueba",None,None,None,"procedure","foi")    
     ```  
     * Generates a simple observation having server, sensor and device in the Configuration File.  
     ```PYTHON  
         import flythings as fly     
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         fly.getObservation(20,"prueba")    
     ```  
     * Generates a simple observation having all the parameters of the configuration File.  
     ```PYTHON  
         import flythings as fly    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         fly.getObservation(20,"prueba")    
     ```    
     * Generates simple observation with timezone.  
     ```PYTHON  
         import flythings as fly     
         fly.setServer("api.flythings.io/api")      
-        fly.login("<your username>","<your password>")     
+        fly.login("<your username>","<your password>", "<login type>")     
         fly.getObservation(20,"prueba",None,1495643746000,None,"procedure","foi")     
     ```    
     * Generates simple observation with uom.  
     ```PYTHON  
         import flythings as fly     
         fly.setServer("api.flythings.io/api")      
-        fly.login("<your username>","<your password>")     
+        fly.login("<your username>","<your password>", "<login type>")     
         fly.getObservation(20,"prueba","m",None,None,"procedure","foi")  
     ```  
     * Generates simple observation with Geom.  
     ```PYTHON  
         import flythings as fly     
         fly.setServer("api.flythings.io/api")      
-        fly.login("<your username>","<your password>")     
+        fly.login("<your username>","<your password>", "<login type>")     
         auxGeom = {  
                 "type": "Point",  
                 "crs": "4326",  
@@ -154,7 +154,7 @@
     ```PYTHON  
         import flythings as fly    
         fly.setServer("api.flythings.io/api")    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         csv = []    
         csv.append(flythings.getObservationCSV(20,series=123))    
         csv.append(flythings.getObservationCSV(25, uom='ºC', ts=int(time.time() * 1000), property='property', procedure='procedure', foi='foi'))        
@@ -172,7 +172,7 @@
     * Multiple Insert  
     ```PYTHON  
         import flythings as fly     
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         observations = []  
         observations.append(fly.getObservation(40,'probando'))  
         observations.append(fly.getObservation(40,'multiple'))  
@@ -193,7 +193,7 @@
   ```PYTHON  
         import flythings as fly    
         fly.setServer("api.flythings.io/api")    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         csv = []    
         csv.append(fly.getObservationCSV(20,series=123))    
         csv.append(fly.getObservationCSV(25, uom='ºC', ts=int(time.time() * 1000), property='property', procedure='procedure', foi='foi'))  
@@ -217,7 +217,7 @@
     * Insert  record  
     ```PYTHON
         import flythings as fly
-        fly.login("<your username>","<your password>")
+        fly.login("<your username>","<your password>", "<login type>")
         observations = []
         observations.append({"value":5.0, "time":1540453750781})
         observations.append({"value":2.5, "time"":1540453850781})
@@ -237,7 +237,7 @@
    * Search data of a series.  
    ```PYTHON
         import flythings as fly
-        fly.login("<your username>","<your password>")
+        fly.login("<your username>","<your password>", "<login type>")
         series = fly.findSeries('foi', 'procedure', 'observable_property')
    ```
 
@@ -258,19 +258,19 @@
     * Search data of a series.  
     ```PYTHON
         import flythings as fly
-        fly.login("<your username>","<your password>")
+        fly.login("<your username>","<your password>", "<login type>")
         fly.search(947,1495643746000,1496248546000)
     ```
     * Search data of a series without start and end date.  
     ```PYTHON
         import flythings as fly
-        fly.login("<your username>","<your password>")
+        fly.login("<your username>","<your password>", "<login type>")
         fly.search(40)
     ```
      * Search data of a series without end date.  
     ```PYTHON
         import flythings as fly
-        fly.login("<your username>","<your password>")
+        fly.login("<your username>","<your password>", "<login type>")
         fly.search(40,1495787136953)
     ```
 

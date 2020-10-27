@@ -17,7 +17,7 @@
     ```PYTHON  
         import flythings as fly   
         fly.setServer("api.flythings.io/api")    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         fly.sendObservation(20,"prueba",None,None,None,"procedure","foi")    
         fly.api_get_request("/series/foi/procedure/prueba")    
     ```  
@@ -35,6 +35,6 @@
     ```PYTHON  
         import flythings as fly   
         fly.setServer("api.flythings.io/api")    
-        fly.login("<your username>","<your password>")    
+        fly.login("<your username>","<your password>", "<login type>")    
         fly.send_alert("asunto", "contenido del mensaje")    
     ```  
