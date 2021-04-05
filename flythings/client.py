@@ -554,7 +554,7 @@ def sendSocket(series_id, value, timestamp, protocol=None):
             else:
                 lock.release()
                 e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
-                __print(e_message)
+                __print__(e_message)
                 return e_message
         else:
             gRealTimeAcumulator[str(series_id)] = [{
@@ -572,6 +572,13 @@ def sendSocket(series_id, value, timestamp, protocol=None):
                 json_payload = __get_payload(series_id, value, timestamp, protocol)
                 try:
                     clientSocket.sendall(json_payload.encode("utf-8"))
+                    try:
+                        try:
+                            clientSocket.recv(1024)
+                        except socket.timeout:
+                            print("Buffer was already empty")
+                    except socket.timeout:
+                        print("Buffer was already empty")
                 except socket.error as msg:
                     __reset_socket(protocol)
                     print(msg)
@@ -607,12 +614,16 @@ def __send_socket_batch(protocol=None):
                     for value in values:
                         json_payload = __acumulator_series_to_json(value)
                         clientSocket.sendall(json_payload.encode("utf-8"))
+                        try:
+                            clientSocket.recv(1024)
+                        except socket.timeout:
+                            print("Buffer was already empty")
                 except (socket.error, socket.timeout) as msg:
-                    __print("SOCKET ERROR:" + str(msg))
+                    __print__("SOCKET ERROR:" + str(msg))
                     __reset_socket(protocol)
             else:
                 lock.release()
-                __print("ERROR CONNECTING TO SOCKET")
+                __print__("ERROR CONNECTING TO SOCKET")
         time.sleep(5)
 
 
@@ -796,7 +807,7 @@ def send_alert(self, subject, text):
     return response.status_code, json.loads(response.text)
 
 
-def __print(text):
+def __print__(text):
     print(text)
     sys.stdout.flush()
 

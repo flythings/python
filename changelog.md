@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.13
+* Include recv to clear buffer after send realtime data.
+
 ### 1.4.12
 * Print response text after send observations to allow to view request errors.
 
