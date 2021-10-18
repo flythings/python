@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.14
+* Include a flag to update always a featureOfInterest
+
 ### 1.4.13
 * Include recv to clear buffer after send realtime data.
 

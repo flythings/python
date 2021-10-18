@@ -168,7 +168,7 @@ def __update_foi_file():
     return True
 
 
-def setDevice(device, object=None):
+def setDevice(device, object=None, always_update=False):
     global gFoi
     gFoi = device
     foi_to_send = {}
@@ -184,7 +184,7 @@ def setDevice(device, object=None):
                 print(str(response.status_code) + "FAIL RETRIEVING DEVICE TYPES")
         if 'geom' in object:
             foi_to_send['featureOfInterest']['geom'] = object['geom']
-    if __update_foi_file():
+    if __update_foi_file() or always_update:
         requests.post(HTTP_ + gServer + FOI_URL, json.dumps(foi_to_send), headers=headers,
                       timeout=gTimeout)
     return gFoi
