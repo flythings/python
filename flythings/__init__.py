@@ -20,4 +20,5 @@ except ImportError:
 from flythings.client import search, sendObservation, sendObservations, login, setDevice, setSensor, setServer \
     , setToken, setTimeout, getObservation, setCustomHeader, setWorkspace, sendSocket, findSeries, sendRecord \
     , registerAction, registerActionForSeries, startActionListening, stopActionListening, ActionDataTypes \
-    , loadDataByFile, setBatchEnabled, getObservationCSV, sendObservationsCSV, getHeaders, api_get_request, send_alert
+    , loadDataByFile, setBatchEnabled, getObservationCSV, sendObservationsCSV, getHeaders, api_get_request, send_alert \
+    , save_text_metadata, save_date_metadata

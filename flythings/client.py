@@ -27,6 +27,7 @@ SOCKET_URL = '/socket'
 SERIES_URL = '/series/'
 ACTIONS_URL = '/newaction/'
 DEVICE_ALERT_URL = '/alerts/device/send'
+DEVICE_METADATA_URL = '/featureofinterest/metadata'
 FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
@@ -89,7 +90,7 @@ def login(user, password, login_type):
 
 
 def loadDataByFile(file=None):
-    if (file == None):
+    if file is None:
         file = FILE
     global gServer
     try:
@@ -159,7 +160,7 @@ def __update_foi_file():
     file = open(".foiCache", "r")
     for line in file:
         line_items = line.split('\t')
-        if (line_items[0] == gServer and line_items[1] == gFoi):
+        if line_items[0] == gServer and line_items[1] == gFoi:
             return False
     file.close()
     file = open('.foiCache', 'a')
@@ -171,9 +172,8 @@ def __update_foi_file():
 def setDevice(device, object=None, always_update=False):
     global gFoi
     gFoi = device
-    foi_to_send = {}
-    foi_to_send['featureOfInterest'] = {"name": device}
-    if object != None:
+    foi_to_send = {'featureOfInterest': {"name": device}}
+    if object is not None:
         if 'type' in object:
             response = requests.get(HTTP_ + gServer + FOI_URL + '/devicetypes', headers=headers, timeout=gTimeout)
             if response.status_code == 200:
@@ -182,6 +182,8 @@ def setDevice(device, object=None, always_update=False):
                     foi_to_send['device'] = object['type']
             else:
                 print(str(response.status_code) + "FAIL RETRIEVING DEVICE TYPES")
+        if 'geom' in object:
+            foi_to_send['featureOfInterest']['geom'] = object['geom']
         if 'geom' in object:
             foi_to_send['featureOfInterest']['geom'] = object['geom']
     if __update_foi_file() or always_update:
@@ -427,6 +429,30 @@ def findSeries(foi=None, procedure=None, observable_property=None):
         return None
 
 
+def save_text_metadata(key, value, foi=None):
+    if foi is None or foi == '':
+        foi = gFoi
+    message = {'key': key.upper(), 'value': value, 'type': 'TEXT'}
+    json_payload = json.dumps(message)
+    response = requests.post(HTTP_ + gServer + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
+                             headers=headers, timeout=gTimeout)
+    if response.status_code >= 400:
+        print(response.text)
+    return response.status_code
+
+
+def save_date_metadata(key, value, foi=None):
+    if foi is None or foi == '':
+        foi = gFoi
+    message = {'key': key.upper(), 'value': value, 'type': 'DATE'}
+    json_payload = json.dumps(message)
+    response = requests.post(HTTP_ + gServer + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
+                             headers=headers, timeout=gTimeout)
+    if response.status_code >= 400:
+        print(response.text)
+    return response.status_code
+
+
 def __get_tcp_socket(url=None):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
@@ -507,7 +533,7 @@ def __get_socket(protocol):
 
 
 def __get_payload(series_id, value, timestamp, protocol):
-    if (protocol is None or protocol.upper() == "TCP"):
+    if protocol is None or protocol.upper() == "TCP":
         return json.dumps({
             'seriesId': series_id,
             'timestamp': timestamp,
@@ -525,7 +551,7 @@ def __get_payload(series_id, value, timestamp, protocol):
 
 
 def __reset_socket(protocol):
-    if (protocol is None or protocol.upper() == "TCP"):
+    if protocol is None or protocol.upper() == "TCP":
         global clientTCPSocket
         if clientTCPSocket is not None:
             clientTCPSocket.close()
@@ -538,7 +564,7 @@ def __reset_socket(protocol):
 
 
 def sendSocket(series_id, value, timestamp, protocol=None):
-    if (gBatchEnabled):
+    if gBatchEnabled:
         lock.acquire()
         global gRealTimeAcumulator
         global gBatchTimeout
@@ -565,7 +591,7 @@ def sendSocket(series_id, value, timestamp, protocol=None):
         lock.release()
     else:
         global gLastRealTimeTimestamp
-        if gLastRealTimeTimestamp == None or int(time.time() * 1000) - gLastRealTimeTimestamp >= gRealTimeTimeout:
+        if gLastRealTimeTimestamp is None or int(time.time() * 1000) - gLastRealTimeTimestamp >= gRealTimeTimeout:
             clientSocket = __get_socket(protocol)
 
             if clientSocket is not None:
@@ -599,9 +625,9 @@ def __acumulator_series_to_json(data):
 
 
 def __send_socket_batch(protocol=None):
-    while (True):
+    while True:
         global gBatchEnabled
-        if (gBatchEnabled):
+        if gBatchEnabled:
             clientSocket = __get_socket(protocol)
             lock.acquire()
             global gRealTimeAcumulator
@@ -720,7 +746,7 @@ def __action_socket_client(actionThreadStop, callbacks, foi):
             time.sleep(60)
             # __action_socket_client(actionThreadStop, callbacks, foi)
         except Exception as e:
-            if (str(e) != "'@PING@'"):
+            if str(e) != "'@PING@'":
                 print("INTERNAL_FAILURE")
                 actionSocket.close()
                 actionSocket = None
@@ -742,7 +768,7 @@ def __parse_decoded_data(decoded_data, action_socket, foi):
             command = response["name"]
             if 'action' in response:
                 param = response["action"]
-        if (callbacks[command] is not None):
+        if callbacks[command] is not None:
             try:
                 result = callbacks[command]['callback'](
                     __cast_parameter(param, callbacks[command]['parameterType']), ts)
@@ -756,7 +782,7 @@ def __parse_decoded_data(decoded_data, action_socket, foi):
 
 def __cast_parameter(param, parameter_type):
     try:
-        if parameter_type == None:
+        if parameter_type is None:
             return None
         elif parameter_type == ActionDataTypes.TEXT or parameter_type == ActionDataTypes.FILE:
             return param

@@ -1,5 +1,8 @@
 ## Change log
 
+### 1.4.15
+* Allow to save device metadata on text and date format.
+
 ### 1.4.14
 * Include a flag to update always a featureOfInterest
 
