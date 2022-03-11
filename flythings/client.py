@@ -11,6 +11,8 @@ import ast
 import copy
 import os
 import sys
+from inspect import signature
+
 
 HTTP_ = 'http://'
 HTTPS_ = 'http://'
@@ -53,6 +55,7 @@ gBatchTimeout = 50
 gRealTimeTimeout = 1400
 gLastRealTimeTimestamp = None
 
+gActionSocket = None
 
 class ActionDataTypes(Enum):
     BOOLEAN = 1,
@@ -719,40 +722,42 @@ def registerAction(name, callback, foi=None, parameterType=None, alias=None):
 
 
 def __action_socket_client(actionThreadStop, callbacks, foi):
+    global gActionSocket
     current_time = time.time()
-    actionSocket = None
+    gActionSocket = None
     while not actionThreadStop.is_set():
         action_time = time.time()
         try:
-            if actionSocket is None:
-                actionSocket = __get_tcp_socket(ACTIONS_URL)
-            actionSocket.settimeout(60.0)
-            data = actionSocket.recv(1024)
+            if gActionSocket is None:
+                gActionSocket = __get_tcp_socket(ACTIONS_URL)
+            gActionSocket.settimeout(60.0)
+            data = gActionSocket.recv(1024)
             decodedData = data.decode("utf-8")
+            if decodedData != '':
+                __parse_decoded_data(decodedData, gActionSocket, foi)
             try:
                 if action_time - current_time > 5:
-                    actionSocket.sendall("Ping".encode("utf-8"))
+                    gActionSocket.sendall("Ping\n".encode("utf-8"))
                     current_time = time.time()
             except:
                 print("The server closed the connection!")
-                actionSocket.close()
-                actionSocket = None
-            if decodedData != '':
-                __parse_decoded_data(decodedData, actionSocket, foi)
+                gActionSocket.close()
+                gActionSocket = None
         except socket.timeout:
             print("timeout")
-            actionSocket.close()
-            actionSocket = None
-            time.sleep(60)
+            gActionSocket.close()
+            gActionSocket = None
+            time.sleep(30)
             # __action_socket_client(actionThreadStop, callbacks, foi)
         except Exception as e:
+            print(str(e))
             if str(e) != "'@PING@'":
                 print("INTERNAL_FAILURE")
-                actionSocket.close()
-                actionSocket = None
-                time.sleep(60)
+                gActionSocket.close()
+                gActionSocket = None
+                time.sleep(30)
                 # __action_socket_client(actionThreadStop, callbacks, foi)
-    actionSocket.close()
+    gActionSocket.close()
 
 
 def __parse_decoded_data(decoded_data, action_socket, foi):
@@ -766,18 +771,36 @@ def __parse_decoded_data(decoded_data, action_socket, foi):
             param = None
             ts = response["timestamp"]
             command = response["name"]
+            action_log = response["actionLog"]
             if 'action' in response:
                 param = response["action"]
-        if callbacks[command] is not None:
+        # if callbacks[command] is not None:
+        if command in callbacks:
             try:
-                result = callbacks[command]['callback'](
-                    __cast_parameter(param, callbacks[command]['parameterType']), ts)
+                sig = signature(callbacks[command]['callback'])
+                if len(sig.parameters) == 0:
+                    result = callbacks[command]['callback']()
+                elif len(sig.parameters) == 1:
+                    result = callbacks[command]['callback'](
+                        __cast_parameter(param, callbacks[command]['parameterType']))
+                elif len(sig.parameters) == 2:
+                    result = callbacks[command]['callback'](
+                        __cast_parameter(param, callbacks[command]['parameterType']), ts)
+                else:
+                    result = callbacks[command]['callback'](
+                        __cast_parameter(param, callbacks[command]['parameterType']), ts, action_log)
+            except Exception as e:
+                print(e)
+                print("ERROR DOING ACTION")
+                result=e
+            try:
                 if result == 0 or isinstance(result, str):
                     action_socket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
                 else:
-                    action_socket.sendall()
-            except:
-                print("ERROR DOING ACTION")
+                    action_socket.sendall("\n".encode("utf-8"))
+            except Exception as e:
+                print(e)
+                print("ERROR SENDING RESPONSE")
 
 
 def __cast_parameter(param, parameter_type):
@@ -795,6 +818,18 @@ def __cast_parameter(param, parameter_type):
     except:
         return None
 
+def sendProgressAction(message):
+    try:
+        global gActionSocket
+        if (gActionSocket is None):
+            raise Exception("Action Socket is not available")
+        if message == 0 or isinstance(message, str):
+            gActionSocket.sendall((str(message).replace('\n', '') + '\n').encode("utf-8"))
+        else:
+            gActionSocket.sendall("\n".encode("utf-8"))
+    except Exception as e:
+        print(e)
+        print("ERROR SENDING PROGRESS ACTION")
 
 def startActionListening(foi=None):
     if foi is not None and foi != '':
