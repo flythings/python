@@ -13,7 +13,6 @@ import os
 import sys
 from inspect import signature
 
-
 HTTP_ = 'http://'
 HTTPS_ = 'http://'
 
@@ -56,6 +55,7 @@ gRealTimeTimeout = 1400
 gLastRealTimeTimestamp = None
 
 gActionSocket = None
+
 
 class ActionDataTypes(Enum):
     BOOLEAN = 1,
@@ -765,7 +765,7 @@ def __parse_decoded_data(decoded_data, action_socket, foi):
         action_socket.sendall((foi + "\n").encode("utf-8"))
     else:
         if '@PING@' in decoded_data:
-            command = decoded_data
+            return
         else:
             response = json.loads(decoded_data)
             param = None
@@ -774,33 +774,33 @@ def __parse_decoded_data(decoded_data, action_socket, foi):
             action_log = response["actionLog"]
             if 'action' in response:
                 param = response["action"]
-        # if callbacks[command] is not None:
-        if command in callbacks:
-            try:
-                sig = signature(callbacks[command]['callback'])
-                if len(sig.parameters) == 0:
-                    result = callbacks[command]['callback']()
-                elif len(sig.parameters) == 1:
-                    result = callbacks[command]['callback'](
-                        __cast_parameter(param, callbacks[command]['parameterType']))
-                elif len(sig.parameters) == 2:
-                    result = callbacks[command]['callback'](
-                        __cast_parameter(param, callbacks[command]['parameterType']), ts)
-                else:
-                    result = callbacks[command]['callback'](
-                        __cast_parameter(param, callbacks[command]['parameterType']), ts, action_log)
-            except Exception as e:
-                print(e)
-                print("ERROR DOING ACTION")
-                result=e
-            try:
-                if result == 0 or isinstance(result, str):
-                    action_socket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
-                else:
-                    action_socket.sendall("\n".encode("utf-8"))
-            except Exception as e:
-                print(e)
-                print("ERROR SENDING RESPONSE")
+            # if callbacks[command] is not None:
+            if command in callbacks:
+                try:
+                    sig = signature(callbacks[command]['callback'])
+                    if len(sig.parameters) == 0:
+                        result = callbacks[command]['callback']()
+                    elif len(sig.parameters) == 1:
+                        result = callbacks[command]['callback'](
+                            __cast_parameter(param, callbacks[command]['parameterType']))
+                    elif len(sig.parameters) == 2:
+                        result = callbacks[command]['callback'](
+                            __cast_parameter(param, callbacks[command]['parameterType']), ts)
+                    else:
+                        result = callbacks[command]['callback'](
+                            __cast_parameter(param, callbacks[command]['parameterType']), ts, action_log)
+                except Exception as e:
+                    print(e)
+                    print("ERROR DOING ACTION")
+                    result = e
+                try:
+                    if result == 0 or isinstance(result, str):
+                        action_socket.sendall((str(result).replace('\n', '') + '\n').encode("utf-8"))
+                    else:
+                        action_socket.sendall("\n".encode("utf-8"))
+                except Exception as e:
+                    print(e)
+                    print("ERROR SENDING RESPONSE")
 
 
 def __cast_parameter(param, parameter_type):
@@ -818,10 +818,11 @@ def __cast_parameter(param, parameter_type):
     except:
         return None
 
+
 def sendProgressAction(message):
     try:
         global gActionSocket
-        if (gActionSocket is None):
+        if gActionSocket is None:
             raise Exception("Action Socket is not available")
         if message == 0 or isinstance(message, str):
             gActionSocket.sendall((str(message).replace('\n', '') + '\n').encode("utf-8"))
@@ -830,6 +831,7 @@ def sendProgressAction(message):
     except Exception as e:
         print(e)
         print("ERROR SENDING PROGRESS ACTION")
+
 
 def startActionListening(foi=None):
     if foi is not None and foi != '':
