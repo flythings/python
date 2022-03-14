@@ -764,9 +764,7 @@ def __parse_decoded_data(decoded_data, action_socket, foi):
     if decoded_data == "DEVICE":
         action_socket.sendall((foi + "\n").encode("utf-8"))
     else:
-        if '@PING@' in decoded_data:
-            return
-        else:
+        if '@PING@' not in decoded_data:
             response = json.loads(decoded_data)
             param = None
             ts = response["timestamp"]
