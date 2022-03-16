@@ -1,4 +1,4 @@
-# Insertion Module
+# Sos Module
 [Getting Started](https://github.com/flythings/python)
 
 ### Index
