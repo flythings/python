@@ -25,7 +25,7 @@
         fly.save_text_metadata("CATEGORIA.NOMBRE", "valor", "database")    
     ```
   
-- <a name="save_date_metadata"></a>**save_text_metadata**(String key, String value, String foi_identifier)    
+- <a name="save_date_metadata"></a>**save_date_metadata**(String key, String value, String foi_identifier)    
     **Description**: saves text metadata for a device.   
     **Params**:    
     - key: (Mandatory) Key of the metadata on this format ("Category"."Name").  
