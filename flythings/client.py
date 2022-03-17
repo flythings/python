@@ -58,11 +58,15 @@ gActionSocket = None
 
 
 class ActionDataTypes(Enum):
-    BOOLEAN = 1,
-    FILE = 2,
-    NUMBER = 3,
-    TEXT = 4,
-    ARRAY = 5
+    BOOLEAN = 'BOOLEAN'
+    NUMBER = 'NUMBER'
+    TEXT = 'TEXT'
+    DATE = 'DATE'
+    SELECTOR = 'SELECTOR'
+    ARRAY = 'ARRAY'
+    JSON = 'JSON'
+    FILE = 'FILE'
+    LIVE = 'LIVE'
 
 
 def login(user, password, login_type):
@@ -802,10 +806,12 @@ def __parse_decoded_data(decoded_data, action_socket, foi):
 
 
 def __cast_parameter(param, parameter_type):
+    text_actions = [ActionDataTypes.TEXT, ActionDataTypes.FILE, ActionDataTypes.SELECTOR, ActionDataTypes.LIVE,
+                    ActionDataTypes.JSON, ActionDataTypes.DATE]
     try:
         if parameter_type is None:
             return None
-        elif parameter_type == ActionDataTypes.TEXT or parameter_type == ActionDataTypes.FILE:
+        elif parameter_type in text_actions:
             return param
         elif parameter_type == ActionDataTypes.ARRAY:
             return param.split(";")
