@@ -17,7 +17,11 @@
 	- **ActionDataTypes.NUMBER**: The callback will receive a number from the server when the action is triggered.  
 	- **ActionDataTypes.TEXT**: The callback will receive a string from the server when the action is triggered.  
 	- **ActionDataTypes.ARRAY**: The callback will receive a string array from the server when the action is triggered.  
-
+	- **ActionDataTypes.DATE**: The callback will receive a string date from the server when the action is triggered.  
+	- **ActionDataTypes.SELECTOR**: The callback will receive a string value with the selected option value from the server when the action is triggered.  
+	- **ActionDataTypes.JSON**: The callback will receive a string json from the server when the action is triggered.  
+	- **ActionDataTypes.LIVE**: The callback will receive a string with the seriesId from the server when the action is triggered.  
+    
 ## Module Methods 
 
 - <a name="register_action"></a>**registerAction**(String name, Function callback, String foi, ActionDataTypes parameterType, String alias)  
@@ -29,6 +33,7 @@
     - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
     - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.   
     - alias: (Optional) Specifies a alias to the action.    
+    - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).    
     
     **Return**: True if all was correct, otherwise False.    
     ```NoAuthenticationError```  
@@ -59,8 +64,9 @@
     - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.
     - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is mandatory.  
     - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.  
-    - alias: (Optional) Specifies a alias to the action.    
-    
+    - alias: (Optional) Specifies a alias to the action.
+    - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).    
+
     **Return**: True if all was correct, otherwise False.    
     ```NoAuthenticationError```    
     ```NoDeviceError```  

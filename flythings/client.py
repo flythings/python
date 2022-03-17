@@ -667,7 +667,8 @@ def __register_action(
         procedure=None,
         observable_property=None,
         unit=None,
-        alias=None
+        alias=None,
+        action_options=None
 ):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
@@ -691,6 +692,8 @@ def __register_action(
             payload["unit"] = unit
         if alias is not None:
             payload["alias"] = alias
+        if action_options is not None and parameter_type.name == ActionDataTypes.SELECTOR.name:
+            payload["actionOptions"] = action_options
         response = requests.post(HTTP_ + gServer + ACTIONS_URL, data=json.dumps(payload), headers=headers)
 
         if response.status_code == 201:
@@ -703,8 +706,9 @@ def __register_action(
 
 
 def registerActionForSeries(name, observableProperty, unit, callback, foi=None, procedure=None, parameterType=None,
-                            alias=None):
-    result = __register_action(name, parameterType, foi, procedure, observableProperty, unit, alias=alias)
+                            alias=None, action_options=None):
+    result = __register_action(name, parameterType, foi, procedure, observableProperty, unit, alias=alias,
+                               action_options=action_options)
     if result:
         global callbacks
         if name not in callbacks:
@@ -714,8 +718,8 @@ def registerActionForSeries(name, observableProperty, unit, callback, foi=None, 
     return result is not None
 
 
-def registerAction(name, callback, foi=None, parameterType=None, alias=None):
-    result = __register_action(name, parameterType, foi, alias=alias)
+def registerAction(name, callback, foi=None, parameterType=None, alias=None, action_options=None):
+    result = __register_action(name, parameterType, foi, alias=alias, action_options=action_options)
     if result:
         global callbacks
         if name not in callbacks:
