@@ -541,18 +541,25 @@ def __get_socket(protocol):
 
 def __get_payload(series_id, value, timestamp, protocol):
     if protocol is None or protocol.upper() == "TCP":
-        return json.dumps({
-            'seriesId': series_id,
-            'timestamp': timestamp,
-            'value': value
-        }) + "\n"
+        return json.dumps(
+            {
+                'seriesId': series_id,
+                'obs': [{
+                    'seriesId': series_id,
+                    'timestamp': timestamp,
+                    'value': value
+                }]
+            }) + "\n"
     else:
         return json.dumps({
             'X-AUTH-TOKEN': headers['x-auth-token'],
             'data': {
                 'seriesId': series_id,
-                'timestamp': timestamp,
-                'value': value
+                'obs': [{
+                    'seriesId': series_id,
+                    'timestamp': timestamp,
+                    'value': value
+                }]
             }
         })
 
@@ -572,57 +579,65 @@ def __reset_socket(protocol):
 
 def sendSocket(series_id, value, timestamp, protocol=None):
     if gBatchEnabled:
-        lock.acquire()
-        global gRealTimeAcumulator
-        global gBatchTimeout
-        if str(series_id) in gRealTimeAcumulator:
-            if int(time.time() * 1000) - \
-                    gRealTimeAcumulator[str(series_id)][len(gRealTimeAcumulator[str(series_id)]) - 1][
-                        'timestamp'] >= gBatchTimeout:
-                gRealTimeAcumulator[str(series_id)].append({
-                    'seriesId': series_id,
-                    'timestamp': timestamp,
-                    'value': value
-                })
-            else:
-                lock.release()
-                e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
-                __print__(e_message)
-                return e_message
-        else:
-            gRealTimeAcumulator[str(series_id)] = [{
+        __save_batch_socket(series_id, value, timestamp)
+    else:
+        __send_socket(series_id, value, timestamp, protocol)
+
+
+def __save_batch_socket(series_id, value, timestamp):
+    lock.acquire()
+    global gRealTimeAcumulator
+    global gBatchTimeout
+    if str(series_id) in gRealTimeAcumulator:
+        if int(time.time() * 1000) - \
+                gRealTimeAcumulator[str(series_id)][len(gRealTimeAcumulator[str(series_id)]) - 1][
+                    'timestamp'] >= gBatchTimeout:
+            gRealTimeAcumulator[str(series_id)].append({
                 'seriesId': series_id,
                 'timestamp': timestamp,
                 'value': value
-            }]
-        lock.release()
+            })
+        else:
+            lock.release()
+            e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 50ms BEFORE ACUMULATE ANOTHER OBSERVATION'
+            __print__(e_message)
+            return e_message
     else:
-        global gLastRealTimeTimestamp
-        if gLastRealTimeTimestamp is None or int(time.time() * 1000) - gLastRealTimeTimestamp >= gRealTimeTimeout:
-            clientSocket = __get_socket(protocol)
+        gRealTimeAcumulator[str(series_id)] = [{
+            'seriesId': series_id,
+            'timestamp': timestamp,
+            'value': value
+        }]
+    lock.release()
 
-            if clientSocket is not None:
-                json_payload = __get_payload(series_id, value, timestamp, protocol)
+
+def __send_socket(series_id, value, timestamp, protocol=None):
+    global gLastRealTimeTimestamp
+    if gLastRealTimeTimestamp is None or int(time.time() * 1000) - gLastRealTimeTimestamp >= gRealTimeTimeout:
+        clientSocket = __get_socket(protocol)
+
+        if clientSocket is not None:
+            json_payload = __get_payload(series_id, value, timestamp, protocol)
+            try:
+                clientSocket.sendall(json_payload.encode("utf-8"))
                 try:
-                    clientSocket.sendall(json_payload.encode("utf-8"))
                     try:
-                        try:
-                            clientSocket.recv(1024)
-                        except socket.timeout:
-                            print("Buffer was already empty")
+                        clientSocket.recv(1024)
                     except socket.timeout:
                         print("Buffer was already empty")
-                except socket.error as msg:
-                    __reset_socket(protocol)
-                    print(msg)
-            else:
-                print("ERROR CONNECTING TO SOCKET")
-            print('CORRECT SENDED')
-            gLastRealTimeTimestamp = int(time.time() * 1000)
+                except socket.timeout:
+                    print("Buffer was already empty")
+            except socket.error as msg:
+                __reset_socket(protocol)
+                print(msg)
         else:
-            e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME'
-            print(e_message)
-            return e_message
+            print("ERROR CONNECTING TO SOCKET")
+        print('CORRECT SENDED')
+        gLastRealTimeTimestamp = int(time.time() * 1000)
+    else:
+        e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME'
+        print(e_message)
+        return e_message
 
 
 def __acumulator_series_to_json(data):
