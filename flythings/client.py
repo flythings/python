@@ -662,6 +662,7 @@ def __reset_socket(protocol):
 
 
 def sendSocket(series_id, value, timestamp, protocol=None):
+    global gBatchEnabled
     if gBatchEnabled:
         __save_batch_socket(series_id, value, timestamp)
     else:
@@ -705,10 +706,7 @@ def __send_socket(series_id, value, timestamp, protocol=None):
             try:
                 clientSocket.sendall(json_payload.encode("utf-8"))
                 try:
-                    try:
-                        clientSocket.recv(1024)
-                    except socket.timeout:
-                        print("Buffer was already empty")
+                    clientSocket.recv(1024)
                 except socket.timeout:
                     print("Buffer was already empty")
             except socket.error as msg:
