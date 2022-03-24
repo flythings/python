@@ -1,4 +1,4 @@
-# Insertion Module
+# Prediction Module
 
 [Getting Started](https://github.com/flythings/python)
 
