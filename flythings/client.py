@@ -17,8 +17,11 @@ HTTP_ = 'http://'
 HTTPS_ = 'http://'
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
+PUBLISH_PREDICTION_MULTIPLE_URL = '/prediction/multiple'
 GET_OBSERVATIONS_URL = '/observation'
+GET_PREDICTIONS_URL = '/prediction'
 PUBLISH_SINGLE_URL = '/observation/single'
+PUBLISH_PREDICTION_SINGLE_URL = '/prediction/single'
 PUBLISH_RECORD_URL = '/observation/record'
 PUBLISH_PLAIN_CSV_URL = '/observation/csv/nofile'
 FOI_URL = '/featureofinterest'
@@ -266,6 +269,26 @@ def sendObservations(values):
         return 502
 
 
+def send_predictions(values):
+    response = None
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None
+    try:
+        response = requests.put(HTTP_ + gServer + PUBLISH_PREDICTION_MULTIPLE_URL,
+                                data=json.dumps({'predictions': values}),
+                                headers=headers, timeout=gTimeout)
+    except Exception as e:
+        print(e)
+    if response is not None:
+        if response.status_code >= 400:
+            print(response.text)
+        return response.status_code
+    else:
+        print("NO RESPONSE FROM SERVICE")
+        return 502
+
+
 def sendRecord(serie_id, observations):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
@@ -328,6 +351,44 @@ def search(
         print(r.text)
 
 
+def search_prediction(
+        series,
+        start_date=None,
+        end_date=None,
+        aggrupation=None,
+        aggrupation_type=None,
+        as_incremental=False
+):
+    if headers['x-auth-token'] == '':
+        return 'NoAuthenticationError'
+
+    # Default datetime
+    if start_date is None and end_date is None:
+        end_date = round(time.time() * 1000)
+        aux_time = datetime.today() - timedelta(weeks=1)
+        start_date = round(aux_time.timestamp() * 1000)
+    elif end_date is None:
+        end_date = round(time.time() * 1000)
+
+    message = {'series': [{'id': series, 'asIncremental': as_incremental}], 'startDate': start_date,
+               'endDate': end_date}
+
+    if aggrupation is not None:
+        message['temporalScale'] = aggrupation
+    if aggrupation_type is not None:
+        message['temporalScaleType'] = aggrupation_type
+    r = requests.post(HTTP_ + gServer + GET_PREDICTIONS_URL, data=json.dumps(message), headers=headers,
+                      timeout=gTimeout)
+    if r.status_code == 200:
+        list = r.json()[0]['data']
+        return_list = []
+        for elem in list:
+            return_list.append({'value': elem[1], 'time': elem[0]})
+        return return_list
+    else:
+        print(r.text)
+
+
 def sendObservation(
         value,
         property,
@@ -345,6 +406,29 @@ def sendObservation(
     message = getObservation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
     json_payload = json.dumps(message)
     response = requests.put(HTTP_ + gServer + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=gTimeout)
+    if response.status_code >= 400:
+        print(response.text)
+    return response.status_code
+
+
+def send_prediction(
+        value,
+        property,
+        uom=None,
+        ts=None,
+        geom=None,
+        procedure=None,
+        foi=None,
+        device_type=None,
+        foi_name=None
+):
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None
+    message = getObservation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
+    json_payload = json.dumps(message)
+    response = requests.put(HTTP_ + gServer + PUBLISH_PREDICTION_SINGLE_URL, json_payload, headers=headers,
+                            timeout=gTimeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code

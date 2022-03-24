@@ -103,6 +103,7 @@ You can also introduce this general properties using the library methods.
 - [InsertionModule](docs/InsertionModule.md)
 - [RealTimeModule](docs/RealTimeModule.md)
 - [ActionModule](docs/ActionModule.md)     
+- [PredictionModule](docs/PredictionModule.md)     
 - [SosModule](docs/SosModule.md)     
 - [UtilModule](docs/UtilModule.md)     
   
