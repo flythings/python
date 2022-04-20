@@ -1,5 +1,13 @@
 ## Change log
 
+### 2.0.0
+* Include predictions management methods.
+* Refactor all methods to use _ instead of camel case.
+* Include a method to set authorization token.
+* Refactor send realtime messages to send samples on same format.
+* Include batch_enabled as global variable.
+* Include more action_types that Flythings Platform Allows.
+
 ### 1.4.15
 * Allow to save device metadata on text and date format.
 
