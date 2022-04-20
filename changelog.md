@@ -7,6 +7,7 @@
 * Refactor send realtime messages to send samples on same format.
 * Include batch_enabled as global variable.
 * Include more action_types that Flythings Platform Allows.
+* Posibilidad de actuaciones de tipo ongoing.
 
 ### 1.4.15
 * Allow to save device metadata on text and date format.
