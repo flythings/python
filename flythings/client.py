@@ -36,28 +36,27 @@ FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
 
-clientTCPSocket = None
-clientUDPSocket = None
-
-clientActionThread = None
+client_tcp_socket = None
+client_udp_socket = None
+client_action_thread = None
 callbacks = {}
-actionThreadStop = False
+action_thread_stop = False
 
-gFoi = ''
-gProcedure = ''
-gServer = ''
-gUser = ''
-gPassword = ''
-gHash = ''
-gWorkspace = ''
-gTimeout = 1000
-gRealTimeAcumulator = {}
-gBatchEnabled = False
-gBatchTimeout = 50
-gRealTimeTimeout = 1400
-gLastRealTimeTimestamp = None
+g_foi = ''
+g_procedure = ''
+g_server = ''
+g_user = ''
+g_password = ''
+g_hash = ''
+g_workspace = ''
+g_timeout = 1000
+g_real_time_acumulator = {}
+g_batch_enabled = False
+g_batch_timeout = 50
+g_real_time_timeout = 1400
+g_last_real_time_timestamp = None
 
-gActionSocket = None
+g_action_socket = None
 
 
 class ActionDataTypes(Enum):
@@ -75,12 +74,12 @@ class ActionDataTypes(Enum):
 def login(user, password, login_type):
     try:
         if login_type == 'DEVICE':
-            authbody = requests.get(HTTP_ + gServer + LOGIN_DEVICE_URL, auth=(user, password), timeout=gTimeout)
+            authbody = requests.get(HTTP_ + g_server + LOGIN_DEVICE_URL, auth=(user, password), timeout=g_timeout)
         elif login_type == 'USER':
-            authbody = requests.get(HTTP_ + gServer + LOGIN_USER_URL, auth=(user, password), timeout=gTimeout)
+            authbody = requests.get(HTTP_ + g_server + LOGIN_USER_URL, auth=(user, password), timeout=g_timeout)
         else:
             login_type = 'USER'
-            authbody = requests.get(HTTP_ + gServer + LOGIN_USER_URL, auth=(user, password), timeout=gTimeout)
+            authbody = requests.get(HTTP_ + g_server + LOGIN_USER_URL, auth=(user, password), timeout=g_timeout)
         if authbody.status_code == 200:
             global headers
             body = json.loads(authbody.text)
@@ -88,9 +87,8 @@ def login(user, password, login_type):
             if login_type == 'USER' and 'workspace' in body:
                 headers['Workspace'] = str(body['workspace'])
             else:
-                headers['Workspace'] = str(gWorkspace)
+                headers['Workspace'] = str(g_workspace)
             return str(body['token'])
-
         else:
             print('ERROR AUTHENTICATED, CHECK THE USER OR PASSWORD')
             return None
@@ -99,20 +97,20 @@ def login(user, password, login_type):
         raise
 
 
-def loadDataByFile(file=None):
+def load_data_by_file(file=None):
     if file is None:
         file = FILE
-    global gServer
+    global g_server
     try:
         for line in open(file):
             text = line.strip().replace('\n', '')
             list_param = text.split(':')
             __update_file_params(list_param)
-        if gUser != '' and gPassword != '':
-            login(gUser, gPassword, g_login_type)
-        global gServer
-        if gServer == '':
-            gServer = 'api.flythings.io'
+        if g_user != '' and g_password != '':
+            login(g_user, g_password, g_login_type)
+        global g_server
+        if g_server == '':
+            g_server = 'api.flythings.io'
         print('Succesfully loaded data from file ' + file)
     except Exception:
         print('CONFIGURATION FILE, ' + file + ' DONT EXIST, YOU MUST INSERT THE PARAMETERS MANUALLY')
@@ -127,65 +125,65 @@ def __update_file_params(list_param):
             gToken = list_param[1]
             headers['x-auth-token'] = list_param[1]
         elif list_param[0].lower() == 'server':
-            global gServer
+            global g_server
             list_param[1] = list_param[1].strip()
-            gServer = list_param[1]
+            g_server = list_param[1]
         elif list_param[0].lower() == 'user':
             list_param[1] = list_param[1].strip()
-            global gUser
-            gUser = list_param[1]
+            global g_user
+            g_user = list_param[1]
         elif list_param[0].lower() == 'password':
             list_param[1] = list_param[1].strip()
-            global gPassword
-            gPassword = list_param[1]
+            global g_password
+            g_password = list_param[1]
         elif list_param[0].lower() == 'login_type':
             list_param[1] = list_param[1].strip()
             global g_login_type
             g_login_type = list_param[1]
         elif list_param[0].lower() == 'hash':
             list_param[1] = list_param[1].strip()
-            global gHash
-            gHash = list_param[1]
+            global g_hash
+            g_hash = list_param[1]
         elif list_param[0].lower() == 'device':
             list_param[1] = list_param[1].strip()
-            global gFoi
-            gFoi = list_param[1]
+            global g_foi
+            g_foi = list_param[1]
         elif list_param[0].lower() == 'sensor':
             list_param[1] = list_param[1].strip()
-            global gProcedure
-            gProcedure = list_param[1]
+            global g_procedure
+            g_procedure = list_param[1]
         elif list_param[0].lower() == 'timeout':
             list_param[1] = list_param[1].strip()
-            global gTimeout
-            gTimeout = list_param[1]
+            global g_timeout
+            g_timeout = list_param[1]
 
 
-def setServer(server):
-    global gServer
-    gServer = server
-    return gServer
+def set_server(server):
+    global g_server
+    g_server = server
+    return g_server
 
 
 def __update_foi_file():
     file = open(".foiCache", "r")
     for line in file:
         line_items = line.split('\t')
-        if line_items[0] == gServer and line_items[1] == gFoi:
+        if line_items[0] == g_server and line_items[1] == g_foi:
             return False
     file.close()
     file = open('.foiCache', 'a')
-    file.write(gServer + '\t' + gFoi + '\t' + '\n')
+    file.write(g_server + '\t' + g_foi + '\t' + '\n')
     file.close()
     return True
 
 
-def setDevice(device, object=None, always_update=False):
-    global gFoi
-    gFoi = device
+def set_device(device, object=None, always_update=False):
+    global g_foi
+    g_foi = device
     foi_to_send = {'featureOfInterest': {"name": device}}
     if object is not None:
         if 'type' in object:
-            response = requests.get(HTTP_ + gServer + FOI_URL + '/devicetypes', headers=headers, timeout=gTimeout)
+            response = requests.get(HTTP_ + g_server + FOI_URL + '/devicetypes', headers=headers, timeout=g_timeout)
             if response.status_code == 200:
                 device_types = response.json()
                 if object['type'] in device_types:
@@ -197,67 +195,73 @@ def setDevice(device, object=None, always_update=False):
         if 'geom' in object:
             foi_to_send['featureOfInterest']['geom'] = object['geom']
     if __update_foi_file() or always_update:
-        requests.post(HTTP_ + gServer + FOI_URL, json.dumps(foi_to_send), headers=headers,
-                      timeout=gTimeout)
-    return gFoi
+        requests.post(HTTP_ + g_server + FOI_URL, json.dumps(foi_to_send), headers=headers,
+                      timeout=g_timeout)
+    return g_foi
 
 
-def setCustomHeader(header, header_value):
+def set_custom_header(header, header_value):
     global headers
     headers[header] = header_value
     return headers[header]
 
 
-def getHeaders():
+def get_headers():
     global headers
     return headers
 
 
-def setSensor(sensor):
-    global gProcedure
-    gProcedure = sensor
-    return gProcedure
+def set_sensor(sensor):
+    global g_procedure
+    g_procedure = sensor
+    return g_procedure
 
 
-def setToken(token):
+def set_token(token):
     global headers
     headers['x-auth-token'] = token
     return headers['x-auth-token']
 
 
-def setWorkspace(workspace):
-    global gWorkspace
-    gWorkspace = workspace
-    return gWorkspace
+def set_authorization_token(token):
+    global headers
+    headers['Authorization'] = "Bearer " + token
+    return headers['Authorization']
 
 
-def setTimeout(timeout):
-    global gTimeout
-    gTimeout = timeout
-    return gTimeout
+def set_workspace(workspace):
+    global g_workspace
+    g_workspace = workspace
+    return g_workspace
 
 
-def setBatchEnabled(batchEnabled):
-    global gBatchEnabled
+def set_timeout(timeout):
+    global g_timeout
+    g_timeout = timeout
+    return g_timeout
+
+
+def set_batch_enabled(batch_enabled):
+    global g_batch_enabled
     global thread
-    gBatchEnabled = batchEnabled
-    if gBatchEnabled:
+    g_batch_enabled = batch_enabled
+    if g_batch_enabled:
         if not thread.is_alive():
             thread.start()
     else:
         if thread.is_alive():
             thread.join()
-    return gBatchEnabled
+    return g_batch_enabled
 
 
-def sendObservations(values):
+def send_observations(values):
     response = None
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
     try:
-        response = requests.put(HTTP_ + gServer + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
-                                headers=headers, timeout=gTimeout)
+        response = requests.put(HTTP_ + g_server + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
+                                headers=headers, timeout=g_timeout)
     except Exception as e:
         print(e)
     if response is not None:
@@ -275,9 +279,9 @@ def send_predictions(values):
         print('NoAuthenticationError')
         return None
     try:
-        response = requests.put(HTTP_ + gServer + PUBLISH_PREDICTION_MULTIPLE_URL,
+        response = requests.put(HTTP_ + g_server + PUBLISH_PREDICTION_MULTIPLE_URL,
                                 data=json.dumps({'predictions': values}),
-                                headers=headers, timeout=gTimeout)
+                                headers=headers, timeout=g_timeout)
     except Exception as e:
         print(e)
     if response is not None:
@@ -289,25 +293,25 @@ def send_predictions(values):
         return 502
 
 
-def sendRecord(serie_id, observations):
+def send_record(serie_id, observations):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
     if isinstance(observations, str):
-        response = requests.put(HTTP_ + gServer + PUBLISH_RECORD_URL + "/" + str(serie_id), observations,
+        response = requests.put(HTTP_ + g_server + PUBLISH_RECORD_URL + "/" + str(serie_id), observations,
                                 headers=headers)
     else:
-        response = requests.put(HTTP_ + gServer + PUBLISH_RECORD_URL + "/" + str(serie_id),
+        response = requests.put(HTTP_ + g_server + PUBLISH_RECORD_URL + "/" + str(serie_id),
                                 data=json.dumps(observations), headers=headers)
     return response.status_code, response.content
 
 
-def sendObservationsCSV(values):
+def send_observations_csv(values):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    response = requests.post(HTTP_ + gServer + PUBLISH_PLAIN_CSV_URL, data=values, headers=headers,
-                             timeout=gTimeout)
+    response = requests.post(HTTP_ + g_server + PUBLISH_PLAIN_CSV_URL, data=values, headers=headers,
+                             timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code, response.content
@@ -318,7 +322,7 @@ def search(
         start_date=None,
         end_date=None,
         aggrupation=None,
-        aggrupationType=None,
+        aggrupation_type=None,
         as_incremental=False
 ):
     if headers['x-auth-token'] == '':
@@ -337,10 +341,10 @@ def search(
 
     if aggrupation is not None:
         message['temporalScale'] = aggrupation
-    if aggrupationType is not None:
-        message['temporalScaleType'] = aggrupationType
-    r = requests.post(HTTP_ + gServer + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers,
-                      timeout=gTimeout)
+    if aggrupation_type is not None:
+        message['temporalScaleType'] = aggrupation_type
+    r = requests.post(HTTP_ + g_server + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers,
+                      timeout=g_timeout)
     if r.status_code == 200:
         list = r.json()[0]['data']
         return_list = []
@@ -377,8 +381,8 @@ def search_prediction(
         message['temporalScale'] = aggrupation
     if aggrupation_type is not None:
         message['temporalScaleType'] = aggrupation_type
-    r = requests.post(HTTP_ + gServer + GET_PREDICTIONS_URL, data=json.dumps(message), headers=headers,
-                      timeout=gTimeout)
+    r = requests.post(HTTP_ + g_server + GET_PREDICTIONS_URL, data=json.dumps(message), headers=headers,
+                      timeout=g_timeout)
     if r.status_code == 200:
         list = r.json()[0]['data']
         return_list = []
@@ -389,7 +393,7 @@ def search_prediction(
         print(r.text)
 
 
-def sendObservation(
+def send_observation(
         value,
         property,
         uom=None,
@@ -403,9 +407,9 @@ def sendObservation(
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    message = getObservation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
+    message = get_observation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
     json_payload = json.dumps(message)
-    response = requests.put(HTTP_ + gServer + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=gTimeout)
+    response = requests.put(HTTP_ + g_server + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
@@ -425,16 +429,16 @@ def send_prediction(
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    message = getObservation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
+    message = get_observation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
     json_payload = json.dumps(message)
-    response = requests.put(HTTP_ + gServer + PUBLISH_PREDICTION_SINGLE_URL, json_payload, headers=headers,
-                            timeout=gTimeout)
+    response = requests.put(HTTP_ + g_server + PUBLISH_PREDICTION_SINGLE_URL, json_payload, headers=headers,
+                            timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
 
 
-def getObservation(
+def get_observation(
         value,
         property,
         uom=None,
@@ -455,11 +459,11 @@ def getObservation(
     if procedure is not None and procedure != '':
         message['procedure'] = procedure
     else:
-        message['procedure'] = gProcedure
+        message['procedure'] = g_procedure
     if foi is not None and foi != '':
         message['foi'] = foi
     else:
-        message['foi'] = gFoi
+        message['foi'] = g_foi
     if device_type is not None:
         message['deviceType'] = device_type
     if foi_name is not None:
@@ -467,7 +471,7 @@ def getObservation(
     return message
 
 
-def getObservationCSV(
+def get_observation_csv(
         value,
         series=None,
         uom=None,
@@ -483,11 +487,11 @@ def getObservationCSV(
         if foi is not None:
             message += foi + ";"
         else:
-            message += gFoi + ";"
+            message += g_foi + ";"
         if procedure is not None:
             message += procedure + ";"
         else:
-            message += gProcedure + ";"
+            message += g_procedure + ";"
         if property is not None:
             message += property + ";"
         else:
@@ -496,20 +500,21 @@ def getObservationCSV(
         message += str(ts)
     else:
         message += str(int(time.time() * 1000))
+    message += ";" + value
     if uom is not None:
         message += ";" + uom
     return message
 
 
-def findSeries(foi=None, procedure=None, observable_property=None):
+def find_series(foi=None, procedure=None, observable_property=None):
     if foi is None or foi == '':
-        foi = gFoi
+        foi = g_foi
     if procedure is None or procedure == '':
-        procedure = gProcedure
+        procedure = g_procedure
     if observable_property is None or observable_property == '':
         return "INSERT A OBSERVABLE PROPERTY"
-    response = requests.get(HTTP_ + gServer + SERIES_URL + foi + '/' + procedure + '/' + observable_property,
-                            headers=headers, timeout=gTimeout)
+    response = requests.get(HTTP_ + g_server + SERIES_URL + foi + '/' + procedure + '/' + observable_property,
+                            headers=headers, timeout=g_timeout)
     if response.status_code != 200:
         print("Error retrieving series: " + foi + "-" + procedure + "-" + observable_property)
         return None
@@ -522,11 +527,11 @@ def findSeries(foi=None, procedure=None, observable_property=None):
 
 def save_text_metadata(key, value, foi=None):
     if foi is None or foi == '':
-        foi = gFoi
+        foi = g_foi
     message = {'key': key.upper(), 'value': value, 'type': 'TEXT'}
     json_payload = json.dumps(message)
-    response = requests.post(HTTP_ + gServer + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
-                             headers=headers, timeout=gTimeout)
+    response = requests.post(HTTP_ + g_server + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
+                             headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
@@ -534,11 +539,11 @@ def save_text_metadata(key, value, foi=None):
 
 def save_date_metadata(key, value, foi=None):
     if foi is None or foi == '':
-        foi = gFoi
+        foi = g_foi
     message = {'key': key.upper(), 'value': value, 'type': 'DATE'}
     json_payload = json.dumps(message)
-    response = requests.post(HTTP_ + gServer + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
-                             headers=headers, timeout=gTimeout)
+    response = requests.post(HTTP_ + g_server + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
+                             headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
@@ -552,15 +557,15 @@ def __get_tcp_socket(url=None):
     decode = lambda d: d.decode('utf-8')
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if ":" not in gServer:
-            if "/" not in gServer:
-                server = gServer
+        if ":" not in g_server:
+            if "/" not in g_server:
+                server = g_server
             else:
-                server = gServer.split("/")[0]
+                server = g_server.split("/")[0]
         else:
-            server = gServer.split(":")[0]
+            server = g_server.split(":")[0]
 
-        response = requests.get(HTTP_ + gServer + (SOCKET_URL if url is None else url), headers=headers)
+        response = requests.get(HTTP_ + g_server + (SOCKET_URL if url is None else url), headers=headers)
         if response.status_code == 200:
             port = int(response.text)
 
@@ -589,15 +594,15 @@ def __get_udp_socket():
 
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        if ":" not in gServer:
-            if "/" not in gServer:
-                server = gServer
+        if ":" not in g_server:
+            if "/" not in g_server:
+                server = g_server
             else:
-                server = gServer.split("/")[0]
+                server = g_server.split("/")[0]
         else:
-            server = gServer.split(":")[0]
+            server = g_server.split(":")[0]
 
-        response = requests.get(HTTP_ + gServer + SOCKET_URL, headers=headers)
+        response = requests.get(HTTP_ + g_server + SOCKET_URL, headers=headers)
         if response.status_code == 200:
             port = int(response.text)
 
@@ -610,17 +615,17 @@ def __get_udp_socket():
 
 def __get_socket(protocol):
     if protocol is None or protocol.upper() == "TCP":
-        global clientTCPSocket
-        if clientTCPSocket is None:
-            clientTCPSocket = __get_tcp_socket()
-            if clientTCPSocket is not None:
-                clientTCPSocket.settimeout(15.0)
-        return clientTCPSocket
+        global client_tcp_socket
+        if client_tcp_socket is None:
+            client_tcp_socket = __get_tcp_socket()
+            if client_tcp_socket is not None:
+                client_tcp_socket.settimeout(15.0)
+        return client_tcp_socket
     else:
-        global clientUDPSocket
-        if clientTCPSocket is None:
-            clientUDPSocket = __get_udp_socket()
-        return clientUDPSocket
+        global client_udp_socket
+        if client_tcp_socket is None:
+            client_udp_socket = __get_udp_socket()
+        return client_udp_socket
 
 
 def __get_payload(series_id, value, timestamp, protocol):
@@ -650,20 +655,20 @@ def __get_payload(series_id, value, timestamp, protocol):
 
 def __reset_socket(protocol):
     if protocol is None or protocol.upper() == "TCP":
-        global clientTCPSocket
-        if clientTCPSocket is not None:
-            clientTCPSocket.close()
-            clientTCPSocket = None
+        global client_tcp_socket
+        if client_tcp_socket is not None:
+            client_tcp_socket.close()
+            client_tcp_socket = None
     else:
-        global clientUDPSocket
-        if clientUDPSocket is not None:
-            clientUDPSocket.close()
-            clientUDPSocket = None
+        global client_udp_socket
+        if client_udp_socket is not None:
+            client_udp_socket.close()
+            client_udp_socket = None
 
 
-def sendSocket(series_id, value, timestamp, protocol=None):
-    global gBatchEnabled
-    if gBatchEnabled:
+def send_socket(series_id, value, timestamp, protocol=None):
+    global g_batch_enabled
+    if g_batch_enabled:
         __save_batch_socket(series_id, value, timestamp)
     else:
         __send_socket(series_id, value, timestamp, protocol)
@@ -671,13 +676,13 @@ def sendSocket(series_id, value, timestamp, protocol=None):
 
 def __save_batch_socket(series_id, value, timestamp):
     lock.acquire()
-    global gRealTimeAcumulator
-    global gBatchTimeout
-    if str(series_id) in gRealTimeAcumulator:
+    global g_real_time_acumulator
+    global g_batch_timeout
+    if str(series_id) in g_real_time_acumulator:
         if int(time.time() * 1000) - \
-                gRealTimeAcumulator[str(series_id)][len(gRealTimeAcumulator[str(series_id)]) - 1][
-                    'timestamp'] >= gBatchTimeout:
-            gRealTimeAcumulator[str(series_id)].append({
+                g_real_time_acumulator[str(series_id)][len(g_real_time_acumulator[str(series_id)]) - 1][
+                    'timestamp'] >= g_batch_timeout:
+            g_real_time_acumulator[str(series_id)].append({
                 'seriesId': series_id,
                 'timestamp': timestamp,
                 'value': value
@@ -688,7 +693,7 @@ def __save_batch_socket(series_id, value, timestamp):
             __print__(e_message)
             return e_message
     else:
-        gRealTimeAcumulator[str(series_id)] = [{
+        g_real_time_acumulator[str(series_id)] = [{
             'seriesId': series_id,
             'timestamp': timestamp,
             'value': value
@@ -697,16 +702,17 @@ def __save_batch_socket(series_id, value, timestamp):
 
 
 def __send_socket(series_id, value, timestamp, protocol=None):
-    global gLastRealTimeTimestamp
-    if gLastRealTimeTimestamp is None or int(time.time() * 1000) - gLastRealTimeTimestamp >= gRealTimeTimeout:
-        clientSocket = __get_socket(protocol)
+    global g_last_real_time_timestamp
+    if g_last_real_time_timestamp is None or int(
+            time.time() * 1000) - g_last_real_time_timestamp >= g_real_time_timeout:
+        client_socket = __get_socket(protocol)
 
-        if clientSocket is not None:
+        if client_socket is not None:
             json_payload = __get_payload(series_id, value, timestamp, protocol)
             try:
-                clientSocket.sendall(json_payload.encode("utf-8"))
+                client_socket.sendall(json_payload.encode("utf-8"))
                 try:
-                    clientSocket.recv(1024)
+                    client_socket.recv(1024)
                 except socket.timeout:
                     print("Buffer was already empty")
             except socket.error as msg:
@@ -715,7 +721,7 @@ def __send_socket(series_id, value, timestamp, protocol=None):
         else:
             print("ERROR CONNECTING TO SOCKET")
         print('CORRECT SENDED')
-        gLastRealTimeTimestamp = int(time.time() * 1000)
+        g_last_real_time_timestamp = int(time.time() * 1000)
     else:
         e_message = 'ERROR, DEVICE MUST WAIT AT LEAST 1400ms BEFORE SEND A OBSERVATION FROM REALTIME'
         print(e_message)
@@ -730,22 +736,22 @@ def __acumulator_series_to_json(data):
 
 def __send_socket_batch(protocol=None):
     while True:
-        global gBatchEnabled
-        if gBatchEnabled:
-            clientSocket = __get_socket(protocol)
+        global g_batch_enabled
+        if g_batch_enabled:
+            client_socket = __get_socket(protocol)
             lock.acquire()
-            global gRealTimeAcumulator
-            acumulator = copy.deepcopy(gRealTimeAcumulator)
-            if clientSocket is not None:
-                gRealTimeAcumulator = {}
+            global g_real_time_acumulator
+            acumulator = copy.deepcopy(g_real_time_acumulator)
+            if client_socket is not None:
+                g_real_time_acumulator = {}
                 lock.release()
                 try:
                     values = acumulator.values()
                     for value in values:
                         json_payload = __acumulator_series_to_json(value)
-                        clientSocket.sendall(json_payload.encode("utf-8"))
+                        client_socket.sendall(json_payload.encode("utf-8"))
                         try:
-                            clientSocket.recv(1024)
+                            client_socket.recv(1024)
                         except socket.timeout:
                             print("Buffer was already empty")
                 except (socket.error, socket.timeout) as msg:
@@ -770,20 +776,20 @@ def __register_action(
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    elif foi is None and gFoi is None:
+    elif foi is None and g_foi is None:
         print('NoDeviceError')
         return None
-    elif observable_property is not None and (gProcedure is None and procedure is None):
+    elif observable_property is not None and (g_procedure is None and procedure is None):
         print('NoProcedureError')
         return None
     try:
         payload = {
             "name": name,
-            "featureOfInterest": gFoi if foi is None else foi,
+            "featureOfInterest": g_foi if foi is None else foi,
             "parameterType": ActionDataTypes(parameter_type).name if parameter_type is not None else None
         }
         if observable_property is not None:
-            payload["procedure"] = gProcedure if procedure is None else procedure
+            payload["procedure"] = g_procedure if procedure is None else procedure
             payload["observableProperty"] = observable_property
         if unit is not None:
             payload["unit"] = unit
@@ -791,7 +797,7 @@ def __register_action(
             payload["alias"] = alias
         if action_options is not None and parameter_type.name == ActionDataTypes.SELECTOR.name:
             payload["actionOptions"] = action_options
-        response = requests.post(HTTP_ + gServer + ACTIONS_URL, data=json.dumps(payload), headers=headers)
+        response = requests.post(HTTP_ + g_server + ACTIONS_URL, data=json.dumps(payload), headers=headers)
 
         if response.status_code == 201:
             return True
@@ -802,67 +808,67 @@ def __register_action(
     return None
 
 
-def registerActionForSeries(name, observableProperty, unit, callback, foi=None, procedure=None, parameterType=None,
-                            alias=None, action_options=None):
-    result = __register_action(name, parameterType, foi, procedure, observableProperty, unit, alias=alias,
+def register_action_for_series(name, observable_property, unit, callback, foi=None, procedure=None, parameter_type=None,
+                               alias=None, action_options=None):
+    result = __register_action(name, parameter_type, foi, procedure, observable_property, unit, alias=alias,
                                action_options=action_options)
     if result:
         global callbacks
         if name not in callbacks:
-            callbacks[name] = {'callback': callback, 'parameterType': parameterType}
+            callbacks[name] = {'callback': callback, 'parameterType': parameter_type}
         else:
             return False
     return result is not None
 
 
-def registerAction(name, callback, foi=None, parameterType=None, alias=None, action_options=None):
-    result = __register_action(name, parameterType, foi, alias=alias, action_options=action_options)
+def register_action(name, callback, foi=None, parameter_type=None, alias=None, action_options=None):
+    result = __register_action(name, parameter_type, foi, alias=alias, action_options=action_options)
     if result:
         global callbacks
         if name not in callbacks:
-            callbacks[name] = {'callback': callback, 'parameterType': parameterType}
+            callbacks[name] = {'callback': callback, 'parameterType': parameter_type}
         else:
             return False
     return result is not None
 
 
-def __action_socket_client(actionThreadStop, callbacks, foi):
-    global gActionSocket
+def __action_socket_client(action_thread_stop, callbacks, foi):
+    global g_action_socket
     current_time = time.time()
-    gActionSocket = None
-    while not actionThreadStop.is_set():
+    g_action_socket = None
+    while not action_thread_stop.is_set():
         action_time = time.time()
         try:
-            if gActionSocket is None:
-                gActionSocket = __get_tcp_socket(ACTIONS_URL)
-            gActionSocket.settimeout(60.0)
-            data = gActionSocket.recv(1024)
-            decodedData = data.decode("utf-8")
-            if decodedData != '':
-                __parse_decoded_data(decodedData, gActionSocket, foi)
+            if g_action_socket is None:
+                g_action_socket = __get_tcp_socket(ACTIONS_URL)
+            g_action_socket.settimeout(60.0)
+            data = g_action_socket.recv(1024)
+            decoded_data = data.decode("utf-8")
+            if decoded_data != '':
+                __parse_decoded_data(decoded_data, g_action_socket, foi)
             try:
                 if action_time - current_time > 5:
-                    gActionSocket.sendall("Ping\n".encode("utf-8"))
+                    g_action_socket.sendall("Ping\n".encode("utf-8"))
                     current_time = time.time()
             except:
                 print("The server closed the connection!")
-                gActionSocket.close()
-                gActionSocket = None
+                g_action_socket.close()
+                g_action_socket = None
         except socket.timeout:
             print("timeout")
-            gActionSocket.close()
-            gActionSocket = None
+            g_action_socket.close()
+            g_action_socket = None
             time.sleep(30)
             # __action_socket_client(actionThreadStop, callbacks, foi)
         except Exception as e:
             print(str(e))
             if str(e) != "'@PING@'":
                 print("INTERNAL_FAILURE")
-                gActionSocket.close()
-                gActionSocket = None
+                g_action_socket.close()
+                g_action_socket = None
                 time.sleep(30)
                 # __action_socket_client(actionThreadStop, callbacks, foi)
-    gActionSocket.close()
+    g_action_socket.close()
 
 
 def __parse_decoded_data(decoded_data, action_socket, foi):
@@ -924,51 +930,51 @@ def __cast_parameter(param, parameter_type):
         return None
 
 
-def sendProgressAction(message):
+def send_progress_action(message):
     try:
-        global gActionSocket
-        if gActionSocket is None:
+        global g_action_socket
+        if g_action_socket is None:
             raise Exception("Action Socket is not available")
         if message == 0 or isinstance(message, str):
-            gActionSocket.sendall((str(message).replace('\n', '') + '\n').encode("utf-8"))
+            g_action_socket.sendall((str(message).replace('\n', '') + '\n').encode("utf-8"))
         else:
-            gActionSocket.sendall("\n".encode("utf-8"))
+            g_action_socket.sendall("\n".encode("utf-8"))
     except Exception as e:
         print(e)
         print("ERROR SENDING PROGRESS ACTION")
 
 
-def startActionListening(foi=None):
+def start_action_listening(foi=None):
     if foi is not None and foi != '':
         f = foi
     else:
-        f = gFoi
+        f = g_foi
     if f is None or f == '':
         print("NoDeviceException")
         return None
     if not callbacks:
         print("NoRegisteredActionExcetion")
         return None
-    global actionThreadStop, clientActionThread
-    actionThreadStop = Event()
-    clientActionThread = Thread(target=__action_socket_client, args=(actionThreadStop, callbacks, f))
-    clientActionThread.start()
+    global action_thread_stop, client_action_thread
+    action_thread_stop = Event()
+    client_action_thread = Thread(target=__action_socket_client, args=(action_thread_stop, callbacks, f))
+    client_action_thread.start()
 
 
-def stopActionListening():
-    global actionThreadStop, clientActionThread
-    if actionThreadStop:
-        actionThreadStop.set()
-    clientActionThread = None
+def stop_action_listening():
+    global action_thread_stop, client_action_thread
+    if action_thread_stop:
+        action_thread_stop.set()
+    client_action_thread = None
 
 
 def api_get_request(url):
-    response = requests.get(HTTP_ + gServer + url, headers=headers, timeout=gTimeout)
+    response = requests.get(HTTP_ + g_server + url, headers=headers, timeout=g_timeout)
     return response.status_code, json.loads(response.text)
 
 
 def send_alert(self, subject, text):
-    response = requests.post(HTTP_ + gServer + DEVICE_ALERT_URL, data=json.dumps({
+    response = requests.post(HTTP_ + g_server + DEVICE_ALERT_URL, data=json.dumps({
         "subject": subject,
         "text": text
     }), headers=headers)

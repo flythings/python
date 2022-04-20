@@ -36,7 +36,7 @@ The general properties configuration in Configuration.properties:
 ```  
 
 To load the data from the file call this function:    
-- **loadDataByFile**(String file)      
+- **load_data_by_file**(String file)      
     **Description**: Loads data from the file.        
     **Return**: Nothing.  
 
@@ -51,11 +51,11 @@ You can also introduce this general properties using the library methods.
   
 ### General Module Configuration Methods  
   
-- **setServer**(String server)    
+- **set_server**(String server)    
     **Description**: Sets the server to which the requests will be sent.      
     **Return**: Returns a string representing the server.     
       
-- **setDevice**(String device, (Optional) object=None)   
+- **set_device**(String device, (Optional) object=None)   
      **Params**:    
       - device: (Mandatory) Device name.    
       - object: (Optional) Object with extra device params.  
@@ -75,23 +75,23 @@ You can also introduce this general properties using the library methods.
     **Description**: Sets the device of the observation. Uses a file named .foiCache to get a fast access to most used devices.      
     **Return**: Returns a string representing the device.    
       
-- **setSensor**(String sensor)    
+- **set_sensor**(String sensor)    
     **Description**: Sets the sensor of the observation.    
     **Return**: Returns a string representing the sensor.     
       
-- **setToken**(String token)   
+- **set_token**(String token)   
     **Description**: Sets the token to authenticate into the server.    
     **Return**: Returns a string representing the token.  
     
-- **setCustomHeader**(String header, String header_value)  
+- **set_custom_header**(String header, String header_value)  
     **Description**: Sets a custom header for server requests.   
     **Return**: Returns a string representing the header.  
     
-- **getHeaders**(String header, String header_value)  
+- **get_headers**(String header, String header_value)  
     **Description**: Return current headers.   
     **Return**:  Return current headers. 
   
-- **setTimeout**(int timeout)     
+- **set_timeout**(int timeout)     
     **Description**: Sets the timeout value in seconds to the server requests.    
     **Return**: Returns a integer representing the timeout.  
       

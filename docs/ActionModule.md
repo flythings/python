@@ -1,7 +1,9 @@
-# Action Module 
+# Action Module
+
 [Getting Started](https://github.com/flythings/python)
 
 ### Index
+
 * [Action Data Types](#action_types)
 * [Register Action](#register_action)
 * [Register Action Series](#register_action_series)
@@ -9,86 +11,102 @@
 * [Stop Action Listening](#stop_action_listening)
 
 ## Action Types
-- <a name="action_types"></a>**ActionDataTypes**  
-**Description**: Enumerated withe the allowed datatypes for the callbacks of the actions.  
-**Values**:  
-	- **ActionDataTypes.BOOLEAN**: The callback will receive a boolean value from the server when the action is triggered.  
-	- **ActionDataTypes.FILE**: The callback will receive a string representing the url where the file is when the action is triggered.  
-	- **ActionDataTypes.NUMBER**: The callback will receive a number from the server when the action is triggered.  
-	- **ActionDataTypes.TEXT**: The callback will receive a string from the server when the action is triggered.  
-	- **ActionDataTypes.ARRAY**: The callback will receive a string array from the server when the action is triggered.  
-	- **ActionDataTypes.DATE**: The callback will receive a string date from the server when the action is triggered.  
-	- **ActionDataTypes.SELECTOR**: The callback will receive a string value with the selected option value from the server when the action is triggered.  
-	- **ActionDataTypes.JSON**: The callback will receive a string json from the server when the action is triggered.  
-	- **ActionDataTypes.LIVE**: The callback will receive a string with the seriesId from the server when the action is triggered.  
-    
-## Module Methods 
 
-- <a name="register_action"></a>**registerAction**(String name, Function callback, String foi, ActionDataTypes parameterType, String alias)  
-    **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
-    **Params**:  
-    - name: (Mandatory) Identifier of the action.  
-    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly or a string to indicate there was a error.   
-    That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.       
-    - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.  
-    - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.   
-    - alias: (Optional) Specifies a alias to the action.    
-    - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).    
-    
-    **Return**: True if all was correct, otherwise False.    
-    ```NoAuthenticationError```  
-    ```NoDeviceError```  
-    ```NoProcedureError```  
-    **Examples**:  
-    * Register an action with the server.  
+- <a name="action_types"></a>**ActionDataTypes**  
+  **Description**: Enumerated with the allowed datatypes for the callbacks of the actions.  
+  **Values**:
+    - **ActionDataTypes.BOOLEAN**: The callback will receive a boolean value from the server when the action is
+      triggered.
+    - **ActionDataTypes.FILE**: The callback will receive a string representing the url where the file is when the
+      action is triggered.
+    - **ActionDataTypes.NUMBER**: The callback will receive a number from the server when the action is triggered.
+    - **ActionDataTypes.TEXT**: The callback will receive a string from the server when the action is triggered.
+    - **ActionDataTypes.ARRAY**: The callback will receive a string array from the server when the action is triggered.
+    - **ActionDataTypes.DATE**: The callback will receive a string date from the server when the action is triggered.
+    - **ActionDataTypes.SELECTOR**: The callback will receive a string value with the selected option value from the
+      server when the action is triggered.
+    - **ActionDataTypes.JSON**: The callback will receive a string json from the server when the action is triggered.
+    - **ActionDataTypes.LIVE**: The callback will receive a string with the seriesId from the server when the action is
+      triggered.
+
+## Module Methods
+
+- <a name="register_action"></a>**register_action**(String name, Function callback, String foi, ActionDataTypes
+  parameterType, String alias)  
+  **Description**: registers an action with the server, when the action is later run by the web client the callback is
+  executed.  
+  **Params**:
+    - name: (Mandatory) Identifier of the action.
+    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to
+      indicate that was executed propertly or a string to indicate there was a error.   
+      That function must receive 2 params, the first one the value of the action and the second one the timestamp of the
+      action.
+    - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice
+      method otherwise is mandatory.
+    - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.
+    - alias: (Optional) Specifies a alias to the action.
+    - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).
+
+  **Return**: True if all was correct, otherwise False.    
+  ```NoAuthenticationError```  
+  ```NoDeviceError```  
+  ```NoProcedureError```  
+  **Examples**:
+    * Register an action with the server.
     ```PYTHON
         import flythings as fly
         fly.login("<your username>","<your password>", "<login type>")
         def test(param,timestamp):
           print(param)
           print(timestamp)
-        fly.registerAction("<name>", test, foi="<device>", parameterType=fly.ActionDataTypes.TEXT)
+        fly.register_action("<name>", test, foi="<device>", parameter_type=fly.ActionDataTypes.TEXT)
     ```
 
-- <a name="register_action_series"></a>**registerActionForSeries**(String name, String observableProperty, String unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias)  
-    **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.  
-    **Params**:  
-    - name: (Mandatory) Identifier of the action.  
-    - observableProperty: (Mandatory) Observable property of the series.  
-    - unit: (Mandatory) Unit property of the series.  
-    - callback: (Mandatory) Function that executes when the action is triggered. That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action. The function should return:
+- <a name="register_action_series"></a>**register_action_for_series**(String name, String observableProperty, String
+  unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias)  
+  **Description**: registers an action with the server, when the action is later run by the web client the callback is
+  executed.  
+  **Params**:
+    - name: (Mandatory) Identifier of the action.
+    - observable_property: (Mandatory) Observable property of the series.
+    - unit: (Mandatory) Unit property of the series.
+    - callback: (Mandatory) Function that executes when the action is triggered. That function must receive 2 params,
+      the first one the value of the action and the second one the timestamp of the action. The function should return:
         - 0, '0', True, 'True' to indicate that the execution goes well.
         - A string to indicate that there was an error executing.
-        - A object with a field code with values equals to 0, '0', True, 'True' to indicate that the execution goes well, anything else indicates that there was a error, and any attribute you want to persist on the log.  
-        For example: {'code': "0", 'message':"All Ok"}  
+        - A object with a field code with values equals to 0, '0', True, 'True' to indicate that the execution goes
+          well, anything else indicates that there was a error, and any attribute you want to persist on the log.  
+          For example: {'code': "0", 'message':"All Ok"}
     - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.
-    - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is mandatory.  
-    - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.  
+    - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is
+      mandatory.
+    - parameter_type: (Optional, Default: None) Specifies the parameter type of the callback if any.
     - alias: (Optional) Specifies a alias to the action.
-    - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).    
+    - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).
 
-    **Return**: True if all was correct, otherwise False.    
-    ```NoAuthenticationError```    
-    ```NoDeviceError```  
-    ```NoProcedureError```  
-    **Examples**:  
-    * Registers an action with the server.  
+  **Return**: True if all was correct, otherwise False.    
+  ```NoAuthenticationError```    
+  ```NoDeviceError```  
+  ```NoProcedureError```  
+  **Examples**:
+    * Registers an action with the server.
     ```PYTHON
         import flythings as fly
         fly.login("<your username>","<your password>", "<login type>")
         def test(param,timestamp):
           print(param)
           print(timestamp)
-        fly.registerActionForSeries("<name>","<observableProperty", "<unit>", test, foi="<device>", procedure="<procedure>", parameterType=fly.ActionDataTypes.TEXT, alias="test_alias")
+        fly.register_action_for_series("<name>","<observable_property", "<unit>", test, foi="<device>", procedure="<procedure>", parameter_type=fly.ActionDataTypes.TEXT, alias="test_alias")
     ```
 
-- <a name="start_action_listening"></a>**startActionListening**()  
-    **Description**: Starts listening to the server waiting for an action to trigger. Is necessary that at least one action is registered.  
-    **Return**: None  
-    ```NoDeviceException```  
-    ```NoRegisteredActionExcetion```  
-    **Examples**:  
-    * Starts listening waiting for an action to trigger.  
+- <a name="start_action_listening"></a>**start_action_listening**()  
+  **Description**: Starts listening to the server waiting for an action to trigger. Is necessary that at least one
+  action is registered.  
+  **Return**: None  
+  ```NoDeviceException```  
+  ```NoRegisteredActionExcetion```  
+  **Examples**:
+    * Starts listening waiting for an action to trigger.
     ```PYTHON
         import flythings as fly
         import time
@@ -96,21 +114,21 @@
         def test(param,timestamp):
           print(param)
           print(timestamp)
-        fly.registerAction("<name>", test, foi="<device>", parameterType=fly.ActionDataTypes.TEXT)
-        fly.startActionListening()
+        fly.register_action("<name>", test, foi="<device>", parameter_type=fly.ActionDataTypes.TEXT)
+        fly.start_action_listening()
         while(True):
             print("listening...")
             time.sleep(10)
     ```
 
-- <a name="stop_action_listening"></a>**stopActionListening**()  
-    **Description**: Stop listening to the server for actions.  
-    **Return**: None.  
-    ```NoAuthenticationError```    
-    ```NoDeviceError```    
-    ```NoProcedureError```   
-    **Examples**:  
-    * Stop listening to the server for actions.  
+- <a name="stop_action_listening"></a>**stop_action_listening**()  
+  **Description**: Stop listening to the server for actions.  
+  **Return**: None.  
+  ```NoAuthenticationError```    
+  ```NoDeviceError```    
+  ```NoProcedureError```   
+  **Examples**:
+    * Stop listening to the server for actions.
     ```PYTHON
         import flythings as fly, time
         fly.login("<your username>","<your password>", "<login type>")
@@ -118,19 +136,20 @@
         def test(param,timestamp):
           print(param)
           print(timestamp)
-          fly.stopActionListening() #Stops listening when a action was triggered
+          fly.stop_action_listening() # Stops listening when a action was triggered
           listening = False
-        fly.registerAction("<name>", test, foi="<device>", parameterType=fly.ActionDataTypes.TEXT)
-        fly.startActionListening()
+        fly.register_action("<name>", test, foi="<device>", parameter_type=fly.ActionDataTypes.TEXT)
+        fly.start_action_listening()
         listening = True
         while(listening):
             print("listening...")
             time.sleep(10)
     ```  
-    
-## Sequence Diagram 
+
+## Sequence Diagram
+
 ![Action Sequence Diagram](actionSequenceDiagram.png)
 
-
 ## [License](LICENSE)
+
 **Developed by [ITG](http://www.itg.es)**
