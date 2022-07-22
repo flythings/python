@@ -23,7 +23,7 @@
     * Adds a simple observation without configuration File.
     ```PYTHON  
         import flythings as fly   
-        fly.setServer("api.flythings.io/api")    
+        fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")
         fly.save_text_metadata("CATEGORIA.NOMBRE", "valor", "database")    
     ```
@@ -42,7 +42,7 @@
     * Adds a simple observation without configuration File.
     ```PYTHON  
         import flythings as fly   
-        fly.setServer("api.flythings.io/api")    
+        fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")
         fly.save_text_metadata("CATEGORIA.NOMBRE", "17/02/2022", "database")    
     ```

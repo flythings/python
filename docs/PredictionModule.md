@@ -32,7 +32,7 @@
     * Adds a simple prediction without configuration File.
     ```PYTHON  
         import flythings as fly   
-        fly.setServer("api.flythings.io/api")    
+        fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")
         fly.send_prediction(20,"prueba",None,None,None,"procedure","foi")    
     ```  
@@ -51,21 +51,21 @@
     * Adds a simple prediction with timezone.
     ```PYTHON  
         import flythings as fly      
-        fly.setServer("api.flythings.io/api")      
+        fly.set_server("api.flythings.io/api")      
         fly.login("<your username>","<your password>", "<login type>")     
         fly.send_prediction(20,"prueba",None,1495643746000,None,"procedure","foi")     
     ```    
     * Adds a simple prediction with uom.
     ```PYTHON  
         import flythings as fly     
-        fly.setServer("api.flythings.io/api")      
+        fly.set_server("api.flythings.io/api")      
         fly.login("<your username>","<your password>", "<login type>")     
         fly.send_prediction(20,"prueba","m",None,None,"procedure","foi")    
     ```    
     * Adds a simple prediction with Geom.
     ```PYTHON  
         import flythings as fly      
-        fly.setServer("api.flythings.io/api")      
+        fly.set_server("api.flythings.io/api")      
         fly.login("<your username>","<your password>", "<login type>")     
         auxGeom = {  
                 "type": "Point",  

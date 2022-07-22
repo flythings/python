@@ -575,13 +575,15 @@ def __get_tcp_socket(url=None):
 
             if decode(data) == 'X-AUTH-TOKEN':
                 s.sendall((headers['x-auth-token'] + "\n").encode("utf-8"))
-                is_logged = s.recv(1024)
+                is_logged = s.recv(4)
                 if decode(is_logged) == 'True':
                     return s
                 else:
                     print("INVALID_TOKEN")
+                    s.close()
             else:
                 print("SOCKET UNAVAILABLE!")
+                s.close()
     except:
         print("Connection refused")
     return None
@@ -841,19 +843,23 @@ def __action_socket_client(action_thread_stop, callbacks, foi):
         try:
             if g_action_socket is None:
                 g_action_socket = __get_tcp_socket(ACTIONS_URL)
-            g_action_socket.settimeout(60.0)
-            data = g_action_socket.recv(1024)
-            decoded_data = data.decode("utf-8")
-            if decoded_data != '':
-                __parse_decoded_data(decoded_data, g_action_socket, foi)
-            try:
-                if action_time - current_time > 5:
-                    g_action_socket.sendall("Ping\n".encode("utf-8"))
-                    current_time = time.time()
-            except:
-                print("The server closed the connection!")
-                g_action_socket.close()
-                g_action_socket = None
+            if g_action_socket is not None:
+                g_action_socket.settimeout(60.0)
+                data = g_action_socket.recv(1024)
+                decoded_data = data.decode("utf-8")
+                if decoded_data != '':
+                    __parse_decoded_data(decoded_data, g_action_socket, foi)
+                try:
+                    if action_time - current_time > 5:
+                        g_action_socket.sendall("Ping\n".encode("utf-8"))
+                        current_time = time.time()
+                except:
+                    print("The server closed the connection!")
+                    g_action_socket.close()
+                    g_action_socket = None
+            else:
+                print("Could not open Action socket, waiting 30 secs to retry")
+                time.sleep(30)
         except socket.timeout:
             print("timeout")
             g_action_socket.close()
@@ -864,8 +870,9 @@ def __action_socket_client(action_thread_stop, callbacks, foi):
             print(str(e))
             if str(e) != "'@PING@'":
                 print("INTERNAL_FAILURE")
-                g_action_socket.close()
-                g_action_socket = None
+                if g_action_socket is not None:
+                    g_action_socket.close()
+                    g_action_socket = None
                 time.sleep(30)
                 # __action_socket_client(actionThreadStop, callbacks, foi)
     g_action_socket.close()

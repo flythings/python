@@ -37,7 +37,7 @@
     * Adds a simple observation without configuration File.
     ```PYTHON  
         import flythings as fly   
-        fly.setServer("api.flythings.io/api")    
+        fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")
         fly.send_observation(20,"prueba",None,None,None,"procedure","foi")    
     ```  
