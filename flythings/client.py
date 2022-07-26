@@ -1,17 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import json
-import requests
-import time
-import socket
-from datetime import timedelta, datetime
-from threading import Thread, Event, Lock
-from enum import Enum
 import ast
 import copy
+import json
 import os
+import socket
 import sys
+import time
+from datetime import timedelta, datetime
+from enum import Enum
 from inspect import signature
+from threading import Thread, Event, Lock
+from urllib.parse import urlparse
+
+import requests
 
 HTTP_ = 'http://'
 HTTPS_ = 'http://'
@@ -74,12 +76,12 @@ class ActionDataTypes(Enum):
 def login(user, password, login_type):
     try:
         if login_type == 'DEVICE':
-            authbody = requests.get(HTTP_ + g_server + LOGIN_DEVICE_URL, auth=(user, password), timeout=g_timeout)
+            authbody = requests.get(g_server + LOGIN_DEVICE_URL, auth=(user, password), timeout=g_timeout)
         elif login_type == 'USER':
-            authbody = requests.get(HTTP_ + g_server + LOGIN_USER_URL, auth=(user, password), timeout=g_timeout)
+            authbody = requests.get(g_server + LOGIN_USER_URL, auth=(user, password), timeout=g_timeout)
         else:
             login_type = 'USER'
-            authbody = requests.get(HTTP_ + g_server + LOGIN_USER_URL, auth=(user, password), timeout=g_timeout)
+            authbody = requests.get(g_server + LOGIN_USER_URL, auth=(user, password), timeout=g_timeout)
         if authbody.status_code == 200:
             global headers
             body = json.loads(authbody.text)
@@ -160,6 +162,11 @@ def __update_file_params(list_param):
 
 def set_server(server):
     global g_server
+    server = server.strip()
+    if server.endswith('/'):
+        server = server[:-1]
+    if not server.startswith(HTTP_):
+        server = HTTP_ + server
     g_server = server
     return g_server
 
@@ -183,7 +190,7 @@ def set_device(device, object=None, always_update=False):
     foi_to_send = {'featureOfInterest': {"name": device}}
     if object is not None:
         if 'type' in object:
-            response = requests.get(HTTP_ + g_server + FOI_URL + '/devicetypes', headers=headers, timeout=g_timeout)
+            response = requests.get(g_server + FOI_URL + '/devicetypes', headers=headers, timeout=g_timeout)
             if response.status_code == 200:
                 device_types = response.json()
                 if object['type'] in device_types:
@@ -195,7 +202,7 @@ def set_device(device, object=None, always_update=False):
         if 'geom' in object:
             foi_to_send['featureOfInterest']['geom'] = object['geom']
     if __update_foi_file() or always_update:
-        requests.post(HTTP_ + g_server + FOI_URL, json.dumps(foi_to_send), headers=headers,
+        requests.post(g_server + FOI_URL, json.dumps(foi_to_send), headers=headers,
                       timeout=g_timeout)
     return g_foi
 
@@ -226,6 +233,7 @@ def set_token(token):
 def set_authorization_token(token):
     global headers
     headers['Authorization'] = "Bearer " + token
+    headers['x-auth-token'] = '-'
     return headers['Authorization']
 
 
@@ -260,7 +268,7 @@ def send_observations(values):
         print('NoAuthenticationError')
         return None
     try:
-        response = requests.put(HTTP_ + g_server + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
+        response = requests.put(g_server + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
                                 headers=headers, timeout=g_timeout)
     except Exception as e:
         print(e)
@@ -279,7 +287,7 @@ def send_predictions(values):
         print('NoAuthenticationError')
         return None
     try:
-        response = requests.put(HTTP_ + g_server + PUBLISH_PREDICTION_MULTIPLE_URL,
+        response = requests.put(g_server + PUBLISH_PREDICTION_MULTIPLE_URL,
                                 data=json.dumps({'predictions': values}),
                                 headers=headers, timeout=g_timeout)
     except Exception as e:
@@ -298,10 +306,10 @@ def send_record(serie_id, observations):
         print('NoAuthenticationError')
         return None
     if isinstance(observations, str):
-        response = requests.put(HTTP_ + g_server + PUBLISH_RECORD_URL + "/" + str(serie_id), observations,
+        response = requests.put(g_server + PUBLISH_RECORD_URL + "/" + str(serie_id), observations,
                                 headers=headers)
     else:
-        response = requests.put(HTTP_ + g_server + PUBLISH_RECORD_URL + "/" + str(serie_id),
+        response = requests.put(g_server + PUBLISH_RECORD_URL + "/" + str(serie_id),
                                 data=json.dumps(observations), headers=headers)
     return response.status_code, response.content
 
@@ -310,7 +318,7 @@ def send_observations_csv(values):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
-    response = requests.post(HTTP_ + g_server + PUBLISH_PLAIN_CSV_URL, data=values, headers=headers,
+    response = requests.post(g_server + PUBLISH_PLAIN_CSV_URL, data=values, headers=headers,
                              timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
@@ -343,7 +351,7 @@ def search(
         message['temporalScale'] = aggrupation
     if aggrupation_type is not None:
         message['temporalScaleType'] = aggrupation_type
-    r = requests.post(HTTP_ + g_server + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers,
+    r = requests.post(g_server + GET_OBSERVATIONS_URL, data=json.dumps(message), headers=headers,
                       timeout=g_timeout)
     if r.status_code == 200:
         list = r.json()[0]['data']
@@ -381,7 +389,7 @@ def search_prediction(
         message['temporalScale'] = aggrupation
     if aggrupation_type is not None:
         message['temporalScaleType'] = aggrupation_type
-    r = requests.post(HTTP_ + g_server + GET_PREDICTIONS_URL, data=json.dumps(message), headers=headers,
+    r = requests.post(g_server + GET_PREDICTIONS_URL, data=json.dumps(message), headers=headers,
                       timeout=g_timeout)
     if r.status_code == 200:
         list = r.json()[0]['data']
@@ -409,7 +417,7 @@ def send_observation(
         return None
     message = get_observation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
     json_payload = json.dumps(message)
-    response = requests.put(HTTP_ + g_server + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=g_timeout)
+    response = requests.put(g_server + PUBLISH_SINGLE_URL, json_payload, headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
@@ -431,7 +439,7 @@ def send_prediction(
         return None
     message = get_observation(value, property, uom, ts, geom, procedure, foi, device_type, foi_name)
     json_payload = json.dumps(message)
-    response = requests.put(HTTP_ + g_server + PUBLISH_PREDICTION_SINGLE_URL, json_payload, headers=headers,
+    response = requests.put(g_server + PUBLISH_PREDICTION_SINGLE_URL, json_payload, headers=headers,
                             timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
@@ -513,7 +521,7 @@ def find_series(foi=None, procedure=None, observable_property=None):
         procedure = g_procedure
     if observable_property is None or observable_property == '':
         return "INSERT A OBSERVABLE PROPERTY"
-    response = requests.get(HTTP_ + g_server + SERIES_URL + foi + '/' + procedure + '/' + observable_property,
+    response = requests.get(g_server + SERIES_URL + foi + '/' + procedure + '/' + observable_property,
                             headers=headers, timeout=g_timeout)
     if response.status_code != 200:
         print("Error retrieving series: " + foi + "-" + procedure + "-" + observable_property)
@@ -530,8 +538,8 @@ def save_text_metadata(key, value, foi=None):
         foi = g_foi
     message = {'key': key.upper(), 'value': value, 'type': 'TEXT'}
     json_payload = json.dumps(message)
-    response = requests.post(HTTP_ + g_server + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
-                             headers=headers, timeout=g_timeout)
+    response = requests.put(g_server + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
+                            headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
@@ -542,8 +550,8 @@ def save_date_metadata(key, value, foi=None):
         foi = g_foi
     message = {'key': key.upper(), 'value': value, 'type': 'DATE'}
     json_payload = json.dumps(message)
-    response = requests.post(HTTP_ + g_server + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
-                             headers=headers, timeout=g_timeout)
+    response = requests.put(g_server + DEVICE_METADATA_URL + '/identifier/' + foi, json_payload,
+                            headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
@@ -557,24 +565,20 @@ def __get_tcp_socket(url=None):
     decode = lambda d: d.decode('utf-8')
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if ":" not in g_server:
-            if "/" not in g_server:
-                server = g_server
-            else:
-                server = g_server.split("/")[0]
-        else:
-            server = g_server.split(":")[0]
-
-        response = requests.get(HTTP_ + g_server + (SOCKET_URL if url is None else url), headers=headers)
+        response = requests.get(g_server + (SOCKET_URL if url is None else url), headers=headers)
         if response.status_code == 200:
             port = int(response.text)
-
-            s.connect((server, port))
+            url = urlparse(g_server)
+            s.connect((url.hostname, port))
 
             data = s.recv(1024)
 
             if decode(data) == 'X-AUTH-TOKEN':
-                s.sendall((headers['x-auth-token'] + "\n").encode("utf-8"))
+                if 'Authorization' in headers and headers['Authorization'] is not None \
+                        and headers['x-auth-token'] == '-':
+                    s.sendall((headers['Authorization'] + "\n").encode("utf-8"))
+                else:
+                    s.sendall((headers['x-auth-token'] + "\n").encode("utf-8"))
                 is_logged = s.recv(4)
                 if decode(is_logged) == 'True':
                     return s
@@ -604,7 +608,7 @@ def __get_udp_socket():
         else:
             server = g_server.split(":")[0]
 
-        response = requests.get(HTTP_ + g_server + SOCKET_URL, headers=headers)
+        response = requests.get(g_server + SOCKET_URL, headers=headers)
         if response.status_code == 200:
             port = int(response.text)
 
@@ -799,7 +803,7 @@ def __register_action(
             payload["alias"] = alias
         if action_options is not None and parameter_type.name == ActionDataTypes.SELECTOR.name:
             payload["actionOptions"] = action_options
-        response = requests.post(HTTP_ + g_server + ACTIONS_URL, data=json.dumps(payload), headers=headers)
+        response = requests.post(g_server + ACTIONS_URL, data=json.dumps(payload), headers=headers)
 
         if response.status_code == 201:
             return True
@@ -976,12 +980,12 @@ def stop_action_listening():
 
 
 def api_get_request(url):
-    response = requests.get(HTTP_ + g_server + url, headers=headers, timeout=g_timeout)
+    response = requests.get(g_server + url, headers=headers, timeout=g_timeout)
     return response.status_code, json.loads(response.text)
 
 
 def send_alert(self, subject, text):
-    response = requests.post(HTTP_ + g_server + DEVICE_ALERT_URL, data=json.dumps({
+    response = requests.post(g_server + DEVICE_ALERT_URL, data=json.dumps({
         "subject": subject,
         "text": text
     }), headers=headers)

@@ -18,7 +18,7 @@ setup(
     version='2.0.0',
     description='A python library to add ans search observations into flythings',
     author='flythings',
-    author_email='tic@itg.es',
+    author_email='fly@itg.es',
     license='GPL-3.0',
     long_description=get_long_description(),
     long_description_content_type="text/markdown",  # This is important!

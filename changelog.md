@@ -1,5 +1,12 @@
 ## Change log
 
+### 2.0.1
+* Include set x-auth-token to - on set_token().
+* Fix authorization_token not working on action and realtime.
+* Parse server hostname automatically on get_tcp_socket().
+* Make set_server method more intelligent to autocomplete the required parts.
+* Add metadata becomes save metadata which creates or updates metadata.
+
 ### 2.0.0
 * Include predictions management methods.
 * Refactor all methods to use _ instead of camel case.
