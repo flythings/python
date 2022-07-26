@@ -19,7 +19,7 @@
     * Sends a custom request.
     ```PYTHON  
         import flythings as fly   
-        fly.setServer("api.flythings.io/api")    
+        fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")    
         fly.sendObservation(20,"prueba",None,None,None,"procedure","foi")    
         fly.api_get_request("/series/foi/procedure/prueba")    
@@ -37,7 +37,7 @@
     * Sends a device request.
     ```PYTHON  
         import flythings as fly   
-        fly.setServer("api.flythings.io/api")    
+        fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")    
         fly.send_alert("asunto", "contenido del mensaje")    
     ```  
