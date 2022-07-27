@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 import requests
 
 HTTP_ = 'http://'
-HTTPS_ = 'http://'
+HTTPS_ = 'https://'
 
 PUBLISH_MULTIPLE_URL = '/observation/multiple'
 PUBLISH_PREDICTION_MULTIPLE_URL = '/prediction/multiple'
@@ -165,7 +165,7 @@ def set_server(server):
     server = server.strip()
     if server.endswith('/'):
         server = server[:-1]
-    if not server.startswith(HTTP_):
+    if not server.startswith(HTTP_) and not server.startswith(HTTPS_):
         server = HTTP_ + server
     g_server = server
     return g_server
