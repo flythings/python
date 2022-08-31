@@ -34,6 +34,7 @@ SERIES_URL = '/series/'
 ACTIONS_URL = '/newaction/'
 DEVICE_ALERT_URL = '/alerts/device/send'
 DEVICE_METADATA_URL = '/featureofinterest/metadata'
+PUBLISH_INFRASTRUCTURE_METADATA = '/featuretag/withmetadata'
 FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
@@ -71,6 +72,25 @@ class ActionDataTypes(Enum):
     JSON = 'JSON'
     FILE = 'FILE'
     LIVE = 'LIVE'
+
+
+class SamplingFeatureType(Enum):
+    POINT = {
+        'id': 1,
+        'type': 'http://www.opengis.net/def/samplingFeatureType/OGC-OM/2.0/SF_SamplingPoint'
+    }
+    LINE = {
+        'id': 2,
+        'type': 'http://www.opengis.net/def/samplingFeatureType/OGC-OM/2.0/SF_SamplingSurface'
+    }
+    POLYGON = {
+        'id': 3,
+        'type': 'http://www.opengis.net/def/samplingFeatureType/OGC-OM/2.0/SF_Specimen'
+    }
+    NO_POSITION = {
+        'id': 4,
+        'type': 'http://www.opengis.net/def/samplingFeatureType/OGC-OM/2.0/SF_SamplingCurve'
+    }
 
 
 def login(user, password, login_type):
@@ -555,6 +575,62 @@ def save_date_metadata(key, value, foi=None):
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
+
+
+def get_text_metadata(key, value, tag_id=None):
+    metadata = {'key': key.upper(), 'value': value, 'tagId': tag_id, 'type': 'TEXT'}
+    return metadata
+
+
+def get_infrastructure_withmetadata(
+        name,
+        type,
+        geom=None,
+        geom_type=None,
+        fois=None,
+        text_metadata_list=None
+):
+    infrastructure = {'name': name, 'type': type}
+    if geom is not None:
+        infrastructure['geom'] = geom
+    if geom_type is not None and geom_type.value is not None:
+        infrastructure['geomType'] = geom_type.value
+    else:
+        infrastructure['geomType'] = SamplingFeatureType.NO_POSITION.value
+    if fois is not None and not fois:
+        infrastructure['featureOfInterestList'] = fois
+    if text_metadata_list is not None and text_metadata_list != '':
+        infrastructure['textMetadata'] = text_metadata_list
+    return infrastructure
+
+
+def create_infrastructure(infrastructure):
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None
+    json_payload = json.dumps(infrastructure)
+    response = requests.post(g_server + PUBLISH_INFRASTRUCTURE_METADATA,
+                             json_payload, headers=headers, timeout=g_timeout)
+    if response.status_code >= 400:
+        print(response.text)
+    return response.status_code
+
+
+def update_infrastructure(infrastructure, id):
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None
+    if id is not None:
+        infrastructure.id = id
+        json_payload = json.dumps(infrastructure)
+        response = requests.put(HTTP_ + g_server + PUBLISH_INFRASTRUCTURE_METADATA + '/' + str(id),
+                                json_payload, headers=headers, timeout=g_timeout)
+        if response.status_code >= 400:
+            print(response.text)
+        return response.status_code
+    else:
+        print('Infrastructure id cannot be None')
+        return None
 
 
 def __get_tcp_socket(url=None):

@@ -1,5 +1,9 @@
 ## Change log
 
+### 2.0.2
+* Include create infrastructure with metadata method.
+* Include update infrastructure with metadata method.
+
 ### 2.0.1
 * Include set x-auth-token to - on set_token().
 * Fix authorization_token not working on action and realtime.
