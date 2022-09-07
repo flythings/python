@@ -89,7 +89,7 @@
         import flythings as fly   
         fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")
-        infra = flythings.get_infrastructure_withmetadata('test-infrastructure', 'MILKCHAIN_FARM', None, None, None)
+        infra = flythings.get_infrastructure('test-infrastructure', 'MILKCHAIN_FARM', None, None, None)
     ```
 
 - <a name="get_infrastructure_withmetadata"></a>**get_infrastructure_withmetadata**(String name, String type, Geom geom,
