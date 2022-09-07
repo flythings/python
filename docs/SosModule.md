@@ -6,6 +6,11 @@
 
 * [Save Text Metadata](#save_text_metadata)
 * [Save Date Metadata](#save_date_metadata)
+* [Get Infrastructure](#get_infrastructure)
+* [Get Infrastructure with metadata](#get_infrastructure_withmetadata)
+* [Save Infrastructure](#save_infrastructure)
+* [Save Infrastructure with Metadata](#save_infrastructure_withmetadata)
+* [Link Device to Infrastructure](#link_device_to_infrastructure)
 
 ## Module Methods
 
@@ -127,10 +132,10 @@
         fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")
         infra = flythings.get_infrastructure('test-infrastructure', 'MILKCHAIN_FARM', None, None, None)
-        updated = flythings.update_infrastructure(infra)
+        updated = flythings.save_infrastructure(infra)
     ```
 
-- <a name="save_infrastructure_withmetadata"></a>**save_infrastructure**(Infrastructure infrastructure, Long featureTagId)    
+- <a name="save_infrastructure_withmetadata"></a>**save_infrastructure_withmetadata**(Infrastructure infrastructure, Long featureTagId)    
   **Description**: saves infrastructure with metadata.   
   **Params**:
     - infrastructure: (Mandatory) Infrastructure object obtained using get_infrastructure_withmetadata.
@@ -147,7 +152,7 @@
         text_metadata_list = []
         text_metadata_list.append(flythings.get_text_metadata('.METADATA_TEST', 'test-metadata'))
         infra = flythings.get_infrastructure_withmetadata('test-infrastructure', 'MILKCHAIN_FARM', None, None, None, text_metadata_list)
-        updated = flythings.update_infrastructure(infra)
+        updated = flythings.save_infrastructure_withmetadata(infra)
     ```
   
 
