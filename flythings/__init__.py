@@ -23,4 +23,5 @@ from flythings.client import search, send_observation, send_observations, login,
     stop_action_listening, ActionDataTypes, load_data_by_file, set_batch_enabled, get_observation_csv, \
     send_observations_csv, get_headers, api_get_request, send_alert, save_text_metadata, save_date_metadata, \
     send_progress_action, send_prediction, send_predictions, search_prediction, get_text_metadata, \
-    get_infrastructure_withmetadata, create_infrastructure, update_infrastructure
+    get_infrastructure, get_infrastructure_withmetadata, save_infrastructure, save_infrastructure_with_metadata, \
+    link_device_to_infrastructure

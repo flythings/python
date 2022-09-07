@@ -34,6 +34,7 @@ SERIES_URL = '/series/'
 ACTIONS_URL = '/newaction/'
 DEVICE_ALERT_URL = '/alerts/device/send'
 DEVICE_METADATA_URL = '/featureofinterest/metadata'
+PUBLISH_INFRASTRUCTURE = '/featuretag'
 PUBLISH_INFRASTRUCTURE_METADATA = '/featuretag/withmetadata'
 FILE = 'Configuration.properties'
 
@@ -582,6 +583,25 @@ def get_text_metadata(key, value, tag_id=None):
     return metadata
 
 
+def get_infrastructure(
+        name,
+        type,
+        geom=None,
+        geom_type=None,
+        fois=None
+):
+    infrastructure = {'name': name, 'type': type}
+    if geom is not None:
+        infrastructure['geom'] = geom
+    if geom_type is not None and geom_type.value is not None:
+        infrastructure['geomType'] = geom_type.value
+    else:
+        infrastructure['geomType'] = SamplingFeatureType.NO_POSITION.value
+    if fois is not None and not fois:
+        infrastructure['featureOfInterestList'] = fois
+    return infrastructure
+
+
 def get_infrastructure_withmetadata(
         name,
         type,
@@ -604,10 +624,12 @@ def get_infrastructure_withmetadata(
     return infrastructure
 
 
-def create_infrastructure(infrastructure):
+def save_infrastructure(infrastructure, id=None):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
+    if id is not None:
+        infrastructure.id = id
     json_payload = json.dumps(infrastructure)
     response = requests.post(g_server + PUBLISH_INFRASTRUCTURE_METADATA,
                              json_payload, headers=headers, timeout=g_timeout)
@@ -616,21 +638,34 @@ def create_infrastructure(infrastructure):
     return response.status_code
 
 
-def update_infrastructure(infrastructure, id):
+def save_infrastructure_with_metadata(infrastructure, id=None):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
         return None
     if id is not None:
         infrastructure.id = id
-        json_payload = json.dumps(infrastructure)
-        response = requests.put(HTTP_ + g_server + PUBLISH_INFRASTRUCTURE_METADATA + '/' + str(id),
-                                json_payload, headers=headers, timeout=g_timeout)
-        if response.status_code >= 400:
-            print(response.text)
-        return response.status_code
-    else:
-        print('Infrastructure id cannot be None')
+    json_payload = json.dumps(infrastructure)
+    response = requests.post(g_server + PUBLISH_INFRASTRUCTURE_METADATA,
+                             json_payload, headers=headers, timeout=g_timeout)
+    if response.status_code >= 400:
+        print(response.text)
+    return response.status_code
+
+
+def link_device_to_infrastructure(infrastructure_tree, foi_identifier):
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
         return None
+    if foi_identifier is None:
+        print('foi_identifier is None')
+        return None
+    json_payload = json.dumps(infrastructure_tree)
+    response = requests.put(
+        g_server + PUBLISH_INFRASTRUCTURE + "/link/featureofinterest/" + foi_identifier,
+        json_payload, headers=headers, timeout=g_timeout)
+    if response.status_code >= 400:
+        print(response.text)
+    return response.status_code
 
 
 def __get_tcp_socket(url=None):

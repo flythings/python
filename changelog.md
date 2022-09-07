@@ -1,5 +1,12 @@
 ## Change log
 
+### 2.1.0
+* Include save infrastructure.
+* Include save infrastructure with metadata.
+* Include link device to infrastructure.
+* Remove create infrastructure with metadata.
+* Remove update infrastructure with metadata.
+
 ### 2.0.2
 * Include create infrastructure with metadata method.
 * Include update infrastructure with metadata method.

@@ -46,7 +46,7 @@
         fly.login("<your username>","<your password>", "<login type>")
         fly.save_text_metadata("CATEGORIA.NOMBRE", "17/02/2022", "database")    
     ```
-  
+
 - <a name="get_text_metadata"></a>**get_text_metadata**(String key, String value, Long tag_id)    
   **Description**: get a text metadata object for infrastructure metadata.   
   **Params**:
@@ -66,7 +66,29 @@
         text_metadata_list.append(flythings.get_text_metadata('.METADATA_TEST', 'test-metadata'))   
     ```
 
-- <a name="get_infrastructure_withmetadata"></a>**get_infrastructure_withmetadata**(String name, String type, Geom geom, SamplingFeatureType geom_type, List<Long> fois, List<Metadata> text_metadata_list)    
+- <a name="get_infrastructure"></a>**get_infrastructure**(String name, String type, Geom geom, SamplingFeatureType
+  geom_type, List<Long> fois, List<Metadata> text_metadata_list)    
+  **Description**: get infrastructure object.   
+  **Params**:
+    - name: (Mandatory) Key of the metadata on this format ("Category"."Name").
+    - type: (Mandatory) type level of the infrastructure.
+    - geom: (Optional) geom position of the infrastructure.
+    - geom_type: (Optional) geomType position type of the infrastructure.
+    - fois: (Optional) list of foiIds of the infrastructure.
+
+  **Return**: Returns the infrastructure object.
+
+  **Examples**:
+    * Get infrastructure without configuration File.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")    
+        fly.login("<your username>","<your password>", "<login type>")
+        infra = flythings.get_infrastructure_withmetadata('test-infrastructure', 'MILKCHAIN_FARM', None, None, None)
+    ```
+
+- <a name="get_infrastructure_withmetadata"></a>**get_infrastructure_withmetadata**(String name, String type, Geom geom,
+  SamplingFeatureType geom_type, List<Long> fois, List<Metadata> text_metadata_list)    
   **Description**: get a text metadata object for infrastructure metadata.   
   **Params**:
     - name: (Mandatory) Key of the metadata on this format ("Category"."Name").
@@ -89,31 +111,30 @@
         infra = flythings.get_infrastructure_withmetadata('test-infrastructure', 'MILKCHAIN_FARM', None, None, None, text_metadata_list)
    
     ```
-  
-- <a name="create_infrastructure"></a>**create_infrastructure**(Infrastructure infrastructure)    
-  **Description**: creates infrastructure with metadata.   
+
+- <a name="save_infrastructure"></a>**save_infrastructure**(Infrastructure infrastructure, Long featureTagId)    
+  **Description**: saves infrastructure.
   **Params**:
-    - infrastructure: (Mandatory) Infrastructure object obtained using get_infrastructure_withmetadata.
+    - infrastructure: (Mandatory) Infrastructure object obtained using get_infrastructure.
+    - id: (Optional) Infrastructure id of the infrastructure.
 
   **Return**: Returns the status code of the request.
 
   **Examples**:
-    * Creates infrastructures.
+    * Update infrastructure.
     ```PYTHON  
         import flythings as fly   
         fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")
-        text_metadata_list = []
-        text_metadata_list.append(flythings.get_text_metadata('.METADATA_TEST', 'test-metadata'))
-        infra = flythings.get_infrastructure_withmetadata('test-infrastructure', 'MILKCHAIN_FARM', None, None, None, text_metadata_list)
-        created = flythings.create_infrastructure(infra)
+        infra = flythings.get_infrastructure('test-infrastructure', 'MILKCHAIN_FARM', None, None, None)
+        updated = flythings.update_infrastructure(infra)
     ```
 
-- <a name="update_infrastructure"></a>**update_infrastructure**(Infrastructure infrastructure, Long featureTagId)    
-  **Description**: updates infrastructure with metadata.   
+- <a name="save_infrastructure_withmetadata"></a>**save_infrastructure**(Infrastructure infrastructure, Long featureTagId)    
+  **Description**: saves infrastructure with metadata.   
   **Params**:
     - infrastructure: (Mandatory) Infrastructure object obtained using get_infrastructure_withmetadata.
-    - id: (Mandatory) Infrastructure id of the infrastructure.
+    - id: (Optional) Infrastructure id of the infrastructure.
 
   **Return**: Returns the status code of the request.
 
@@ -126,5 +147,34 @@
         text_metadata_list = []
         text_metadata_list.append(flythings.get_text_metadata('.METADATA_TEST', 'test-metadata'))
         infra = flythings.get_infrastructure_withmetadata('test-infrastructure', 'MILKCHAIN_FARM', None, None, None, text_metadata_list)
-        updated = flythings.update_infrastructure(infra, 1)
+        updated = flythings.update_infrastructure(infra)
+    ```
+  
+
+- <a name="link_device_to_infrastructure"></a>**link_device_to_infrastructure**(InfrastructureTree infrastructureTree, String device_identifier)    
+  **Description**: Links device to infrastructure.   
+  **Params**:
+    - infrastructure_tree: (Mandatory) Infrastructure object tree.
+    - device_identifier: (Mandatory) Device identifier.
+
+  **Return**: Returns the status code of the request.
+
+  **Examples**:
+    * Link device to infrastructure with only parent level.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")    
+        fly.login("<your username>","<your password>", "<login type>")
+        infrastructure_tree = {'name': 'level1', 'type':'TAG_FIRST_LEVEL'}
+        updated = flythings.link_device_to_infrastructure(infrastructure_tree, 'TestDeviceIdentifier')
+    ```
+    * Link device to infrastructure with multiple levels.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")    
+        fly.login("<your username>","<your password>", "<login type>")
+        infrastructure_tree = {'name': 'level1', 'type':'TAG_FIRST_LEVEL',
+          'child':{'name': 'level2', 'type': 'TAG_SECOND_LEVEL'}
+        }
+        updated = flythings.link_device_to_infrastructure(infrastructure_tree, 'TestDeviceIdentifier')
     ```
