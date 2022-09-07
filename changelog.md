@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.1.1
+* Fix SosModule documentation.
+
 ### 2.1.0
 * Include save infrastructure.
 * Include save infrastructure with metadata.
