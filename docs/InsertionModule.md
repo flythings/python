@@ -6,6 +6,9 @@
 
 * [Send Single Observation](#send_observation)
 * [Get Observation](#get_observation)
+* [Get Image Observation](#get_image_observation)
+* [Get Image Bytes Observation](#get_image_bytes_observation)
+* [Get Image Base64 Observation](#get_image_base64_observation)
 * [Get Observation CSV](#get_observation_csv)
 * [Send Observations](#send_observations)
 * [Send Observations CSV](#send_observations_csv)
@@ -141,6 +144,101 @@
         }  
         fly.get_observation(20,"prueba",None,None,auxGeom,"procedure","foi")     
     ```  
+
+- <a name="get_image_observation"></a>**get_image_observation**((String | File) file, String property, String format,
+  String uom, Timestamp time, GeomObj geom, String procedure, String foi, String device_type, String foi_name)    
+  **Description**: creates an image observation Object.    
+  **Params**:
+    - file: (Mandatory) opened file or path of the file.
+    - property: (Mandatory) Property of the observation.
+    - format: (Optional) Format of the image.
+    - uom: (Optional) unit of the measurement
+    - time: (Optional) Timestamp when the measurement was taken.
+    - geom: (Optional)  Geom object of the observation.
+    - procedure: (Optional, Default configuration procedure) Sensor of the observation.
+    - foi:  (Optional, Default configuration foi) Device of the observation.
+    - device_type:  (Optional, Default None) Type of the Device of the observation.
+    - foi_name:  (Optional, Default None) Name of the device of the observation.
+
+  **Return**: Returns the observation object created.    
+  **Examples**:
+    * Generates a simple image observation by path.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")    
+        fly.login("<your username>","<your password>", "<login type>")    
+        fly.get_image_observation('McLaren-Racing-Gulf-Formula-1.jpg', 'ImageProperty', None, None,
+                                   int(time.time() * 1000), None, 'default', 'ImageDevice'))    
+    ```
+    * Generates a simple image observation by file.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")    
+        fly.login("<your username>","<your password>", "<login type>")
+        file = open('McLaren-Racing-Gulf-Formula-1.jpg', "rb")    
+        fly.get_image_observation(file, 'ImageProperty', 'jpg', None,
+                                   int(time.time() * 1000), None, 'default', 'ImageDevice'))    
+    ```
+
+- <a name="get_image_bytes_observation"></a>**get_image_bytes_observation**(byte[] bytes, String property, String
+  format, String uom, Timestamp time, GeomObj geom, String procedure, String foi, String device_type, String
+  foi_name)    
+  **Description**: creates an image observation Object.    
+  **Params**:
+    - bytes: (Mandatory) opened file or path of the file.
+    - property: (Mandatory) Property of the observation.
+    - format: (Mandatory) Format of the image.
+    - uom: (Optional) unit of the measurement
+    - time: (Optional) Timestamp when the measurement was taken.
+    - geom: (Optional)  Geom object of the observation.
+    - procedure: (Optional, Default configuration procedure) Sensor of the observation.
+    - foi:  (Optional, Default configuration foi) Device of the observation.
+    - device_type:  (Optional, Default None) Type of the Device of the observation.
+    - foi_name:  (Optional, Default None) Name of the device of the observation.
+
+  **Return**: Returns the observation object created.    
+  **Examples**:
+    * Generates a simple image observation by bytes.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")    
+        fly.login("<your username>","<your password>", "<login type>")
+        file = open('McLaren-Racing-Gulf-Formula-1.jpg', "rb")
+        bytes = file.read()
+        observations.append(
+            flythings.get_image_bytes_observation(bytes, 'ImageProperty', 'jpg', None,
+                                           int(time.time() * 1000), None, 'default', 'ImageDevice'))   
+    ```
+
+- <a name="get_image_base64_observation"></a>**get_image_base64_observation**(String base64, String property, String
+  format, String uom, Timestamp time, GeomObj geom, String procedure, String foi, String device_type, String
+  foi_name)    
+  **Description**: creates an image observation Object.    
+  **Params**:
+    - base64: (Mandatory) base64 image.
+    - property: (Mandatory) Property of the observation.
+    - format: (Mandatory) Format of the image.
+    - uom: (Optional) unit of the measurement
+    - time: (Optional) Timestamp when the measurement was taken.
+    - geom: (Optional)  Geom object of the observation.
+    - procedure: (Optional, Default configuration procedure) Sensor of the observation.
+    - foi:  (Optional, Default configuration foi) Device of the observation.
+    - device_type:  (Optional, Default None) Type of the Device of the observation.
+    - foi_name:  (Optional, Default None) Name of the device of the observation.
+
+  **Return**: Returns the observation object created.    
+  **Examples**:
+    * Generates a simple image observation by base64.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")    
+        fly.login("<your username>","<your password>", "<login type>")
+        file = open('McLaren-Racing-Gulf-Formula-1.jpg', "rb")
+        b64 = base64.b64encode(file.read())
+        observations.append(
+            flythings.get_image_base64_observation(b64, 'ImageProperty', 'jpg', None,
+                                           int(time.time() * 1000), None, 'default', 'ImageDevice')) 
+    ```
 
 - <a name="get_observation_csv"></a>**get_observation_csv**((String,Double,GeomObj,Boolean) value, Long serie, String
   uom, Timestamp ts, String property, String procedure, String foi)    

@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.0
+* Include get image observation by file, path, bytes or base64.
+
 ### 2.1.1
 * Fix SosModule documentation.
 

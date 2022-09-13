@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import ast
+import base64
 import copy
 import json
 import os
@@ -465,6 +466,118 @@ def send_prediction(
     if response.status_code >= 400:
         print(response.text)
     return response.status_code
+
+
+def get_image_observation(
+        file,
+        property,
+        format=None,
+        uom=None,
+        ts=None,
+        geom=None,
+        procedure=None,
+        foi=None,
+        device_type=None,
+        foi_name=None
+):
+    if isinstance(file, str):
+        with open(file, "rb") as img_file:
+            b64_string = base64.b64encode(img_file.read())
+            f = b64_string.decode('utf-8')
+        if file.rsplit(".") is not None and len(file.rsplit(".")) > 1:
+            format = file.rsplit(".")[1]
+    else:
+        f = base64.b64encode(file.read()).decode('utf-8')
+    message = {'observableProperty': property, "file": {"file": f, "format": format}}
+    if uom is not None:
+        message['uom'] = uom
+    if ts is not None:
+        message['time'] = ts
+    if geom is not None:
+        message['geom'] = geom
+    if procedure is not None and procedure != '':
+        message['procedure'] = procedure
+    else:
+        message['procedure'] = g_procedure
+    if foi is not None and foi != '':
+        message['foi'] = foi
+    else:
+        message['foi'] = g_foi
+    if device_type is not None:
+        message['deviceType'] = device_type
+    if foi_name is not None:
+        message['foiName'] = foi_name
+    return message
+
+
+def get_image_bytes_observation(
+        bytes,
+        property,
+        format,
+        uom=None,
+        ts=None,
+        geom=None,
+        procedure=None,
+        foi=None,
+        device_type=None,
+        foi_name=None
+):
+    f = base64.b64encode(bytes).decode('utf-8')
+    message = {'observableProperty': property, "file": {"file": f, "format": format}}
+    if uom is not None:
+        message['uom'] = uom
+    if ts is not None:
+        message['time'] = ts
+    if geom is not None:
+        message['geom'] = geom
+    if procedure is not None and procedure != '':
+        message['procedure'] = procedure
+    else:
+        message['procedure'] = g_procedure
+    if foi is not None and foi != '':
+        message['foi'] = foi
+    else:
+        message['foi'] = g_foi
+    if device_type is not None:
+        message['deviceType'] = device_type
+    if foi_name is not None:
+        message['foiName'] = foi_name
+    return message
+
+
+def get_image_base64_observation(
+        base_64,
+        property,
+        format,
+        uom=None,
+        ts=None,
+        geom=None,
+        procedure=None,
+        foi=None,
+        device_type=None,
+        foi_name=None
+):
+    f = base_64.decode('utf-8')
+    message = {'observableProperty': property, "file": {"file": f, "format": format}}
+    if uom is not None:
+        message['uom'] = uom
+    if ts is not None:
+        message['time'] = ts
+    if geom is not None:
+        message['geom'] = geom
+    if procedure is not None and procedure != '':
+        message['procedure'] = procedure
+    else:
+        message['procedure'] = g_procedure
+    if foi is not None and foi != '':
+        message['foi'] = foi
+    else:
+        message['foi'] = g_foi
+    if device_type is not None:
+        message['deviceType'] = device_type
+    if foi_name is not None:
+        message['foiName'] = foi_name
+    return message
 
 
 def get_observation(
