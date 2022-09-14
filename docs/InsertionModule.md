@@ -352,8 +352,8 @@
     - series: (Mandatory) SeriesId of the information we want.
     - start: (Optional)  Default (Last week), Start value of the timerange.
     - end:  (Optional)Default (today), End value of the timerange.
-    - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,DAILY,MONTHLY,ANNUALLY)
-    - aggrupation_type:  (Optional)  Aggrupation Operation, could be (FIRST,MIN,MEAN,SUM,MAX,LAST)
+    - aggrupation: (Optional) Aggrupation Type, could be (HOURLY,HOUR_OF_DAY, DAILY, DAY_OF_WEEK, MONTHLY, DAY_OF_MONTH, ANNUALLY, MONTH_OF_YEAR)
+    - aggrupation_type:  (Optional)  Aggrupation Operation, could be (MIN, MAX, MEAN, SUM, LAST, FIRST, COUNT, STD)
 
   **Return**: Returns a message containing:   
   ```{OK: FULL INSERTION}```    

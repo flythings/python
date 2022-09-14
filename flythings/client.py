@@ -488,6 +488,9 @@ def get_image_observation(
             format = file.rsplit(".")[1]
     else:
         f = base64.b64encode(file.read()).decode('utf-8')
+    if format is None:
+        print('Format cannot be None')
+        return None
     message = {'observableProperty': property, "file": {"file": f, "format": format}}
     if uom is not None:
         message['uom'] = uom
