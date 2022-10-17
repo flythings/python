@@ -1,13 +1,11 @@
 ## Change log
 
-### 2.2.1
+### 2.2.0
+* Include get image observation by file, path, bytes or base64.
 * Include logout method.
 * Include set_server.
 * Return response text on add infrastructure with or without metadata.
 * Do nothing on set server if server is None.
-
-### 2.2.0
-* Include get image observation by file, path, bytes or base64.
 
 ### 2.1.1
 * Fix SosModule documentation.
