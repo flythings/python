@@ -121,6 +121,14 @@ def login(user, password, login_type):
         raise
 
 
+def logout():
+    global headers
+    headers.pop('x-auth-token', None)
+    headers['x-auth-token'] = ''
+    headers.pop('Workspace', None)
+    headers.pop('Authorization', None)
+
+
 def load_data_by_file(file=None):
     if file is None:
         file = FILE
@@ -184,12 +192,18 @@ def __update_file_params(list_param):
 
 def set_server(server):
     global g_server
-    server = server.strip()
-    if server.endswith('/'):
-        server = server[:-1]
-    if not server.startswith(HTTP_) and not server.startswith(HTTPS_):
-        server = HTTP_ + server
-    g_server = server
+    if server is not None:
+        server = server.strip()
+        if server.endswith('/'):
+            server = server[:-1]
+        if not server.startswith(HTTP_) and not server.startswith(HTTPS_):
+            server = HTTP_ + server
+        g_server = server
+    return g_server
+
+
+def get_server():
+    global g_server
     return g_server
 
 
@@ -743,7 +757,7 @@ def get_infrastructure_withmetadata(
 def save_infrastructure(infrastructure, id=None):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
-        return None
+        return None, None
     if id is not None:
         infrastructure.id = id
     json_payload = json.dumps(infrastructure)
@@ -751,13 +765,14 @@ def save_infrastructure(infrastructure, id=None):
                              json_payload, headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
-    return response.status_code
+        return response.status_code, None
+    return response.status_code, json.loads(response.text)
 
 
 def save_infrastructure_with_metadata(infrastructure, id=None):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
-        return None
+        return None, None
     if id is not None:
         infrastructure.id = id
     json_payload = json.dumps(infrastructure)
@@ -765,7 +780,8 @@ def save_infrastructure_with_metadata(infrastructure, id=None):
                              json_payload, headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
-    return response.status_code
+        return response.status_code, None
+    return response.status_code, json.loads(response.text)
 
 
 def link_device_to_infrastructure(infrastructure_tree, foi_identifier):
