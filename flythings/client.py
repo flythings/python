@@ -302,7 +302,25 @@ def send_observations(values):
     response = None
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
-        return None
+        return response
+    if values is None:
+        print('Values cannot be None')
+        return response
+    if len(values) > 1000:
+        i = 0
+        while i < len(values):
+            aux_values = values[i:i + 1000]
+            response = __send_observations(aux_values)
+            if response >= 400:
+                return response
+            i += 1000
+    else:
+        response = __send_observations(values)
+    return response
+
+
+def __send_observations(values):
+    response = None
     try:
         response = requests.put(g_server + PUBLISH_MULTIPLE_URL, data=json.dumps({'observations': values}),
                                 headers=headers, timeout=g_timeout)
@@ -321,10 +339,27 @@ def send_predictions(values):
     response = None
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
-        return None
+        return response
+    if values is None:
+        print('Values cannot be None')
+        return response
+    if len(values) > 1000:
+        i = 0
+        while i < len(values):
+            aux_values = values[i:i + 1000]
+            response = __send_predictions(aux_values)
+            if response >= 400:
+                return response
+            i += 1000
+    else:
+        response = __send_predictions(values)
+    return response
+
+
+def __send_predictions(values):
+    response = None
     try:
-        response = requests.put(g_server + PUBLISH_PREDICTION_MULTIPLE_URL,
-                                data=json.dumps({'predictions': values}),
+        response = requests.put(g_server + PUBLISH_PREDICTION_MULTIPLE_URL, data=json.dumps({'predictions': values}),
                                 headers=headers, timeout=g_timeout)
     except Exception as e:
         print(e)

@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.1
+* Send observations and predictions on groups of 1000 on multiple insertion.
+
 ### 2.2.0
 * Include get image observation by file, path, bytes or base64.
 * Include logout method.
