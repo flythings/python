@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.2
+* Allow to send json_template on action register.
+
 ### 2.2.1
 * Send observations and predictions on groups of 1000 on multiple insertion.
 
