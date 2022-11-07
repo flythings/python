@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.3
+* Allow to send json_template without need a series_action.
+
 ### 2.2.2
 * Allow to send json_template on action register.
 

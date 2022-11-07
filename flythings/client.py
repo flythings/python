@@ -1106,8 +1106,10 @@ def register_action_for_series(name, observable_property, unit, callback, foi=No
     return result is not None
 
 
-def register_action(name, callback, foi=None, parameter_type=None, alias=None, action_options=None):
-    result = __register_action(name, parameter_type, foi, alias=alias, action_options=action_options)
+def register_action(name, callback, foi=None, parameter_type=None, alias=None, action_options=None,
+                    json_template=None):
+    result = __register_action(name, parameter_type, foi, alias=alias, action_options=action_options,
+                               json_template=json_template)
     if result:
         global callbacks
         if name not in callbacks:
