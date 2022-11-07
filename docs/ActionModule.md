@@ -32,7 +32,7 @@
 ## Module Methods
 
 - <a name="register_action"></a>**register_action**(String name, Function callback, String foi, ActionDataTypes
-  parameterType, String alias)  
+  parameterType, String alias, String action_options, String json_template)  
   **Description**: registers an action with the server, when the action is later run by the web client the callback is
   executed.  
   **Params**:
@@ -46,6 +46,7 @@
     - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.
     - alias: (Optional) Specifies a alias to the action.
     - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).
+    - json_template: (Optional) Specifies the json template to generate the web form({name:?, value:?}).
 
   **Return**: True if all was correct, otherwise False.    
   ```NoAuthenticationError```  
@@ -63,7 +64,8 @@
     ```
 
 - <a name="register_action_series"></a>**register_action_for_series**(String name, String observableProperty, String
-  unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias)  
+  unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias, String
+  action_options, String json_template)  
   **Description**: registers an action with the server, when the action is later run by the web client the callback is
   executed.  
   **Params**:
@@ -83,6 +85,9 @@
     - parameter_type: (Optional, Default: None) Specifies the parameter type of the callback if any.
     - alias: (Optional) Specifies a alias to the action.
     - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).
+    - json_template: (Optional) Specifies the json template to generate the web form (json_template: json.dumps(
+      {'fields': [{'key': 'propertyName','type': 'toggle','templateOptions': {'label': 'Activar/Desactivar','appearance': 'outline'}}]
+      ,'series': [{'property': 'propertyName','procedure': 'procedure'}]})).
 
   **Return**: True if all was correct, otherwise False.    
   ```NoAuthenticationError```    

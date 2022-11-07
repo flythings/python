@@ -235,8 +235,6 @@ def set_device(device, object=None, always_update=False):
                 print(str(response.status_code) + "FAIL RETRIEVING DEVICE TYPES")
         if 'geom' in object:
             foi_to_send['featureOfInterest']['geom'] = object['geom']
-        if 'geom' in object:
-            foi_to_send['featureOfInterest']['geom'] = object['geom']
     if __update_foi_file() or always_update:
         requests.post(g_server + FOI_URL, json.dumps(foi_to_send), headers=headers,
                       timeout=g_timeout)
@@ -1055,7 +1053,8 @@ def __register_action(
         observable_property=None,
         unit=None,
         alias=None,
-        action_options=None
+        action_options=None,
+        json_template=None
 ):
     if headers['x-auth-token'] == '':
         print('NoAuthenticationError')
@@ -1081,6 +1080,8 @@ def __register_action(
             payload["alias"] = alias
         if action_options is not None and parameter_type.name == ActionDataTypes.SELECTOR.name:
             payload["actionOptions"] = action_options
+        if json_template is not None:
+            payload["jsonTemplate"] = json_template
         response = requests.post(g_server + ACTIONS_URL, data=json.dumps(payload), headers=headers)
 
         if response.status_code == 201:
@@ -1093,9 +1094,9 @@ def __register_action(
 
 
 def register_action_for_series(name, observable_property, unit, callback, foi=None, procedure=None, parameter_type=None,
-                               alias=None, action_options=None):
+                               alias=None, action_options=None, json_template=None):
     result = __register_action(name, parameter_type, foi, procedure, observable_property, unit, alias=alias,
-                               action_options=action_options)
+                               action_options=action_options, json_template=json_template)
     if result:
         global callbacks
         if name not in callbacks:
