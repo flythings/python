@@ -188,6 +188,10 @@ def __update_file_params(list_param):
             list_param[1] = list_param[1].strip()
             global g_timeout
             g_timeout = list_param[1]
+        elif list_param[0].lower() == 'authorization':
+            global headers
+            headers['Authorization'] = "Bearer " + list_param[1]
+            headers['x-auth-token'] = '-'
 
 
 def set_server(server):
@@ -751,9 +755,12 @@ def get_infrastructure(
         type,
         geom=None,
         geom_type=None,
-        fois=None
+        fois=None,
+        alias=None
 ):
     infrastructure = {'name': name, 'type': type}
+    if alias is not None:
+        infrastructure['alias'] = alias
     if geom is not None:
         infrastructure['geom'] = geom
     if geom_type is not None and geom_type.value is not None:
@@ -771,9 +778,12 @@ def get_infrastructure_withmetadata(
         geom=None,
         geom_type=None,
         fois=None,
-        text_metadata_list=None
+        text_metadata_list=None,
+        alias=None
 ):
     infrastructure = {'name': name, 'type': type}
+    if alias is not None:
+        infrastructure['alias'] = alias
     if geom is not None:
         infrastructure['geom'] = geom
     if geom_type is not None and geom_type.value is not None:
@@ -1262,11 +1272,17 @@ def stop_action_listening():
 
 def api_get_request(url):
     response = requests.get(g_server + url, headers=headers, timeout=g_timeout)
+    if response is not None:
+        if response.status_code >= 400:
+            response.status_code, response.text
+    else:
+        print("NO RESPONSE FROM SERVICE")
+        return 502
     return response.status_code, json.loads(response.text)
 
 
-def send_alert(self, subject, text):
-    response = requests.post(g_server + DEVICE_ALERT_URL, data=json.dumps({
+def send_alert(subject, text):
+    response = requests.put(g_server + DEVICE_ALERT_URL, data=json.dumps({
         "subject": subject,
         "text": text
     }), headers=headers)

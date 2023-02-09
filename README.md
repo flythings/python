@@ -28,6 +28,7 @@ The general properties configuration in Configuration.properties:
 * sensor: (Optional) the sensor wich sends data.
 * login_type: (Optional) type of login to use.
 * timeout: (Optional) request timeout in seconds.
+* authorization: (Optional) authorization token.
 * Example of configuration file
 
 ```JSON  
@@ -37,7 +38,8 @@ The general properties configuration in Configuration.properties:
     DEVICE:Python  
     SENSOR:Client  
     LOGIN_TYPE:USER or DEVICE
-    TIMEOUT: 1000   
+    TIMEOUT: 1000
+    AUTHORIZATION: <put your token here>   
 ```  
 
 To load the data from the file call this function:
@@ -60,21 +62,22 @@ You can also introduce this general properties using the library methods.
   **Description**: Sets the server to which the requests will be sent.      
   **Return**: Returns a string representing the server.
 
-- **set_device**(String device, (Optional) object=None)   
+- **set_device**(String device, (Optional) object=None, always_update=False)   
   **Params**:
     - device: (Mandatory) Device name.
     - object: (Optional) Object with extra device params.
+    - always_update: (Optional) Indicates if must send a request to create/update the device.  
       ```PYTHON
-  object = {
-  "type": "CUSTOM",
-  "geom": {
-  "type": "Point",
-  "crs": "4326",
-  "coordinates": [
-  -19.323204, 27.611808
-  ]
-  } }
-  ```                   
+        object = {
+          "type": "CUSTOM",
+          "geom": {
+          "type": "Point",
+          "crs": "4326",
+          "coordinates": [
+          -19.323204, 27.611808
+          ]
+        } }
+      ```                   
   **Description**: Sets the device of the observation. Uses a file named .foiCache to get a fast access to most used
   devices.      
   **Return**: Returns a string representing the device.
@@ -84,8 +87,12 @@ You can also introduce this general properties using the library methods.
   **Return**: Returns a string representing the sensor.
 
 - **set_token**(String token)   
-  **Description**: Sets the token to authenticate into the server.    
+  **Description**: Sets the x-auth-token to authenticate into the server.    
   **Return**: Returns a string representing the token.
+  
+- **set_worskapce**(Long workspace)   
+  **Description**: Sets user workspace    
+  **Return**: Returns the user workspace
 
 - **set_custom_header**(String header, String header_value)  
   **Description**: Sets a custom header for server requests.   
@@ -103,9 +110,13 @@ You can also introduce this general properties using the library methods.
   **Description**: Authenticate against the server.     
   **Return**: Returns a string representing the token or None if login fails.
   
-- **logout**()    
+- **logout**() 
   **Description**: Logout against the server.     
   **Return**: Returns None.
+  
+- **set_authorization_token**(token)
+  **Description**: Sets bearer token on authorization hearer.
+  **Return**: returns the authorization header value.
 
 ### Modules documentation
 

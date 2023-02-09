@@ -1,5 +1,10 @@
 ## Change log
 
+### 2.2.4
+* Update readme.
+* Include alias on get infrastructure methods.
+* Include set_authorization on config file.
+
 ### 2.2.3
 * Allow to send json_template without need a series_action.
 
