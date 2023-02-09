@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.5
+* Fix compilation error with global headers
+
 ### 2.2.4
 * Update readme.
 * Include alias on get infrastructure methods.

@@ -150,9 +150,9 @@ def load_data_by_file(file=None):
 
 def __update_file_params(list_param):
     if len(list_param) > 1:
+        global headers
         if list_param[0].lower() == 'token':
             list_param[1] = list_param[1].strip()
-            global headers
             global gToken
             gToken = list_param[1]
             headers['x-auth-token'] = list_param[1]
@@ -189,7 +189,6 @@ def __update_file_params(list_param):
             global g_timeout
             g_timeout = list_param[1]
         elif list_param[0].lower() == 'authorization':
-            global headers
             headers['Authorization'] = "Bearer " + list_param[1]
             headers['x-auth-token'] = '-'
 
