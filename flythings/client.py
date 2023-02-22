@@ -766,7 +766,7 @@ def get_infrastructure(
         infrastructure['geomType'] = geom_type.value
     else:
         infrastructure['geomType'] = SamplingFeatureType.NO_POSITION.value
-    if fois is not None and not fois:
+    if fois is not None and fois:
         infrastructure['featureOfInterestList'] = fois
     return infrastructure
 
@@ -789,7 +789,7 @@ def get_infrastructure_withmetadata(
         infrastructure['geomType'] = geom_type.value
     else:
         infrastructure['geomType'] = SamplingFeatureType.NO_POSITION.value
-    if fois is not None and not fois:
+    if fois is not None and fois:
         infrastructure['featureOfInterestList'] = fois
     if text_metadata_list is not None and text_metadata_list != '':
         infrastructure['textMetadata'] = text_metadata_list

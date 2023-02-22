@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.6
+* Fix bug fois are not loading on infrastructure update.
+
 ### 2.2.5
 * Fix compilation error with global headers
 
