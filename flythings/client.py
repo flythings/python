@@ -37,6 +37,7 @@ DEVICE_ALERT_URL = '/alerts/device/send'
 DEVICE_METADATA_URL = '/featureofinterest/metadata'
 PUBLISH_INFRASTRUCTURE = '/featuretag'
 PUBLISH_INFRASTRUCTURE_METADATA = '/featuretag/withmetadata'
+PUBLISH_INFRASTRUCTURE_SIMPLE = '/featuretag/simple'
 FILE = 'Configuration.properties'
 
 headers = {'x-auth-token': '', 'Content-Type': 'application/json'}
@@ -819,6 +820,21 @@ def save_infrastructure_with_metadata(infrastructure, id=None):
         infrastructure.id = id
     json_payload = json.dumps(infrastructure)
     response = requests.post(g_server + PUBLISH_INFRASTRUCTURE_METADATA,
+                             json_payload, headers=headers, timeout=g_timeout)
+    if response.status_code >= 400:
+        print(response.text)
+        return response.status_code, None
+    return response.status_code, json.loads(response.text)
+
+
+def save_infrastructure_without_override_fois(infrastructure, id=None):
+    if headers['x-auth-token'] == '':
+        print('NoAuthenticationError')
+        return None, None
+    if id is not None:
+        infrastructure.id = id
+    json_payload = json.dumps(infrastructure)
+    response = requests.post(g_server + PUBLISH_INFRASTRUCTURE_SIMPLE,
                              json_payload, headers=headers, timeout=g_timeout)
     if response.status_code >= 400:
         print(response.text)
