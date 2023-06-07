@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.7
+* Include allow to save metadata without overriding fois.
+
 ### 2.2.6
 * Fix bug fois are not loading on infrastructure update.
 
