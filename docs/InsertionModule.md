@@ -283,7 +283,7 @@
         fly.send_observations(observations)  
     ``` 
 
-- <a name="send_observations_csv"></a>**send_observations_csv**([ObservationCSV] observations)    
+- <a name="send_observations_csv"></a>**send_observations_csv**([String] observations)    
   **Description**: sends a observation csv to the service.      
   **Params**:
     - observations: (Mandatory) list of ObservationCSV to insert.
@@ -295,12 +295,13 @@
   **Examples**:
     * Sends multiple observations on csv format.
   ```PYTHON  
-        import flythings as fly    
+        import flythings as fly
+        import time    
         fly.set_server("api.flythings.io/api")    
         fly.login("<your username>","<your password>", "<login type>")    
-        csv = []    
-        csv.append(fly.get_observation_csv(20,series=123))    
-        csv.append(fly.get_observation_csv(25, uom='ºC', ts=int(time.time() * 1000), property='property', procedure='procedure', foi='foi'))  
+        csv = ''  
+        csv += fly.get_observation_csv(20,series=123) + '\n'    
+        csv += fly.get_observation_csv(25, uom='ºC', ts=int(time.time() * 1000), property='property', procedure='procedure', foi='foi') + '\n'  
         print(fly.send_observations_csv(csv))
   ```      
 
