@@ -643,7 +643,8 @@ def get_observation(
         procedure=None,
         foi=None,
         device_type=None,
-        foi_name=None
+        foi_name=None,
+        force_type=None
 ):
     message = {'observableProperty': property, 'value': value}
     if uom is not None:
@@ -664,6 +665,8 @@ def get_observation(
         message['deviceType'] = device_type
     if foi_name is not None:
         message['foiName'] = foi_name
+    if force_type is not None:
+        message['forceType'] = force_type
     return message
 
 

@@ -96,6 +96,7 @@
     - foi:  (Optional, Default configuration foi) Device of the observation.
     - device_type:  (Optional, Default None) Type of the Device of the observation.
     - foi_name:  (Optional, Default None) Name of the device of the observation.
+    - force_type:  (Optional, Default None) Name of the type of the observation (TEXT, NUMERIC, BOOLEAN).
 
   **Return**: Returns the observation object created.    
   **Examples**:
