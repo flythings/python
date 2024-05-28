@@ -1,5 +1,8 @@
 ## Change log
 
+### 2.2.8
+* Include allow to force observation type on get observation.
+
 ### 2.2.7
 * Include allow to save metadata without overriding fois.
 
