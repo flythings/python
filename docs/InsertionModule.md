@@ -6,6 +6,7 @@
 
 * [Send Single Observation](#send_observation)
 * [Get Observation](#get_observation)
+* [Get Last Observation Before Date](#get_last_observation_before_date)
 * [Get Image Observation](#get_image_observation)
 * [Get Image Bytes Observation](#get_image_bytes_observation)
 * [Get Image Base64 Observation](#get_image_base64_observation)
@@ -146,6 +147,27 @@
         fly.get_observation(20,"prueba",None,None,auxGeom,"procedure","foi")     
     ```  
 
+- <a name="get_last_observation_before_date"></a>**get_last_observation_before_date**(int seriesId,
+  Timestamp time)    
+  **Description**: retrieves the last observation before the given date.
+
+  **Params**:
+    - seriesId: (Mandatory) The seriesId which represents the series.
+    - time: (Mandatory) Timestamp of the reference date used to search for the last observation before it.
+
+  **Return**: Returns a (timestamp, value) tuple of the last observation before the given date. 
+
+    If request wasn´t succesfully:  Returns none.
+
+  **Examples**:
+    * Retrieves the last observation.
+    ```PYTHON  
+        import flythings as fly   
+        fly.set_server("api.flythings.io/api")
+        fly.login("<your username>","<your password>", "<login type>")
+        lastObservation = fly.get_last_observation_before_date(2, 1747731546668)
+    ```
+  
 - <a name="get_image_observation"></a>**get_image_observation**((String | File) file, String property, String format,
   String uom, Timestamp time, GeomObj geom, String procedure, String foi, String device_type, String foi_name)    
   **Description**: creates an image observation Object.    
