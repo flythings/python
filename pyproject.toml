@@ -193,6 +193,7 @@ pre_bump_hooks = ["uv lock"]
 addopts = """
     --cov=src
     --cov-branch
+    --cov-fail-under=75
     --cov-report=term-missing
     --cov-report=xml:coverage.xml
     --import-mode=importlib
@@ -257,7 +258,7 @@ diagnosticMode = "workspace"
 [tool.pyrefly]
 
 #### project structure
-project-includes = ["src/**", "packages/**", "tests/**"]
+project-includes = ["src/**", "tests/**"]
 
 project-excludes = [
   "**/.*",
@@ -275,7 +276,7 @@ project-excludes = [
   "site-packages",
 ]
 
-search-path = ["packages/aisystemframework/src", "packages/aisystemcloud/src"]
+search-path = ["src"]
 permissive-ignores = true
 
 #### python environment
