@@ -12,46 +12,37 @@
 
 ## Action Types
 
-- <a name="action_types"></a>**ActionDataTypes**  
-  **Description**: Enumerated with the allowed datatypes for the callbacks of the actions.  
+- <a name="action_types"></a>**ActionDataTypes**\
+  **Description**: Enumerated with the allowed datatypes for the callbacks of the actions.\
   **Values**:
-    - **ActionDataTypes.BOOLEAN**: The callback will receive a boolean value from the server when the action is
-      triggered.
-    - **ActionDataTypes.FILE**: The callback will receive a string representing the url where the file is when the
-      action is triggered.
+    - **ActionDataTypes.BOOLEAN**: The callback will receive a boolean value from the server when the action is triggered.
+    - **ActionDataTypes.FILE**: The callback will receive a string representing the url where the file is when the action is triggered.
     - **ActionDataTypes.NUMBER**: The callback will receive a number from the server when the action is triggered.
     - **ActionDataTypes.TEXT**: The callback will receive a string from the server when the action is triggered.
     - **ActionDataTypes.ARRAY**: The callback will receive a string array from the server when the action is triggered.
     - **ActionDataTypes.DATE**: The callback will receive a string date from the server when the action is triggered.
-    - **ActionDataTypes.SELECTOR**: The callback will receive a string value with the selected option value from the
-      server when the action is triggered.
+    - **ActionDataTypes.SELECTOR**: The callback will receive a string value with the selected option value from the server when the action is triggered.
     - **ActionDataTypes.JSON**: The callback will receive a string json from the server when the action is triggered.
-    - **ActionDataTypes.LIVE**: The callback will receive a string with the seriesId from the server when the action is
-      triggered.
+    - **ActionDataTypes.LIVE**: The callback will receive a string with the seriesId from the server when the action is triggered.
 
 ## Module Methods
 
-- <a name="register_action"></a>**register_action**(String name, Function callback, String foi, ActionDataTypes
-  parameterType, String alias, String action_options, String json_template)  
-  **Description**: registers an action with the server, when the action is later run by the web client the callback is
-  executed.  
+- <a name="register_action"></a>**register_action**(String name, Function callback, String foi, ActionDataTypes parameterType, String alias, String action_options, String json_template)\
+  **Description**: registers an action with the server, when the action is later run by the web client the callback is executed.\
   **Params**:
     - name: (Mandatory) Identifier of the action.
-    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to
-      indicate that was executed propertly or a string to indicate there was a error.   
-      That function must receive 2 params, the first one the value of the action and the second one the timestamp of the
-      action.
-    - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice
-      method otherwise is mandatory.
+    - callback: (Mandatory) Function that executes when the action is triggered. The function must return a 0 to indicate that was executed propertly or a string to indicate there was a error.\
+      That function must receive 2 params, the first one the value of the action and the second one the timestamp of the action.
+    - foi:  (Optional, Default configuration foi) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.
     - parameterType: (Optional, Default: None) Specifies the parameter type of the callback if any.
     - alias: (Optional) Specifies a alias to the action.
     - action_options: (Optional) Specifies the options of a selector action on format ({name:?, value:?}).
     - json_template: (Optional) Specifies the json template to generate the web form({name:?, value:?}).
 
-  **Return**: True if all was correct, otherwise False.    
-  ```NoAuthenticationError```  
-  ```NoDeviceError```  
-  ```NoProcedureError```  
+  **Return**: True if all was correct, otherwise False.\
+  ```NoAuthenticationError```\
+  ```NoDeviceError```\
+  ```NoProcedureError```\
   **Examples**:
     * Register an action with the server.
     ```PYTHON
@@ -65,9 +56,9 @@
 
 - <a name="register_action_series"></a>**register_action_for_series**(String name, String observableProperty, String
   unit, Function callback, String foi, String procedure, ActionDataTypes parameterType, String alias, String
-  action_options, String json_template)  
+  action_options, String json_template)\
   **Description**: registers an action with the server, when the action is later run by the web client the callback is
-  executed.  
+  executed.\
   **Params**:
     - name: (Mandatory) Identifier of the action.
     - observable_property: (Mandatory) Observable property of the series.
@@ -77,7 +68,7 @@
         - 0, '0', True, 'True' to indicate that the execution goes well.
         - A string to indicate that there was an error executing.
         - A object with a field code with values equals to 0, '0', True, 'True' to indicate that the execution goes
-          well, anything else indicates that there was a error, and any attribute you want to persist on the log.  
+          well, anything else indicates that there was a error, and any attribute you want to persist on the log.\
           For example: {'code': "0", 'message':"All Ok"}
     - foi: (Optional) This parameter is optional if it was already set with the setDevice method otherwise is mandatory.
     - procedure: (Optional) This parameter is optional if it was already set with the setProcedure method otherwise is
@@ -89,10 +80,10 @@
       {'fields': [{'key': 'propertyName','type': 'toggle','templateOptions': {'label': 'Activar/Desactivar','appearance': 'outline'}}]
       ,'series': [{'property': 'propertyName','procedure': 'procedure'}]})).
 
-  **Return**: True if all was correct, otherwise False.    
-  ```NoAuthenticationError```    
-  ```NoDeviceError```  
-  ```NoProcedureError```  
+  **Return**: True if all was correct, otherwise False.\
+  ```NoAuthenticationError```\
+  ```NoDeviceError```\
+  ```NoProcedureError```\
   **Examples**:
     * Registers an action with the server.
     ```PYTHON
@@ -104,12 +95,11 @@
         fly.register_action_for_series("<name>","<observable_property", "<unit>", test, foi="<device>", procedure="<procedure>", parameter_type=fly.ActionDataTypes.TEXT, alias="test_alias")
     ```
 
-- <a name="start_action_listening"></a>**start_action_listening**()  
-  **Description**: Starts listening to the server waiting for an action to trigger. Is necessary that at least one
-  action is registered.  
-  **Return**: None  
-  ```NoDeviceException```  
-  ```NoRegisteredActionExcetion```  
+- <a name="start_action_listening"></a>**start_action_listening**()\
+  **Description**: Starts listening to the server waiting for an action to trigger. Is necessary that at least one action is registered.\
+  **Return**: None\
+  ```NoDeviceException```\
+  ```NoRegisteredActionExcetion```\
   **Examples**:
     * Starts listening waiting for an action to trigger.
     ```PYTHON
@@ -126,12 +116,12 @@
             time.sleep(10)
     ```
 
-- <a name="stop_action_listening"></a>**stop_action_listening**()  
-  **Description**: Stop listening to the server for actions.  
-  **Return**: None.  
-  ```NoAuthenticationError```    
-  ```NoDeviceError```    
-  ```NoProcedureError```   
+- <a name="stop_action_listening"></a>**stop_action_listening**()\
+  **Description**: Stop listening to the server for actions.\
+  **Return**: None.\
+  ```NoAuthenticationError```\
+  ```NoDeviceError```\
+  ```NoProcedureError```\
   **Examples**:
     * Stop listening to the server for actions.
     ```PYTHON
@@ -149,7 +139,7 @@
         while(listening):
             print("listening...")
             time.sleep(10)
-    ```  
+    ```
 
 ## Sequence Diagram
 
