@@ -1,5 +1,7 @@
 import json
+
 import requests
+
 from flythings.base_client import BaseClient
 from flythings.paths import DEVICE_ALERT_URL
 
@@ -19,8 +21,9 @@ class UtilModule(BaseClient):
         return response.status_code, json.loads(response.text)
 
     def send_alert(self, subject, text):
-        response = requests.put(self.config.server + DEVICE_ALERT_URL, data=json.dumps({
-            "subject": subject,
-            "text": text
-        }), headers=self.headers)
+        response = requests.put(
+            self.config.server + DEVICE_ALERT_URL,
+            data=json.dumps({"subject": subject, "text": text}),
+            headers=self.headers,
+        )
         return response.status_code, json.loads(response.text)

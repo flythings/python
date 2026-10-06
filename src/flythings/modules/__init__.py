@@ -1,18 +1,18 @@
 # flythings/modules/__init__.py
-from .action import ActionModule, ActionDataTypes
+from .action import ActionDataTypes, ActionModule
 from .insertion import InsertionModule
 from .prediction import PredictionModule
 from .realtime import RealTimeModule
-from .sos import SosModule, SamplingFeatureType
+from .sos import SamplingFeatureType, SosModule
 from .util import UtilModule
 
 __all__ = [
-    "ActionModule",
     "ActionDataTypes",
+    "ActionModule",
     "InsertionModule",
     "PredictionModule",
     "RealTimeModule",
-    "SosModule",
     "SamplingFeatureType",
+    "SosModule",
     "UtilModule",
 ]
