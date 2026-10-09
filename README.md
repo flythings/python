@@ -68,13 +68,19 @@ TIMEOUT:30
 
 ## Documentation
 
-- [Client, connections and series](docs/Client.md): `FlyThings`, `Connection`, `Series`, `Observation`, errors and types
-- [InsertionApi](docs/InsertionApi.md): send observations and predictions, register devices
-- [QueryApi](docs/QueryApi.md): search observations and predictions, find series
-- [RealTimeApi](docs/RealTimeApi.md): real-time values over sockets, with optional batching
-- [ActionsApi](docs/ActionsApi.md): device actions and their callbacks
-- [SosApi](docs/SosApi.md): device metadata and infrastructures
-- [UtilApi](docs/UtilApi.md): generic requests and alerts
+A `FlyThings` client holds one connection (server and credentials) and hands out one API per feature area. [Client, connections and series](docs/Client.md) covers the client itself, `Connection`, `Series`, `Observation`, errors and types.
+
+| API | Get it with | Use it to | Main methods |
+| --- | --- | --- | --- |
+| [InsertionApi](docs/InsertionApi.md) | `client.insertion_api()` | Send observations and predictions over HTTP, and register devices | `send_observation(s)`, `send_prediction(s)`, `send_record`, `send_observations_csv`, `register_device` |
+| [QueryApi](docs/QueryApi.md) | `client.query_api()` | Read observations and predictions back, and look up series | `search_by_id`, `search_observations`, `search_predictions`, `find_series`, `get_last_observation_before_date` |
+| [RealTimeApi](docs/RealTimeApi.md) | `client.realtime_api(write_options)` | Stream values to series over TCP/UDP sockets, optionally batched | `send`, `flush`, `close` |
+| [ActionsApi](docs/ActionsApi.md) | `client.actions_api(device)` | Let the platform trigger functions on a device | `register_action`, `register_action_for_series`, `start_listening`, `stop_listening`, `send_progress` |
+| [SosApi](docs/SosApi.md) | `client.sos_api()` | Manage device metadata and infrastructures | `save_text_metadata`, `save_date_metadata`, `save_infrastructure`, `link_device_to_infrastructure` |
+| [UtilApi](docs/UtilApi.md) | `client.util_api()` | Call any other endpoint, and send alerts | `get`, `send_alert` |
+
+The real-time and actions APIs keep sockets and threads open; `client.close()` (or a `with` block) stops them.
+
 - [Migrating to 3.0](docs/Migration.md)
 - [3.0 verification status](docs/Verification.md): what has been checked against a live server before release
 - [Change log](CHANGELOG.md)
