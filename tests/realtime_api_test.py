@@ -201,4 +201,4 @@ def test_batch_thread_logs_failures(client, monkeypatch, caplog):
 
     monkeypatch.setattr(api, "flush", fail)
     api._flush_or_log()
-    assert "not sent" in caplog.text
+    assert "not sent (down)" in caplog.text

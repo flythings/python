@@ -80,7 +80,13 @@ Every error derives from `FlyThingsError`.
 | `SocketError` | A real-time or action socket cannot be opened or fails. |
 | `RateLimitError` | A real-time value is sent sooner than the platform allows. |
 
-The library logs through the `flythings` logger and never prints.
+The library logs through the `flythings` logger and never prints. It adds only a `NullHandler`, as libraries should, so nothing is shown until your program configures logging. That includes reconnection warnings and exceptions raised by action callbacks. To see them:
+
+```python
+import logging
+
+logging.basicConfig(level=logging.INFO)  # or configure only the "flythings" logger
+```
 
 ## Types
 

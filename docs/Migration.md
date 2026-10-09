@@ -33,7 +33,7 @@ with FlyThings.from_config_file("Configuration.properties") as client:
 ## Behaviour changes
 
 - **Errors raise.** Methods no longer return status codes, `None` or strings such as `'NoAuthenticationError'`. The exceptions are `find_series` and `get_last_observation_before_date`, which still return `None` when there is nothing to return. HTTP errors raise `ApiError`, unreachable servers raise `NetworkError`, missing or rejected credentials raise `AuthenticationError`, socket problems raise `SocketError`, and real-time interval violations raise `RateLimitError`. A missing configuration file raises `FileNotFoundError`, and one without a `server` key raises `ValueError`.
-- **No printing.** Messages go to the `flythings` logger.
+- **No printing.** Messages go to the `flythings` logger and are not shown until your program configures logging, for example with `logging.basicConfig(level=logging.INFO)`. 2.x printed them, including errors in action callbacks.
 - **Configuration file.** Values may contain `:`, so `server:https://...` works.
 
 ## Method map

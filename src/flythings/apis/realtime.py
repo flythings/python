@@ -145,8 +145,8 @@ class RealTimeApi:
     def _flush_or_log(self) -> None:
         try:
             self.flush()
-        except FlyThingsError:
-            logger.warning("Real-time batch not sent; retrying in %s s", self.write_options.flush_interval)
+        except FlyThingsError as e:
+            logger.warning("Real-time batch not sent (%s); retrying in %s s", e, self.write_options.flush_interval)
 
     def _socket(self, protocol: SocketProtocol) -> socket.socket:
         sock = self._sockets.get(protocol)
