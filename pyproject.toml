@@ -1,6 +1,6 @@
 [project]
 name = "flythings"
-version = "2.2.8"
+version = "3.0.0a0"
 authors = [{ name = "flythings", email = "fly@itg.es" }]
 description = "A python library to add and search observations into flythings"
 readme = "README.md"

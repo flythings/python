@@ -330,7 +330,7 @@ wheels = [
 
 [[package]]
 name = "flythings"
-version = "2.2.8"
+version = "3.0.0a0"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
