@@ -8,7 +8,7 @@ license = "GPL-3.0-only"
 license-files = ["LICENSE"]
 keywords = ["flythings", "IoT"]
 requires-python = ">=3.10"
-dependencies = ["requests>=2.32.3"]
+dependencies = ["requests>=2.32.3", "typing-extensions>=4.0"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Operating System :: OS Independent",
@@ -129,6 +129,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
   "S101",
   "ANN001",
   "ANN201",
+  "ANN202",
   "ARG001",
   "ARG002",
   "SLF001",
@@ -142,6 +143,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
   "S101",
   "ANN001",
   "ANN201",
+  "ANN202",
   "ARG001",
   "ARG002",
   "SLF001",
@@ -149,7 +151,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
   "S105",
   "S106",
 ]
-"examples/**" = ["INP001", "T201", "S311", "PLR2004"]
+"examples/**" = ["INP001", "T201", "S311", "PLR2004", "S105"]
 "scripts/**" = ["INP001", "T201", "S310", "PLR2004"]
 
 [tool.ruff.lint.flake8-annotations]
@@ -221,7 +223,7 @@ commands = [["pytest", "--no-cov"]]
 
 #Pyright
 [tool.pyright]
-pythonVersion = "3.11"
+pythonVersion = "3.10"
 pythonPlatform = "All"
 venv = ".venv"
 typeCheckingMode = "standard"
@@ -280,7 +282,7 @@ search-path = ["src"]
 permissive-ignores = true
 
 #### python environment
-python-version = "3.11"
+python-version = "3.10"
 python-platform = "linux"
 python-interpreter-path = ".venv/bin/python3"
 

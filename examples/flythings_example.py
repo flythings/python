@@ -1,138 +1,94 @@
-#!/usr/bin/python
+"""Walkthrough of the flythings API against a live server.
+
+Fill in the placeholders (or examples/Configuration.properties) and run with `uv run examples/flythings_example.py`.
+Never commit real credentials.
+"""
+
 import random
 import time
 
 from flythings import (
     ActionDataTypes,
-    ActionModule,
-    BaseClient,
-    InsertionModule,
-    PredictionModule,
-    RealTimeModule,
-    ServerConfig,
-    SosModule,
-    UtilModule,
+    Connection,
+    FlyThings,
+    Observation,
+    Series,
+    WriteOptions,
+    infrastructure,
+    text_metadata,
 )
 
-# Server, user and password are specified in ServerConfig dataclass
-config = ServerConfig(
-    server="<Put the server here>",
-    user="<Put the user here>",
-    password="<Put the password here>",
-    login_type="USER",
-    foi="",
-    authorization="<Put the authtoken here>",
-    token="<Pun the token here>",
-)
-
-actionModule = ActionModule(config=config)
-insertionModule = InsertionModule(config=config)
-predictionModule = PredictionModule(config=config)
-realTimeModule = RealTimeModule(config=config)
-sosModule = SosModule(config=config)
-utilModule = UtilModule(config=config)
+SERVER = "<Put the server here>"
+TOKEN = "<Put the authorization (bearer) token here>"
+OTHER_SERVER = "<Put a second server here>"
+OTHER_TOKEN = "<Put its authorization (bearer) token here>"
 
 
-def sendObservation_test(client: InsertionModule):
-    x = client.send_observation(40, "op", "uoms", None, None, "procedure", "foi")
-    print(x)
-    # assert str(x) == str(b'{"message":"Full insertion","type":"Ok"}')
+def send_observations(client: FlyThings) -> None:
+    temperature = Series("<device>", "<sensor>", "temperature")
+    now = int(time.time() * 1000)
+    insertion = client.insertion_api()
+    insertion.send_observation(Observation(temperature, 21.5, now, uom="C"))
+    insertion.send_observations([Observation(temperature, 20 + i, now - i * 60_000) for i in range(10)])
+    insertion.send_predictions([Observation(temperature, 25.0, now + 3_600_000)])
 
 
-def sendObservations_test(client: InsertionModule):
-    observations = [
-        client.get_observation(20, "test1", None, None, None, "ob1", "multiple"),
-        client.get_observation(30, "test2", None, None, None, "ob1", "multiple"),
-        client.get_observation(40, "test3", None, None, None, "ob1", "multiple"),
-        client.get_observation(50, "test4", "uoms", round(time.time() * 1000), None, "ob1", "multiple"),
-    ]
-    x = client.send_observations(observations)
-    assert str(x) == "200"
+def send_to_two_servers(client: FlyThings) -> None:
+    # One client per server
+    power = Series("<device>", "<sensor>", "power")
+    now = int(time.time() * 1000)
+    client.insertion_api().send_observations([Observation(power, 1.0, now)])
+    with FlyThings(Connection(OTHER_SERVER, OTHER_TOKEN)) as other:
+        other.insertion_api().send_observations([Observation(power, 2.0, now)])
 
 
-def search_test(client: InsertionModule):
-    x = client.search(2, 1747642438985, 1748247015667)
-    assert str(x[1]["time"]) == "1496218547000"
-    assert str(x[1]["value"]) == "20.0"
+def search(client: FlyThings) -> None:
+    temperature = Series("<device>", "<sensor>", "temperature")
+    for row in client.query_api().search_observations([temperature]):  # last week by default
+        print(row["observable_property"], row["time"], row["value"])
+    found = client.query_api().find_series(temperature)
+    if found is not None:
+        print(client.query_api().get_last_observation_before_date(found["id"], int(time.time() * 1000)))
 
 
-def user_login(client: BaseClient):
-    client.set_server("<Put the server here>")
-    client.set_workspace("<Put the workspace here>")
-    client.login("<Put the user here>", "<Put the password here>", "DEVICE")
+def realtime(client: FlyThings, series_id: int) -> None:
+    with client.realtime_api(WriteOptions(batch=True)) as api:
+        for _ in range(100):
+            api.send(series_id, random.random() * 10, int(time.time() * 1000))
+            time.sleep(0.1)
+    # leaving the block flushes what is still queued
 
 
-def socket_test(client: RealTimeModule):
-    i = 0
-    while i < 100:
-        client.send_socket(51, random.random() * 10, int(time.time() * 1000))
-        client.send_socket(47, random.random() * 15, int(time.time() * 1000))
-        i += 1
-        time.sleep(2)
-
-    print("finished")
-
-
-def find_series(client: InsertionModule):
-    return client.find_series("foi", "procedure", "op")
-
-
-def register_action(client: ActionModule):
-    client.set_device("vagrant")
-    client.set_sensor("process")
-
-    def test(param):
-        if param:
-            print("test function true")
-        else:
-            print("test function false")
+def actions(client: FlyThings) -> None:
+    def reboot(param: bool) -> int:
+        print("reboot requested:", param)
         return 0
 
-    result = client.register_action("testAction", test, parameter_type=ActionDataTypes.ARRAY)
-    result2 = client.register_action_for_series(
-        "testAction2", "proc_status", "", test, parameter_type=ActionDataTypes.BOOLEAN
-    )
-    return result and result2
-
-
-def test_action(client: ActionModule):
-    client.set_device("vagrant")
-    client.set_sensor("system")
-
-    def test(param):
-        print(param)
-        return 0
-
-    result = client.register_action("FileAction", test, parameter_type=ActionDataTypes.FILE)
-    result2 = client.register_action_for_series(
-        "BooleanAction", "proc_status", "", test, parameter_type=ActionDataTypes.BOOLEAN, procedure="process"
-    )
-    result3 = client.register_action_for_series(
-        "NumberAction", "disk_ocupation", "", test, parameter_type=ActionDataTypes.NUMBER
-    )
-    result4 = client.register_action_for_series(
-        "ArrayAction", "memory_usage", "", test, parameter_type=ActionDataTypes.ARRAY
-    )
-    result5 = client.register_action_for_series(
-        "TextAction", "cpu_2_usage", "", test, parameter_type=ActionDataTypes.TEXT
-    )
-    return result and result2 and result3 and result4 and result5
-
-
-def start_action(client: ActionModule):
-    if test_action(client):
-        print("starting thread...")
-        client.start_action_listening()
+    with client.actions_api(device="<device>") as api:
+        api.register_action("Reboot", reboot, parameter_type=ActionDataTypes.BOOLEAN)
+        api.start_listening()
         time.sleep(10)
-        print("stoping thread...")
-        client.stop_action_listening()
+    # leaving the block stops the listener thread
 
 
-# user_login(insertionModule)
-sendObservation_test(insertionModule)
-sendObservations_test(insertionModule)
-search_test(insertionModule)
-# socket_test(realtimeModule)
-find_series(insertionModule)
-# register_action(actionModule)
-# start_action(actionModule)
+def sos(client: FlyThings) -> None:
+    api = client.sos_api()
+    api.save_text_metadata("owner", "<owner>", foi="<device>")
+    plant = infrastructure("<name>", "<type>", fois=["<device>"], text_metadata=[text_metadata("site", "<site>")])
+    print(api.save_infrastructure(plant))
+
+
+def main() -> None:
+    with FlyThings(Connection(SERVER, TOKEN)) as client:
+        # or: FlyThings.from_config_file("examples/Configuration.properties")
+        # or: FlyThings(Connection.login(SERVER, "<user>", "<password>"))
+        send_observations(client)
+        search(client)
+        # send_to_two_servers(client)
+        # realtime(client, series_id=0)
+        # actions(client)
+        # sos(client)
+
+
+if __name__ == "__main__":
+    main()

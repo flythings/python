@@ -334,6 +334,7 @@ version = "2.2.8"
 source = { editable = "." }
 dependencies = [
     { name = "requests" },
+    { name = "typing-extensions" },
 ]
 
 [package.dev-dependencies]
@@ -344,7 +345,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "requests", specifier = ">=2.32.3" }]
+requires-dist = [
+    { name = "requests", specifier = ">=2.32.3" },
+    { name = "typing-extensions", specifier = ">=4.0" },
+]
 
 [package.metadata.requires-dev]
 dev = [

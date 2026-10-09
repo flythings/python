@@ -1,5 +1,27 @@
 ## Change log
 
+### Unreleased (3.0.0)
+
+Breaking: new client API. See [Migrating to 3.0](docs/Migration.md).
+
+* `FlyThings` client with one HTTP session, handing out `insertion_api()`, `query_api()`, `realtime_api()`, `actions_api()`, `sos_api()` and `util_api()`; usable as a context manager.
+* Immutable `Connection` (server plus credentials), `Series` and `Observation` values. `Connection` stores its tokens as `Secret`, which hides them from `repr`, `str` and logs. Each client works against one connection; create one client per server or user.
+* `query_api().search_observations` / `search_predictions` search several series in one call and return rows tagged with their device, sensor and property.
+* Search results are `TypedDict`s: `search_by_id` returns `Point` dicts, `{"value", "time"}` as 2.x `search` did (same key order), and the multi-series searches return flat `Row` dicts that add `"foi"`, `"procedure"` and `"observable_property"`, so results load directly into a pandas `DataFrame`.
+* Predictions are sent through `insertion_api()` and searched through `query_api()`; the prediction module is gone.
+* `get_observation` and the `get_image_*_observation` builders are replaced by `Observation(...)` and `Observation.from_file(...)`.
+* JSON documents are typed with `TypedDict`s exported from the package.
+* Requires Python 3.10 or newer; 2.x declared no minimum version.
+* New dependency: `typing-extensions`.
+* Errors raise (`ApiError`, `AuthenticationError`, `NetworkError`, `SocketError`, `RateLimitError`) instead of printing and returning status codes; logging goes to the `flythings` logger.
+* Real-time batching is a per-instance `WriteOptions`, with `flush()` and `close()`; values still queued at exit are sent.
+* Fix: real-time sending and action listening failed with `AttributeError` after the class refactor.
+* Fix: UDP sockets connected to the URL scheme instead of the host.
+* Fix: `save_infrastructure*` failed when given an ID.
+* Fix: importing the package no longer creates `.foiCache` in the working directory. `register_device` still records devices there, in the same format, creating the file on the first registration; `foi_cache` selects another file.
+* Fix: every request now has a timeout.
+* Configuration files accept URLs with a scheme.
+
 ### 2.2.8
 * Include allow to force observation type on get observation.
 

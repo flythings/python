@@ -1,5 +1,7 @@
 # [FlyThings Client](http://flythings.io)
 
+Python client for the FlyThings IoT platform: send and search observations and predictions, stream real-time values, react to device actions and manage device metadata.
+
 ## Getting Started
 
 The client requires [Python](https://www.python.org/) 3.10 or newer. Install it from PyPI with [uv](https://docs.astral.sh/uv/) or pip:
@@ -10,125 +12,71 @@ uv add flythings
 pip install flythings
 ```
 
-A runnable walkthrough of every module lives in [examples/flythings_example.py](examples/flythings_example.py).
+```python
+import time
+
+from flythings import Connection, FlyThings, Observation, Series
+
+with FlyThings(Connection("https://api.flythings.io/api", token="<bearer token>")) as client:
+    temperature = Series("<device>", "<sensor>", "temperature")
+    client.insertion_api().send_observation(Observation(temperature, 21.5, int(time.time() * 1000), uom="C"))
+
+    for row in client.query_api().search_observations([temperature]):  # last week
+        print(row["time"], row["value"])
+```
+
+A runnable walkthrough lives in [examples/flythings_example.py](examples/flythings_example.py). Coming from 2.x? See [Migrating to 3.0](docs/Migration.md).
+
+## Several servers at once
+
+A `Connection` is a server URL plus credentials, and a `FlyThings` client works against one connection. To use several servers or users, create one client per connection. Each client has its own HTTP session, so cookies a server sets for one user never reach another.
+
+```python
+from flythings import Connection, FlyThings, Series
+
+main = FlyThings(Connection("https://api.flythings.io/api", token="<bearer token>"))
+other = FlyThings(Connection("https://<other server>/api", token="<other bearer token>"))
+
+with main, other:
+    rows = main.query_api().search_observations([Series("dev1", "sensor", "temperature")])
+    other_rows = other.query_api().search_observations([Series("dev2", "sensor", "power")])
+```
+
+Pass your own `requests.Session` with `session=` only for HTTP settings such as retries, proxies or custom headers, and do not share it between clients with different credentials: a session keeps the cookies servers set, so one user's cookies would be sent with another user's requests. A client never closes a session it was given.
+
+## Configuration file
+
+`FlyThings.from_config_file("Configuration.properties")` reads `key:value` lines (keys are case-insensitive):
+
+| Key | Description |
+| --- | --- |
+| `server` | Server URL. Required. |
+| `authorization` | Bearer token, as `Connection(url, token=...)`. |
+| `token` | Session token (`x-auth-token`), as `Connection(url, session_token=...)`; used when there is no `authorization`. |
+| `user`, `password` | Log in with these instead of a token. Storing a password in a file is not recommended. |
+| `login_type` | `USER` (default) or `DEVICE`. |
+| `device`, `sensor` | Defaults for `client.series(...)`, the actions API and device metadata. |
+| `timeout` | Request timeout in seconds. Default `1000`. |
+
+```properties
+SERVER:https://api.flythings.io/api
+AUTHORIZATION:<put your token here>
+DEVICE:Python
+SENSOR:Client
+TIMEOUT:30
+```
 
 ## Documentation
 
-### Configuration File
-
-The general properties configuration in Configuration.properties:
-
-* user: (Optional) user email or identifier to login on the system.
-* password: (Optional) the user password to login, is not recommended use this configuration.
-* server: (Optional, Default beta.flythings.io/api) configure the server url to insert the data.
-* token: (Optional) the user token to send data into flythings plataform.
-* device: (Optional) the device which sends data.
-* sensor: (Optional) the sensor wich sends data.
-* login_type: (Optional) type of login to use.
-* timeout: (Optional) request timeout in seconds.
-* authorization: (Optional) authorization token.
-* Example of configuration file
-
-```JSON
-    SERVER:beta.flythings.io/api
-    USER:<put your username here>
-    PASSWORD:<put your password here>
-    DEVICE:Python
-    SENSOR:Client
-    LOGIN_TYPE:USER or DEVICE
-    TIMEOUT: 1000
-    AUTHORIZATION: <put your token here>
-```
-
-To load the data from the file call this function:
-
-- **load_data_by_file**(String file)\
-  **Description**: Loads data from the file.\
-  **Return**: Nothing.
-
-**Examples**:
-
-* Loads config data from a file.
-  ```PYTHON
-  import flythings as fly
-
-  fly.loadDataByFile("/home/xxxx/configuration.properties")
-  ```
-
-You can also introduce this general properties using the library methods.
-
-### General Module Configuration Methods
-
-- **set_server**(String server)\
-  **Description**: Sets the server to which the requests will be sent.\
-  **Return**: Returns a string representing the server.
-
-- **set_device**(String device, (Optional) object=None, always_update=False)\
-  **Params**:
-    - device: (Mandatory) Device name.
-    - object: (Optional) Object with extra device params.
-    - always_update: (Optional) Indicates if must send a request to create/update the device.
-      ```PYTHON
-        object = {
-          "type": "CUSTOM",
-          "geom": {
-          "type": "Point",
-          "crs": "4326",
-          "coordinates": [
-          -19.323204, 27.611808
-          ]
-        } }
-      ```
-  **Description**: Sets the device of the observation. Uses a file named .foiCache to get a fast access to most used devices.\
-  **Return**: Returns a string representing the device.
-
-- **set_sensor**(String sensor)\
-  **Description**: Sets the sensor of the observation.\
-  **Return**: Returns a string representing the sensor.
-
-- **set_token**(String token)\
-  **Description**: Sets the x-auth-token to authenticate into the server.\
-  **Return**: Returns a string representing the token.
-
-- **set_worskapce**(Long workspace)\
-  **Description**: Sets user workspace\
-  **Return**: Returns the user workspace
-
-- **set_custom_header**(String header, String header_value)\
-  **Description**: Sets a custom header for server requests.\
-  **Return**: Returns a string representing the header.
-
-- **get_headers**(String header, String header_value)\
-  **Description**: Return current headers.\
-  **Return**:  Return current headers.
-
-- **set_timeout**(int timeout)\
-  **Description**: Sets the timeout value in seconds to the server requests.\
-  **Return**: Returns an integer representing the timeout.
-
-- **login**(String user, String password, String login_type ['USER' or 'DEVICE'])\
-  **Description**: Authenticate against the server.\
-  **Return**: Returns a string representing the token or None if login fails.
-
-- **logout**()\
-  **Description**: Logout against the server.\
-  **Return**: Returns None.
-
-- **set_authorization_token**(token)\
-  **Description**: Sets bearer token on authorization hearer.\
-  **Return**: returns the authorization header value.
-
-### Modules documentation
-
-- [InsertionModule](docs/InsertionModule.md)
-- [RealTimeModule](docs/RealTimeModule.md)
-- [ActionModule](docs/ActionModule.md)
-- [PredictionModule](docs/PredictionModule.md)
-- [SosModule](docs/SosModule.md)
-- [UtilModule](docs/UtilModule.md)
-
-### Change log
-
+- [Client, connections and series](docs/Client.md): `FlyThings`, `Connection`, `Series`, `Observation`, errors and types
+- [InsertionApi](docs/InsertionApi.md): send observations and predictions, register devices
+- [QueryApi](docs/QueryApi.md): search observations and predictions, find series
+- [RealTimeApi](docs/RealTimeApi.md): real-time values over sockets, with optional batching
+- [ActionsApi](docs/ActionsApi.md): device actions and their callbacks
+- [SosApi](docs/SosApi.md): device metadata and infrastructures
+- [UtilApi](docs/UtilApi.md): generic requests and alerts
+- [Migrating to 3.0](docs/Migration.md)
+- [3.0 verification status](docs/Verification.md): what has been checked against a live server before release
 - [Change log](CHANGELOG.md)
 
 ## Development
@@ -146,7 +94,7 @@ pre-commit install           # installs the pre-commit, commit-msg and pre-push 
 | `src/flythings/` | The library package                                                          |
 | `tests/`         | Offline unit tests (`*_test.py`), run with pytest                            |
 | `examples/`      | Example script against a live server and a sample `Configuration.properties` |
-| `docs/`          | Per-module API reference                                                     |
+| `docs/`          | API reference, one page per feature API                                      |
 
 Day-to-day commands:
 
@@ -154,6 +102,7 @@ Day-to-day commands:
 uv run pytest           # tests with coverage
 uv run ruff check       # lint
 uv run ruff format      # format
+pyrefly check           # type check (uv tool install pyrefly)
 uv build                # sdist and wheel into dist/
 ```
 

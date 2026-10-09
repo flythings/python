@@ -1,4 +1,5 @@
-#!/usr/bin/python
+from urllib.parse import quote
+
 HTTP_ = "http://"
 HTTPS_ = "https://"
 
@@ -12,6 +13,7 @@ PUBLISH_PREDICTION_SINGLE_URL = "/prediction/single"
 PUBLISH_RECORD_URL = "/observation/record"
 PUBLISH_PLAIN_CSV_URL = "/observation/csv/nofile"
 FOI_URL = "/featureofinterest"
+DEVICE_TYPES_URL = "/featureofinterest/devicetypes"
 LOGIN_DEVICE_URL = "/login/device"
 LOGIN_USER_URL = "/login/"
 SOCKET_URL = "/socket"
@@ -22,4 +24,8 @@ DEVICE_METADATA_URL = "/featureofinterest/metadata"
 PUBLISH_INFRASTRUCTURE = "/featuretag"
 PUBLISH_INFRASTRUCTURE_METADATA = "/featuretag/withmetadata"
 PUBLISH_INFRASTRUCTURE_SIMPLE = "/featuretag/simple"
-FILE = "Configuration.properties"
+
+
+def segment(value: str) -> str:
+    """`value` escaped as a single URL path segment, so `/`, `#`, `?` and `%` in names stay part of it."""
+    return quote(value, safe="")
